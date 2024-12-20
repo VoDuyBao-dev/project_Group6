@@ -74,16 +74,27 @@ WSGI_APPLICATION = 'website_DatSanCauLong.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+
+from decouple import config
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'dscl',
-        'USER': 'root',
-        'PASSWORD': '190505',
-        'PORT': '3306',
-        'HOST': 'localhost',
+        'NAME': config('DB_NAME', default='dscl'),
+        'USER': config('DB_USER', default='root'),
+        'PASSWORD': config('DB_PASSWORD', default='190505'),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='3306'),
     }
 }
+
+print("DB_NAME:", config('DB_NAME', default=None))
+print("DB_USER:", config('DB_USER', default=None))
+print("DB_PASSWORD:", config('DB_PASSWORD', default=None))
+print("DB_HOST:", config('DB_HOST', default=None))
+print("DB_PORT:", config('DB_PORT', default=None))
+
 
 
 # Password validation
