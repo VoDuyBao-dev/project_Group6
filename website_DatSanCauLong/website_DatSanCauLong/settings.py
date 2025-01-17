@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'use',
+    'user',
     
 ]
 
@@ -93,30 +93,15 @@ from decouple import config
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-<<<<<<< HEAD
         'NAME': 'tmp',
         'USER': 'root',
         'PASSWORD': 'mysqlvilan',
         'HOST': '127.0.0.1',  # hoặc địa chỉ IP máy chủ MySQL
         'PORT': '3306',
-=======
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),
->>>>>>> 618da444572472c1f18651e516b541547013261a
+
     }
 }
 
-
-
-
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 618da444572472c1f18651e516b541547013261a
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 

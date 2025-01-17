@@ -14,6 +14,21 @@ class User(AbstractUser):
     user_type = models.CharField(max_length=20, choices=USER_TYPES, default='guest')
     phone_number = models.CharField(max_length=15, blank=True, null=True)
 
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='user_user_set',  # Add related_name to avoid clashes
+        blank=True,
+        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
+        verbose_name='groups',
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='user_user_set',  # Add related_name to avoid clashes
+        blank=True,
+        help_text='Specific permissions for this user.',
+        verbose_name='user permissions',
+    )
+
     @staticmethod
     def register_account(username, password, email, user_type='customer'):
         if user_type not in dict(User.USER_TYPES):
@@ -64,6 +79,43 @@ class Guest:
         user = User.register_account(username=username, password=password, email=email, user_type='customer')
         return Customer.objects.create(user=user)
 
+
+
+# Booking model
+class Booking(models.Model):
+    id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
+    BOOKING_TYPES = (
+        ('fixed', 'Fixed'),
+        ('daily', 'Daily'),
+        ('flexible', 'Flexible'),
+    )
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='bookings')
+    court = models.ForeignKey('Court', on_delete=models.CASCADE, related_name='bookings')
+    booking_type = models.CharField(max_length=20, choices=BOOKING_TYPES)
+    date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    total_hours = models.FloatField(null=True, blank=True)
+    payment_status = models.BooleanField(default=False)
+    is_canceled = models.BooleanField(default=False)
+
+    def calculate_cost(self):
+        if self.booking_type == 'fixed':
+            return self.total_hours * self.court.hourly_rate_fixed
+        elif self.booking_type == 'daily':
+            return self.total_hours * self.court.hourly_rate_daily
+        elif self.booking_type == 'flexible':
+            return self.total_hours * self.court.hourly_rate_flexible
+        return 0
+
+    def confirm_booking(self):
+        self.payment_status = True
+        self.save()
+
+    def cancel_booking(self):
+        if not self.is_canceled:
+            self.is_canceled = True
+            self.save()
 
 
 class Payment(models.Model):
@@ -129,6 +181,57 @@ class CourtBranch(models.Model):
             time_slots=time_slots
         )
 
+# Court model
+class Court(models.Model):
+    id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
+    branch = models.ForeignKey(CourtBranch, on_delete=models.CASCADE, related_name='courts')
+    name = models.CharField(max_length=255)
+    hourly_rate_fixed = models.DecimalField(max_digits=10, decimal_places=2)
+    hourly_rate_daily = models.DecimalField(max_digits=10, decimal_places=2)
+    hourly_rate_flexible = models.DecimalField(max_digits=10, decimal_places=2)
+    time_slots = models.JSONField(default=dict)  # Example with rates
+
+    def check_availability(self, time_slot):
+        return self.time_slots.get(time_slot, {}).get("status") == "available"
+
+# Example predefined time slots with pricing
+DEFAULT_TIME_SLOTS = {
+    "Monday": {
+        "05:00-17:00": {"fixed": 60, "daily": 70, "flexible": 60, "status": "available"},
+        "17:00-22:00": {"fixed": 100, "daily": 120, "flexible": 100, "status": "available"},
+        "22:00-24:00": {"fixed": 60, "daily": 60, "flexible": 60, "status": "available"},
+    },
+    "Tuesday": {
+        "05:00-17:00": {"fixed": 60, "daily": 70, "flexible": 60, "status": "available"},
+        "17:00-22:00": {"fixed": 100, "daily": 120, "flexible": 100, "status": "available"},
+        "22:00-24:00": {"fixed": 60, "daily": 60, "flexible": 60, "status": "available"},
+    },
+    "Wednesday": {
+        "05:00-17:00": {"fixed": 60, "daily": 70, "flexible": 60, "status": "available"},
+        "17:00-22:00": {"fixed": 100, "daily": 120, "flexible": 100, "status": "available"},
+        "22:00-24:00": {"fixed": 60, "daily": 60, "flexible": 60, "status": "available"},
+    },
+    "Thursday": {
+        "05:00-17:00": {"fixed": 60, "daily": 70, "flexible": 60, "status": "available"},
+        "17:00-22:00": {"fixed": 100, "daily": 120, "flexible": 100, "status": "available"},
+        "22:00-24:00": {"fixed": 60, "daily": 60, "flexible": 60, "status": "available"},
+    },
+    "Friday": {
+        "05:00-17:00": {"fixed": 60, "daily": 70, "flexible": 60, "status": "available"},
+        "17:00-22:00": {"fixed": 100, "daily": 120, "flexible": 100, "status": "available"},
+        "22:00-24:00": {"fixed": 60, "daily": 60, "flexible": 60, "status": "available"},
+    },
+    "Saturday": {
+        "05:00-17:00": {"fixed": 90, "daily": 100, "flexible": 90, "status": "available"},
+        "17:00-22:00": {"fixed": 100, "daily": 120, "flexible": 100, "status": "available"},
+        "22:00-24:00": {"fixed": 60, "daily": 60, "flexible": 60, "status": "available"},
+    },
+    "Sunday": {
+        "05:00-17:00": {"fixed": 100, "daily": 120, "flexible": 100, "status": "available"},
+        "17:00-22:00": {"fixed": 100, "daily": 120, "flexible": 100, "status": "available"},
+        "22:00-24:00": {"fixed": 100, "daily": 120, "flexible": 100, "status": "available"},
+    },
+}
 
 # Court Staff model
 class CourtStaff(models.Model):
@@ -186,3 +289,42 @@ class SystemAdmin(models.Model):
         report.generate_report()
         return report
 
+
+# class RevenueReport(models.Model):
+#     id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
+#     branch = models.ForeignKey(CourtBranch, on_delete=models.CASCADE, related_name='revenue_reports', null=True, blank=True)
+#     court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='revenue_reports', null=True, blank=True)
+#     start_date = models.DateField()
+#     end_date = models.DateField()
+#     total_revenue = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+
+#     def generate_report(self):
+#         bookings = Booking.objects.filter(
+#             court__branch=self.branch if self.branch else None,
+#             court=self.court if self.court else None,
+#             date__range=[self.start_date, self.end_date],
+#             payment_status=True
+#         )
+#         self.total_revenue = sum(booking.calculate_cost() for booking in bookings)
+#         self.save()
+
+
+# Revenue Report model
+class RevenueReport(models.Model):
+    id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
+    branch = models.ForeignKey(CourtBranch, on_delete=models.CASCADE, related_name='revenue_reports', null=True, blank=True)
+    generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    total_revenue = models.DecimalField(max_digits=15, decimal_places=2)
+    generated_at = models.DateTimeField(auto_now_add=True)
+
+    @staticmethod
+    def generate_branch_report(branch, user):
+        total_revenue = sum(
+            payment.amount for payment in Payment.objects.filter(booking__court__branch=branch)
+        )
+        return RevenueReport.objects.create(branch=branch, generated_by=user, total_revenue=total_revenue)
+
+    @staticmethod
+    def generate_system_report(user):
+        total_revenue = sum(payment.amount for payment in Payment.objects.all())
+        return RevenueReport.objects.create(branch=None, generated_by=user, total_revenue=total_revenue)
