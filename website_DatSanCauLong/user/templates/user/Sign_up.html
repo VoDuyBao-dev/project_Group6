@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Page</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url(../images/badminton_shuttle_sport_bat-9891.png) ;
+            backdrop-filter: blur(3px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background: #fff;
+            max-width: 500px;
+            height: auto;
+            margin: auto;
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .container h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #4caf50;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            border-color: #4caf50;
+            outline: none;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+        }
+
+        .form-group button {
+            width: 100%;
+            padding: 0.8rem;
+            font-size: 1rem;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .form-group button:hover {
+            background-color: #45a049;
+        }
+
+        .form-group p {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .form-group p a {
+            color: #4caf50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .form-group p a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Đăng kí</h1>
+        <form action="./Home.htm" method="post">
+            <div class="form-group">
+                <label for="username">Tên đăng nhập</label>
+                <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email hoặc SĐT</label>
+                <input type="email" id="email" name="email" placeholder="Nhập Email hoặc số điện thoại" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Nhập mật khẩu</label>
+                <input type="password" id="password" name="password" placeholder="Mật khẩu" required>
+            </div>
+
+            <div class="form-group">
+                <button type="submit">Đăng kí</button>
+            </div>
+
+            <div class="form-group">
+                <p>Bạn đã có tài khoản? <a href="./Sign_in.htm">Đăng nhập tại đây</a>.</p>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

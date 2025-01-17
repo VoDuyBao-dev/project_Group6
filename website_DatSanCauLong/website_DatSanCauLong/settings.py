@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-u3w%bqis&i($$po7p&*d#w#+vzk4_)@qv5s=6t3f1ua$0dx34g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app1',
+    'use',
+    
 ]
 
 MIDDLEWARE = [
@@ -78,18 +79,27 @@ WSGI_APPLICATION = 'website_DatSanCauLong.wsgi.application'
 from decouple import config
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': config('DB_NAME'),
+#         'USER': config('DB_USER'),
+#         'PASSWORD': config('DB_PASSWORD'),
+#         'HOST': config('DB_HOST'),
+#         'PORT': config('DB_PORT'),
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),
+        'NAME': 'tmp',
+        'USER': 'root',
+        'PASSWORD': 'mysqlvilan',
+        'HOST': '127.0.0.1',  # hoặc địa chỉ IP máy chủ MySQL
+        'PORT': '3306',
     }
-   
 }
-
 
 
 
