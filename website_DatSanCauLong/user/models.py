@@ -51,6 +51,9 @@ class Customer(models.Model):
     id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
 
+    def __str__(self):
+    return self.user.username
+
     def book_court(self, court, booking_type, date, start_time, end_time, total_hours=None):
         booking = Booking.objects.create(
             customer=self, court=court, booking_type=booking_type, date=date,
@@ -99,6 +102,9 @@ class Booking(models.Model):
     payment_status = models.BooleanField(default=False)
     is_canceled = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"Booking for {self.customer} on {self.date} at {self.time}"
+
     def calculate_cost(self):
         if self.booking_type == 'fixed':
             return self.total_hours * self.court.hourly_rate_fixed
@@ -145,6 +151,9 @@ class CourtManager(models.Model):
     id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_manager')
 
+    def __str__(self):
+        return self.user.username
+
     def register_court(self, branch, name, hourly_rate_fixed, hourly_rate_daily, hourly_rate_flexible, time_slots):
         return Court.objects.create(
             branch=branch, name=name, hourly_rate_fixed=hourly_rate_fixed,
@@ -173,6 +182,9 @@ class CourtBranch(models.Model):
     manager = models.ForeignKey(CourtManager, on_delete=models.CASCADE, related_name='branches')
     name = models.CharField(max_length=255)
     address = models.TextField()
+
+    def __str__(self):
+        return self.name
 
     def add_court(self, name, hourly_rate_fixed, hourly_rate_daily, hourly_rate_flexible, time_slots):
         return Court.objects.create(
@@ -239,6 +251,9 @@ class CourtStaff(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_staff')
     branch = models.ForeignKey(CourtBranch, on_delete=models.CASCADE, related_name='staff')
 
+    def __str__(self):
+        return self.user.username
+
     def check_in_customer(self, customer, court):
         return CheckIn.objects.create(customer=customer, court=court)
 
@@ -255,6 +270,9 @@ class CheckIn(models.Model):
     court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='check_ins')
     check_in_time = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Check-in for {self.booking}"
+
     def record_check_in(self):
         self.save()
 
@@ -262,6 +280,9 @@ class CheckIn(models.Model):
 class SystemAdmin(models.Model):
     id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='system_admin')
+
+    def __str__(self):
+    return self.user.username
 
     def manage_users(self):
         return User.objects.all()
