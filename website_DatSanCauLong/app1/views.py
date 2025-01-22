@@ -13,6 +13,7 @@ from .utils import send_otp_email, generate_otp
 from django.utils import timezone
 from datetime import timedelta
 from django.http import JsonResponse
+import random
 
 # Create your views here.
 
@@ -26,11 +27,7 @@ def handle_send_otp(request, form_input):
         request.session['username'] = username  # Lưu username
         request.session['otp_created_at'] = timezone.now().isoformat()  # Lưu thời gian tạo OTP
         send_otp_email(username, otp)
-        messages.info(request, "Mã OTP đã được gửi đến email của bạn.")
-   
-
-# Đang làm gửi lại mã otp
-
+        
 
 def Forgot_password(request):
     return render(request, 'app1/Forgot_password.html')
@@ -134,20 +131,22 @@ def validate_otp_and_register(request):
 # hàm gửi lại mã OTP:
 def resend_otp(request):
     if request.method == "POST":
+        # Lấy thông tin từ session
+        username = request.session.get('username')
+        if not username:
+            return JsonResponse({'success': False, 'message': 'Không tìm thấy thông tin người dùng. Vui lòng thử lại.'})
+
         # Tạo mã OTP mới
-        otp = str(random.randint(1000, 9999))
-        otp_created_at = timezone.now()
+        otp = generate_otp()
+        request.session['otp'] = otp  # Cập nhật OTP mới vào session
+        request.session['otp_created_at'] = timezone.now().isoformat()  # Cập nhật thời gian tạo OTP
 
-        # Lưu mã OTP và thời gian tạo vào session
-        request.session['otp'] = otp
-        request.session['otp_created_at'] = otp_created_at.isoformat()
+        # Gửi email
+        send_otp_email(username, otp)
 
-        # Gửi mã OTP tới người dùng (qua email, SMS, hoặc phương thức khác)
-        # handle_send_otp(request)  # Gọi hàm gửi OTP thực tế của bạn
+        return JsonResponse({'success': True, 'message': 'Mã OTP đã được gửi lại thành công.'})
 
-        return JsonResponse({"success": True, "message": "Mã OTP đã được gửi lại!"})
-
-    return JsonResponse({"success": False, "message": "Yêu cầu không hợp lệ."})
+    return JsonResponse({'success': False, 'message': 'Yêu cầu không hợp lệ.'})
 
 
 

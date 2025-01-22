@@ -52,6 +52,11 @@ otpInputs.forEach((input, index) => {
     });
 });
 
+// Khởi động bộ đếm thời gian khi trang tải
+document.addEventListener('DOMContentLoaded', () => {
+    startTimer(60);
+});
+
 // Gửi lại mã OTP và khởi động lại bộ đếm
 document.getElementById('resend-otp').addEventListener('click', (event) => {
     event.preventDefault(); // Ngăn chặn hành động mặc định (nếu có)
@@ -98,28 +103,27 @@ document.getElementById("submit-otp").addEventListener("click", () => {
 });
 
 //  Hàm gửi lại mã OTP khi người dùng yêu cầu:
-document.getElementById("resend-ot").addEventListener("click", function() {
-    fetch("{% url 'resend_otp' %}", {
+document.getElementById("resend-otp").addEventListener("click", function () {
+    fetch("/resend_otp/", {  // URL khớp với URLs.py
         method: "POST",
         headers: {
-            "X-CSRFToken": "{{ csrf_token }}",
+            "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
             "Content-Type": "application/json",
         },
         body: JSON.stringify({ "action": "resend" })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert("Mã OTP đã được gửi lại!");
-            document.getElementById("time-left").textContent = "60";  // Reset thời gian đếm ngược
-            startTimer();  // Restart timer nếu có
-        } else {
-            alert("Có lỗi xảy ra. Vui lòng thử lại.");
-        }
-    });
-});
-
-// Khởi động bộ đếm thời gian khi trang tải
-document.addEventListener('DOMContentLoaded', () => {
-    startTimer(60);
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Mã OTP đã được gửi lại!");
+                document.getElementById("time-left").textContent = "60";  // Reset thời gian đếm ngược
+                startTimer(60);  // Restart timer
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Lỗi khi gửi lại mã OTP:", error);
+            alert("Đã xảy ra lỗi. Vui lòng thử lại.");
+        });
 });
