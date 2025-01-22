@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models 
 from django.contrib.auth.models import AbstractUser
 import uuid
 
@@ -14,17 +14,13 @@ class User(AbstractUser):
 
     groups = models.ManyToManyField(
         'auth.Group',
-        related_name='user_user_set',  # Add related_name to avoid clashes
+        related_name='user_groups',  # Adjusted related_name
         blank=True,
-        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
-        verbose_name='groups',
     )
     user_permissions = models.ManyToManyField(
         'auth.Permission',
-        related_name='user_user_set',  # Add related_name to avoid clashes
+        related_name='user_permissions_set',  # Adjusted related_name
         blank=True,
-        help_text='Specific permissions for this user.',
-        verbose_name='user permissions',
     )
 
 class Customer(models.Model):
@@ -32,38 +28,18 @@ class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
 
     def __str__(self):
-    return self.user.username
-
-# Guest model functionality
-# class Guest:
-#     @staticmethod
-#     def search_courts(criteria):
-#         return Court.objects.filter(**criteria)
-
-#     @staticmethod
-#     def register_account(username, password, email):
-#         user = User.register_account(username=username, password=password, email=email, user_type='customer')
-#         return Customer.objects.create(user=user)
+        return self.user.username
 
 class SystemAdmin(models.Model):
     systemAdmin_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='system_admin')
 
     def __str__(self):
-    return self.user.username
-
-
-class CourtStaff(models.Model):
-    courtstaff_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_staff')
-    court_id = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='staff')
-
-    def __str__(self):
         return self.user.username
 
 class BadmintonHall(models.Model):
     badminton_hall_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
-    systemAdmin_id = models.ForeignKey(SystemAdmin, on_delete=models.CASCADE, related_name='branches')
+    systemAdmin = models.ForeignKey(SystemAdmin, on_delete=models.CASCADE, related_name='branches')
     name = models.CharField(max_length=255)
     address = models.TextField()
 
@@ -72,17 +48,16 @@ class BadmintonHall(models.Model):
 
 class Court(models.Model):
     court_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
-    badminton_hall_id = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, related_name='courts')
+    badminton_hall = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, related_name='courts')
     name = models.CharField(max_length=255)
     hourly_rate_fixed = models.DecimalField(max_digits=10, decimal_places=2)
     hourly_rate_daily = models.DecimalField(max_digits=10, decimal_places=2)
     hourly_rate_flexible = models.DecimalField(max_digits=10, decimal_places=2)
-    time_slots = models.JSONField(default=dict)  # Example with rates
+    time_slots = models.JSONField(default=DEFAULT_TIME_SLOTS)  # Consider default=DEFAULT_TIME_SLOTS if required
 
     def check_availability(self, time_slot):
         return self.time_slots.get(time_slot, {}).get("status") == "available"
 
-# Example predefined time slots with pricing
 DEFAULT_TIME_SLOTS = {
     "Monday": {
         "05:00-17:00": {"fixed": 60, "daily": 70, "flexible": 60, "status": "available"},
@@ -121,7 +96,20 @@ DEFAULT_TIME_SLOTS = {
     },
 }
 
-# Booking model
+class CourtStaff(models.Model):
+    courtstaff_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_staff')
+    court = models.ForeignKey(Court, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.username
+
+class Slot(models.Model):
+    slot_id = models.CharField(max_length=36, primary_key=True, default=uuid.uuid4, editable=False)
+    time_frame = models.CharField(max_length=100)
+    price_per_frame = models.FloatField()
+    court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='slots')
+
 class Booking(models.Model):
     booking_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
     BOOKING_TYPES = (
@@ -129,25 +117,16 @@ class Booking(models.Model):
         ('daily', 'Daily'),
         ('flexible', 'Flexible'),
     )
-    customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='bookings')
-    court_id = models.ForeignKey('Court', on_delete=models.CASCADE, related_name='bookings')
-    slot = models.ForeignKey(Slot, on_delete=models.CASCADE) 
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='bookings')
+    court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='bookings')
+    slot = models.ForeignKey(Slot, on_delete=models.CASCADE)
     booking_type = models.CharField(max_length=20, choices=BOOKING_TYPES)
     date = models.DateField()
-    start_time = models.TimeField()
-    end_time = models.TimeField()
-    total_hours = models.FloatField(null=True, blank=True)
     payment_status = models.BooleanField(default=False)
     is_canceled = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"Booking for {self.customer_id} on {self.date} at {self.start_time}"
-
-class Slot(models.Model):
-    slot_id = models.CharField(max_length=100, primary_key=True)  
-    time_frame = models.CharField(max_length=100) 
-    price_per_frame = models.FloatField()  
-    court = models.ForeignKey(Court, on_delete=models.CASCADE)  
+        return f"Booking for {self.customer.user.username} on {self.date}"
 
 class Payment(models.Model):
     id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
@@ -156,16 +135,14 @@ class Payment(models.Model):
     payment_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=(('pending', 'Pending'), ('completed', 'Completed'), ('failed', 'Failed')))
 
-
-# Revenue Report model
 class Revenue(models.Model):
-    revenue_id = models.CharField(max_length=100, primary_key=True)  
-    court = models.ForeignKey(Court, on_delete=models.CASCADE) 
-    total_revenue = models.FloatField()  
-    month = models.FloatField()  
-    quarter = models.FloatField()  
-    year = models.FloatField()  
+    revenue_id = models.CharField(max_length=36, primary_key=True, default=uuid.uuid4, editable=False)
+    court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='revenues')
+    total_revenue = models.FloatField()
+    month = models.IntegerField()
+    quarter = models.IntegerField()
+    year = models.IntegerField()
     generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def update_revenue(self):
-        return self.name
+        return self.total_revenue
