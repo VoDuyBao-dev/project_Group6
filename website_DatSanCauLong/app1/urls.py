@@ -11,7 +11,8 @@ urlpatterns = [
     path('newpassword/', views.New_password, name= 'New_password'),
     path('trangchu/', views.TrangChu, name= 'TrangChu'),
     path('trangOTP/', views.trangOTP, name= 'trangOTP'),
-     path('validate_otp_and_register/', views.validate_otp_and_register, name='validate_otp_and_register'),
+    path('validate_otp_and_register/', views.validate_otp_and_register, name='validate_otp_and_register'),
+    path('resend_otp/', views.resend_otp, name='resend_otp'),
 
 
 ]

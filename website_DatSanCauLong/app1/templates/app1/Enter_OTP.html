@@ -11,36 +11,28 @@
 </head>
 
 <body>
-    {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
     <div class="otp-modal" id="otp-modal">
         <div class="otp-modal-content">
             <h2 class="otp-modal-title">Nhập mã OTP</h2>
             <form method="post">
                 {% csrf_token %}
-                <!-- Form nhập OTP như trước -->
-            </form  method="post">
-            <p id="timer">
-                Thời gian còn lại: <span id="time-left">60</span> giây
-            </p>
-            <div class="otp-inputs">
-                <input type="text" maxlength="1" class="otp-input" />
-                <input type="text" maxlength="1" class="otp-input" />
-                <input type="text" maxlength="1" class="otp-input" />
-                <input type="text" maxlength="1" class="otp-input" />
-        
-            </div>
-            <button class="Signup-btn" type="button" id="submit-otp">
-                Hoàn tất
-            </button>
-            <button class="Signup-btn" type="button" id="resend-otp">
-                Gửi lại mã OTP
-            </button>
+                <p id="timer">
+                    Thời gian còn lại: <span id="time-left">60</span> giây
+                </p>
+                <div class="otp-inputs">
+                    <input type="text" maxlength="1" class="otp-input" />
+                    <input type="text" maxlength="1" class="otp-input" />
+                    <input type="text" maxlength="1" class="otp-input" />
+                    <input type="text" maxlength="1" class="otp-input" />
+            
+                </div>
+                <button class="Signup-btn" type="button" id="submit-otp">
+                    Hoàn tất
+                </button>
+                <button class="Signup-btn" type="button" id="resend-otp">
+                    Gửi lại mã OTP
+                </button>
+            </form>
         </div>
     </div>
     <script src="{% static 'app1/js/Script-OTP.js' %}"></script>
