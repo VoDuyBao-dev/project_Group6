@@ -1,5 +1,4 @@
 import random
-from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 # Email
@@ -12,7 +11,7 @@ def send_otp_email(username, otp):
         'otp': otp,
         'system_name': 'Sân Cầu Lông Siêu Cấp Vip Pro'  # Thay bằng tên hệ thống của bạn
     }
-    html_content = render_to_string('QuanLiUser/email_dangky.html', context)
+    html_content = render_to_string('app1/Email_Sign_up.html', context)
     # Tạo email
     email = EmailMessage(
         subject='Xác nhận đăng kí tài khoản',  # Tiêu đề email

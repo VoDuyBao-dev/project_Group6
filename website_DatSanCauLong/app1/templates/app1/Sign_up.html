@@ -14,19 +14,15 @@
 
   <body>
     <div class="Signup-form">
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-                <li class="{{ message.tags }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
+       
       <h1 class="Signup-title">Đăng kí</h1>
       <form id="input-box" action="{% url 'Sign_up' %}" method="post">
         {% csrf_token %}
+        
         <div class="input-box">
           <i class="bx bxs-user"></i>
           <label for="email">Tên đăng nhập</label>
+          
           {{ SignUp.username }} 
           {% if SignUp.username.errors %}
           <ul class="error-list">
@@ -40,16 +36,18 @@
           <i class="bx bxs-user"></i>
           <label for="fullname">Họ và Tên</label>
           {{ SignUp.full_name }} 
+          
         </div>
 
         <div class="input-box">
           <i class="bx bxs-lock-alt"></i>
           <label for="password">Nhập mật khẩu</label>
+          
           {{ SignUp.password }} 
           
           <span
             class="toggle-password"
-            onclick="togglePasswordVisibility('password', 'password-icon')"
+            onclick="togglePasswordVisibility('id_password')"
           >
             <i class="fas fa-eye" id="password-icon"></i>
           </span>
@@ -58,6 +56,7 @@
         <div class="input-box">
           <i class="bx bxs-lock-alt"></i>
           <label for="confirm-password">Nhập lại mật khẩu</label>
+          
           {{ SignUp.confirm_password }} 
           {% if SignUp.confirm_password.errors %}
           <ul class="error-list">
@@ -68,7 +67,7 @@
           {% endif %}
           <span
             class="toggle-password"
-            onclick="togglePasswordVisibility('confirm-password', 'confirm-password-icon')"
+            onclick="togglePasswordVisibility('id_confirm_password')"
           >
             <i class="fas fa-eye" id="confirm-password-icon"></i>
           </span>
@@ -78,36 +77,14 @@
           Đăng kí
         </button>
 
-        <div class="otp-modal" id="otp-modal">
-          <div class="otp-modal-content">
-            <span class="close" id="close-otp-modal">&times;</span>
-            <h2 class="otp-modal-title">Nhập mã OTP</h2>
-            <p id="timer">
-              Thời gian còn lại: <span id="time-left">60</span> giây
-            </p>
-            <div class="otp-inputs">
-              <input type="text" maxlength="1" class="otp-input" />
-              <input type="text" maxlength="1" class="otp-input" />
-              <input type="text" maxlength="1" class="otp-input" />
-              <input type="text" maxlength="1" class="otp-input" />
-            </div>
-
-            <button class="Signup-btn" type="button" id="submit-otp">
-              Hoàn tất
-            </button>
-            <button class="Signup-btn" type="button" id="resend-otp">
-              Gửi lại mã OTP
-            </button>
-          </div>
-        </div>
       </form>
 
       <div class="register">
         <p>Bạn đã có tài khoản? <a href="#">Đăng nhập tại đây</a>.</p>
       </div>
     </div>
-
-    <script src="{% static 'app1/js/Script-Signup.js' %}"></script>
+    
+    
+    <script src="{% static 'app1/js/Script-icon.js' %}"></script>
   </body>
 </html>
-{% comment %} Đang sửa cái đăng kí bị không hiện lỗi và otp {% endcomment %}

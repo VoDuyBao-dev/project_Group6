@@ -64,13 +64,7 @@ class SignUpForm(forms.Form):
             'id': 'id_confirm_password'
         })
     )
-    # otp = forms.CharField(
-    #     max_length=6,
-    #     required=False,
-    #     widget=forms.TextInput(attrs={
-    #         'placeholder': 'Nhập mã OTP'
-    #     })
-    # )
+    
 
 
     def clean(self):
@@ -93,16 +87,13 @@ class SignUpForm(forms.Form):
         if  password != confirm_password:
             errors['confirm_password'] = "Mật khẩu không khớp."
             
-        
-
-        # username_otp_errors = validate_username_and_otp(cleaned_data, self.initial)
-        # errors.update(username_otp_errors)
-
         # Nếu có lỗi, thêm vào biểu mẫu
         for field, error in errors.items():
             self.add_error(field, error)
 
         return cleaned_data  # Trả về dữ liệu đã làm sạch
+    
+
 
 class SignInForm(forms.Form):
     username = forms.CharField(
@@ -128,6 +119,11 @@ class SignInForm(forms.Form):
 
         if not is_valid_email(username):
             errors['username'] = "Email không hợp lệ."
+
+        if errors:
+            print("Errors found:", errors)
+        else:
+            print("lỗi chưa được thêm")
 
         for field, error in errors.items():
             self.add_error(field, error)

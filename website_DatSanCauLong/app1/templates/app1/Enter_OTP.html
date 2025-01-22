@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng kí</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" href="{% static 'app1/css/Styles-Signup.css' %}" />
+    <style>
+        /* CSS đơn giản cho modal */
+        .otp-modal {
+            display: block; /* Hiển thị modal */
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .otp-modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <div class="otp-modal" id="otp-modal">
+        <div class="otp-modal-content">
+            <h2 class="otp-modal-title">Nhập mã OTP</h2>
+            <form method="post">
+                {% csrf_token %}
+                <!-- Form nhập OTP như trước -->
+            </form>
+            <p id="timer">
+                Thời gian còn lại: <span id="time-left">60</span> giây
+            </p>
+            <div class="otp-inputs">
+                <input type="text" maxlength="1" class="otp-input" />
+                <input type="text" maxlength="1" class="otp-input" />
+                <input type="text" maxlength="1" class="otp-input" />
+                <input type="text" maxlength="1" class="otp-input" />
+        
+            </div>
+            <button class="Signup-btn" type="button" id="submit-otp">
+                Hoàn tất
+            </button>
+            <button class="Signup-btn" type="button" id="resend-otp">
+                Gửi lại mã OTP
+            </button>
+        </div>
+    </div>
+    <script src="{% static 'app1/js/Script-OTP.js' %}"></script>
+</body>
+</html>

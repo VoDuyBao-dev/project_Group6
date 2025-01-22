@@ -8,17 +8,17 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from .forms import *
-# from .models import CourtBooking,CourtBadminton, User
 from django.db.models import Q
 from .utils import send_otp_email, generate_otp
 from django.utils import timezone
 from datetime import timedelta
+from django.http import JsonResponse
 
 # Create your views here.
 
 # HÀM KIỂM TRA MÃ OTP ĐỂ TÁI SỬ DỤNG:
-# GỬI OTP KHI NGƯỜI DÙNG YÊU CẦUCẦU
-def handle_send_otp(request, form_input, context):
+# GỬI OTP KHI NGƯỜI DÙNG YÊU CẦU
+def handle_send_otp(request, form_input):
     if form_input.is_valid():
         username = form_input.cleaned_data['username']
         otp = generate_otp()
@@ -29,25 +29,7 @@ def handle_send_otp(request, form_input, context):
         messages.info(request, "Mã OTP đã được gửi đến email của bạn.")
    
 
-# KIỂM TRA HIỆU LỰC CỦA MÃ OTP
-def validate_otp(request):
-    otp_created_at = request.session.get('otp_created_at')  # Thời gian tạo OTP từ session
-
-    if not request.session.get('otp'):
-        messages.error(request, "Bạn cần gửi mã OTP trước.")
-        return False  # Không hợp lệ
-    
-    # Kiểm tra thời gian hiệu lực của OTP
-    if otp_created_at:
-        otp_created_at = timezone.datetime.fromisoformat(otp_created_at)  # Chuyển đổi chuỗi sang datetime
-        if timezone.now() > otp_created_at + timedelta(minutes=1):  # Thời gian hiệu lực là 1 phút
-            messages.error(request, "Mã OTP đã hết hiệu lực, vui lòng gửi lại.")
-            request.session.pop('otp', None)  # Xóa OTP hết hạn
-            request.session.pop('otp_created_at', None)  # Xóa thời gian tạo OTP
-            return False  # Không hợp lệ
-    
-    return True  # Hợp lệ
-
+# Đang làm gửi lại mã otp
 
 
 def Forgot_password(request):
@@ -67,34 +49,107 @@ class Sign_Up(View):
         return render(request, 'app1/Sign_up.html', context)
     
     
-
     def post(self, request):
+        print('post')
         sign_up = SignUpForm(request.POST, initial={'otp': request.session.get('otp')})
         context = {'SignUp': sign_up}
-        
-        # Gửi OTP
-        if 'send_otp' in request.POST:
-            handle_send_otp(request, sign_up, context)
-            return render(request, 'app1/Sign_up.html', context)
         
         # trả về lỗi nếu nhập sai
         if not sign_up.is_valid():
             return render(request, 'app1/Sign_up.html', context)
 
-        # Kiểm tra hiệu lực OTP 
-        if not validate_otp(request):
-            return render(request, 'app1/Sign_up.html', context)
+        # Nếu form hợp lệ, lưu thông tin tạm thời vào session
+        username = sign_up.cleaned_data['username']
+        full_name = sign_up.cleaned_data['full_name']
+        password = sign_up.cleaned_data['password']
         
-        # user = User(
-        #     username=sign_up.cleaned_data['username'],
-        #     full_name=sign_up.cleaned_data['full_name'],
-        #     gender=sign_up.cleaned_data['gender'],
-        #     password=make_password(sign_up.cleaned_data['password'])  # Băm mật khẩu
-        # )
-        # user.save()
-        # request.session.pop('otp', None)  # Xóa OTP khỏi session
-        messages.success(request, "Đăng kí thành công!")
-        return redirect('login')
+        request.session['username'] = username
+        request.session['full_name'] = full_name
+        request.session['password'] = password
+
+        # Gửi OTP sau khi form hợp lệ
+        handle_send_otp(request, sign_up)
+
+        return redirect('trangOTP')
+    
+def trangOTP(request):
+    
+    return render(request, 'app1/Enter_OTP.html')
+
+#  hàm tạo User
+def create_user_account(username, full_name, password):
+    try:
+        # Tạo đối tượng User trong database
+        user = User.objects.create_user(username=username, first_name=full_name, password=password)
+        user.save()
+        return user
+    except Exception:
+        return None
+    
+# Hàm validate OTP và đăng kí user
+def validate_otp_and_register(request):
+    if request.method == "POST":
+        import json
+        data = json.loads(request.body)
+        otp_input = data.get("otp")
+
+        # Kiểm tra mã OTP trong session
+        otp_session = request.session.get("otp")
+        otp_created_at = request.session.get("otp_created_at")
+
+        if not otp_session or not otp_created_at:
+            return JsonResponse({"success": False, "message": "Mã OTP không tồn tại hoặc đã hết hạn."})
+
+        # Kiểm tra thời gian hết hạn của OTP
+        otp_created_at = timezone.datetime.fromisoformat(otp_created_at)
+        if timezone.now() > otp_created_at + timedelta(minutes=1):
+            return JsonResponse({"success": False, "message": "Mã OTP đã hết hiệu lực. Vui lòng thử lại."})
+
+        # So sánh mã OTP người dùng nhập
+        if otp_input == otp_session:
+            # Đăng ký tài khoản (chỉ thực hiện khi OTP đúng)
+            username = request.session.get("username")
+            full_name = request.session.get("full_name")
+            password = request.session.get("password")
+
+            if username and password:
+                # Gọi hàm tạo người dùng
+                user = create_user_account(username, full_name, password)
+                
+                if user:
+                    # Xóa thông tin OTP khỏi session
+                    request.session.pop("otp", None)
+                    request.session.pop("otp_created_at", None)
+                    request.session.pop("username", None)
+                    request.session.pop("full_name", None)
+                    request.session.pop("password", None)
+
+                return JsonResponse({"success": True, "message": "Đăng ký thành công!"})
+            return JsonResponse({"success": False, "message": "Lỗi trong quá trình đăng ký tài khoản."})
+        else:
+            return JsonResponse({"success": False, "message": "Mã OTP không chính xác."})
+
+    return JsonResponse({"success": False, "message": "Yêu cầu không hợp lệ."})
+
+# hàm gửi lại mã OTP:
+def resend_otp(request):
+    if request.method == "POST":
+        # Tạo mã OTP mới
+        otp = str(random.randint(1000, 9999))
+        otp_created_at = timezone.now()
+
+        # Lưu mã OTP và thời gian tạo vào session
+        request.session['otp'] = otp
+        request.session['otp_created_at'] = otp_created_at.isoformat()
+
+        # Gửi mã OTP tới người dùng (qua email, SMS, hoặc phương thức khác)
+        # handle_send_otp(request)  # Gọi hàm gửi OTP thực tế của bạn
+
+        return JsonResponse({"success": True, "message": "Mã OTP đã được gửi lại!"})
+
+    return JsonResponse({"success": False, "message": "Yêu cầu không hợp lệ."})
+
+
 
 
 class Sign_In(View):
