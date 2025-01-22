@@ -137,7 +137,7 @@ body {
 }
 
 .otp-modal {
-    display: none;
+    display: block;
     position: fixed;
     align-items: center;
     z-index: 1;
@@ -151,7 +151,7 @@ body {
 }
 
 .otp-modal-content {
-    background-color: rgb(134, 133, 133);
+    background-color: #ffffff;
     margin: 50% auto;
     margin-top: 35%;
     padding: 25px;

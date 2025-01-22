@@ -1,45 +1,60 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="vi">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Đăng nhập</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'app1/css/Styles-Signin.css' %}">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <link rel="stylesheet" href="{% static 'app1/css/Styles-Signin.css' %}" />
+  </head>
 
-</head>
-
-<body>
-    <form action="#" class="login-form">
+  <body>
+    <form class="login-form" action="{% url 'Sign_in' %}" method="post">
         {% csrf_token %}
-        <h1 class="login-title">Đăng nhập</h1>
-        <div class="input-box">
-            <i class="bx bxs-user"></i>
-            <input type="email" id="email" name="email" placeholder="Tên Đăng Nhập" />
-        </div>
-        <div class="input-box">
-            <i class="bx bxs-lock-alt"></i>
-            <input type="password" id="new-password" placeholder="Mật khẩu" />
-            <span class="toggle-password" onclick="togglePasswordVisibility('new-password')">
-                <i class="fas fa-eye" id="new-password-icon"></i>
-            </span>
-        </div>
-        <div class="remember-fogot-box">
-            <label for="remember">
-                <input type="checkbox" id="remember" />
-                Nhớ tài khoản
-            </label>
-            <a href="#">Quên mật khẩu?</a>
-        </div>
-        <button class="Login-btn">Đăng nhập</button>
-        <p class="register">
-            Chưa có tài khoản?
-            <a href="#">Đăng ký tại đây</a>
-        </p>
-        <script src="{% static 'app1/js/Script-icon.js'%}"></script>
+      <h1 class="login-title">Đăng nhập</h1>
+      <div class="input-box">
+        <i class="bx bxs-user"></i>
+        <!-- Hiển thị trường input -->
+        {{ SignIn.username }}
+        
+        {% if SignIn.username.errors %}
+        <ul class="error-list">
+          {% for error in SignIn.username.errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      <div class="input-box">
+        <i class="bx bxs-lock-alt"></i>
+        <!-- Hiển thị trường input -->
+        {{ SignIn.password }}
+        
+        <span
+          class="toggle-password"
+          onclick="togglePasswordVisibility('id_password')"
+        >
+          <i class="fas fa-eye" id="new-password-icon"></i>
+        </span>
+      </div>
+      <div class="remember-fogot-box">
+        <label for="remember">
+            <input type="checkbox" id="remember" name="remember_me" {% if remember_me %}checked{% endif %} />
+          Nhớ tài khoản
+        </label>
+        <a href="{% url 'Forgot_password' %}">Quên mật khẩu?</a>
+      </div>
+      <button class="Login-btn">Đăng nhập</button>
+      <p class="register">
+        Chưa có tài khoản?
+        <a href="{% url 'Sign_up'%}">Đăng ký tại đây</a>
+      </p>
+      <script src="{% static 'app1/js/Script-icon.js'%}"></script>
     </form>
-</body>
-
+  
+  </body>
 </html>
