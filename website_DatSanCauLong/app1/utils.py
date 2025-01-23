@@ -1,6 +1,7 @@
 import random
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
+from asgiref.sync import sync_to_async
 # Email
 def generate_otp():
     return str(random.randint(1000, 9999))
@@ -16,7 +17,6 @@ def send_otp_email(username, otp):
     email = EmailMessage(
         subject='Xác nhận đăng kí tài khoản',  # Tiêu đề email
         body=html_content,  # Nội dung email (HTML)
-        from_email='sancaulong@gmail.com',
         to=[username],  # Gửi đến email người dùng
     )
     email.content_subtype = 'html'  # Đặt email ở định dạng HTML

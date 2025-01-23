@@ -14,6 +14,7 @@
     <div class="otp-modal" id="otp-modal">
         <div class="otp-modal-content">
             <h2 class="otp-modal-title">Nhập mã OTP</h2>
+            <input type="hidden" id="action" value="{{ action }}">
             <form method="post">
                 {% csrf_token %}
                 <p id="timer">
@@ -26,7 +27,7 @@
                     <input type="text" maxlength="1" class="otp-input" />
             
                 </div>
-                <button class="Signup-btn" type="button" id="submit-otp">
+                <button class="Signup-btn" type="button" id="submit-otp" data-action="register">
                     Hoàn tất
                 </button>
                 <button class="Signup-btn" type="button" id="resend-otp">

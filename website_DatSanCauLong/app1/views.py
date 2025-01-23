@@ -13,9 +13,11 @@ from .utils import send_otp_email, generate_otp
 from django.utils import timezone
 from datetime import timedelta
 from django.http import JsonResponse
-import random
 
-# Create your views here.
+import json
+
+
+# Create your views here.   
 
 # HÀM KIỂM TRA MÃ OTP ĐỂ TÁI SỬ DỤNG:
 # GỬI OTP KHI NGƯỜI DÙNG YÊU CẦU
@@ -28,12 +30,6 @@ def handle_send_otp(request, form_input):
         request.session['otp_created_at'] = timezone.now().isoformat()  # Lưu thời gian tạo OTP
         send_otp_email(username, otp)
         
-
-def Forgot_password(request):
-    return render(request, 'app1/Forgot_password.html')
-
-def New_password(request):
-    return render(request, 'app1/New_password.html')
 
 def TrangChu(request):
     return render(request, 'app1/trangchu.html')
@@ -67,8 +63,11 @@ class Sign_Up(View):
         # Gửi OTP sau khi form hợp lệ
         handle_send_otp(request, sign_up)
 
-        return redirect('trangOTP')
+        context['action'] = 'SIGN_UP'  
+
+        return render(request, 'app1/Enter_OTP.html', context)
     
+# Trang nhập mã OTP   
 def trangOTP(request):
     
     return render(request, 'app1/Enter_OTP.html')
@@ -82,28 +81,35 @@ def create_user_account(username, full_name, password):
         return user
     except Exception:
         return None
-    
+
+def validate_otp(request):
+   
+    otp_session = request.session.get("otp")
+    otp_created_at = request.session.get("otp_created_at")
+
+    if not otp_session or not otp_created_at:
+        return {"valid": False, "message": "Mã OTP không tồn tại hoặc đã hết hạn."}
+
+    # Kiểm tra thời gian hết hạn của OTP
+    otp_created_at = timezone.datetime.fromisoformat(otp_created_at)
+    if timezone.now() > otp_created_at + timedelta(minutes=1):
+        return {"valid": False, "message": "Mã OTP đã hết hiệu lực. Vui lòng thử lại."}
+
+    return {"valid": True, "otp_session": otp_session}
+
 # Hàm validate OTP và đăng kí user
 def validate_otp_and_register(request):
     if request.method == "POST":
-        import json
         data = json.loads(request.body)
         otp_input = data.get("otp")
 
-        # Kiểm tra mã OTP trong session
-        otp_session = request.session.get("otp")
-        otp_created_at = request.session.get("otp_created_at")
-
-        if not otp_session or not otp_created_at:
-            return JsonResponse({"success": False, "message": "Mã OTP không tồn tại hoặc đã hết hạn."})
-
-        # Kiểm tra thời gian hết hạn của OTP
-        otp_created_at = timezone.datetime.fromisoformat(otp_created_at)
-        if timezone.now() > otp_created_at + timedelta(minutes=1):
-            return JsonResponse({"success": False, "message": "Mã OTP đã hết hiệu lực. Vui lòng thử lại."})
+        # Kiểm tra mã OTP bằng hàm validate_otp
+        otp_validation = validate_otp(request)
+        if not otp_validation["valid"]:
+            return JsonResponse({"success": False, "message": otp_validation["message"]})
 
         # So sánh mã OTP người dùng nhập
-        if otp_input == otp_session:
+        if otp_input == otp_validation["otp_session"]:
             # Đăng ký tài khoản (chỉ thực hiện khi OTP đúng)
             username = request.session.get("username")
             full_name = request.session.get("full_name")
@@ -112,7 +118,7 @@ def validate_otp_and_register(request):
             if username and password:
                 # Gọi hàm tạo người dùng
                 user = create_user_account(username, full_name, password)
-                
+
                 if user:
                     # Xóa thông tin OTP khỏi session
                     request.session.pop("otp", None)
@@ -127,6 +133,7 @@ def validate_otp_and_register(request):
             return JsonResponse({"success": False, "message": "Mã OTP không chính xác."})
 
     return JsonResponse({"success": False, "message": "Yêu cầu không hợp lệ."})
+
 
 # hàm gửi lại mã OTP:
 def resend_otp(request):
@@ -149,8 +156,6 @@ def resend_otp(request):
     return JsonResponse({'success': False, 'message': 'Yêu cầu không hợp lệ.'})
 
 
-
-
 class Sign_In(View):
     def get(self, request):
         # Kiểm tra xem cookie có lưu email không
@@ -166,13 +171,13 @@ class Sign_In(View):
         if not sign_in.is_valid():
             return render(request, 'app1/Sign_in.html', context)
 
-        email = sign_in.cleaned_data['username']
+        username = sign_in.cleaned_data['username']
         password = sign_in.cleaned_data['password']
         remember_me = request.POST.get('remember_me')  # Lấy giá trị checkbox "Nhớ tài khoản"
         
         # Xác thực người dùng
         try:
-            user = User.objects.get(email=email)
+            user = User.objects.get(username=username)
             user = authenticate(username=user.username, password=password)
         except User.DoesNotExist:
             user = None
@@ -181,9 +186,9 @@ class Sign_In(View):
             login(request, user)
             response = redirect('TrangChu')
             
-            # Lưu email vào cookie nếu chọn "Nhớ tài khoản"
+            # Lưu username vào cookie nếu chọn "Nhớ tài khoản"
             if remember_me:
-                response.set_cookie('remembered_email', email, max_age=7 * 24 * 60 * 60)  # Lưu trong 7 ngày
+                response.set_cookie('remembered_email', username, max_age=7 * 24 * 60 * 60)  # Lưu trong 7 ngày
             else:
                 response.delete_cookie('remembered_email')  # Xóa cookie nếu không chọn
             
@@ -191,6 +196,76 @@ class Sign_In(View):
         else:
             sign_in.add_error('username', "Email hoặc mật khẩu không đúng.")
             return render(request, 'app1/Sign_in.html', context)
+
+# Quên mật khẩu
+class ForgotPassword(View):
+    def get(self,request):
+        forgot_password=ForgotPasswordForm()
+        context = {'Forgot_Password_Form': forgot_password}
+        return render(request, 'app1/Forgot_password.html', context)
+    
+    def post(self, request):
+        forgot_password=ForgotPasswordForm(request.POST)
+        context = {'Forgot_Password_Form': forgot_password}
+
+        if not forgot_password.is_valid():
+            return render(request, 'app1/Forgot_password.html', context)
+        
+        # Nếu form hợp lệ, lưu thông tin tạm thời vào session
+        username = forgot_password.cleaned_data['username']
+        request.session['username'] = username
+        # Gửi OTP sau khi form hợp lệ
+        handle_send_otp(request, forgot_password)
+
+        context['action'] = 'FORGOT_PASSWORD'  
+
+        return render(request, 'app1/Enter_OTP.html', context)
+
+# Hàm validate OTP của quên mật khẩu
+def validate_otp_of_ForgotPassword(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        otp_input = data.get("otp")
+
+        # Kiểm tra mã OTP bằng hàm validate_otp
+        otp_validation = validate_otp(request)
+        if not otp_validation["valid"]:
+            return JsonResponse({"success": False, "message": otp_validation["message"]})  
+
+        # So sánh mã OTP người dùng nhập
+        if otp_input == otp_validation["otp_session"]:
+            return JsonResponse({"success": True, "message": "Mã OTP chính xác"})
+        else:
+            return JsonResponse({"success": False, "message": "Mã OTP không chính xác"})
+    
+    return JsonResponse({"success": False, "message": "Yêu cầu không hợp lệ."})
+
+# Đổi mật khẩu mới:
+class New_password(View):
+    def get(self,request):
+        New_password = NewPasswordForm() 
+        context = {'New_Password_Form': New_password}  
+        return render(request, 'app1/New_password.html',context)
+    
+    def post(self, request):
+        New_password = NewPasswordForm(request.POST) 
+        context = {'New_Password_Form': New_password}  
+
+        if not New_password.is_valid():
+            return render(request, 'app1/New_password.html', context)
+        
+        username = request.session.get('username')
+        
+        # lấy mật khẩu mới của người dùng
+        new_password = New_password.cleaned_data['new_password']
+        # cập nhật mật khẩu mới
+        user = User.objects.get(username = username)
+       
+        user.password = make_password(new_password)
+        
+        user.save()
+        messages.success(request, "Đổi mật khẩu thành công!")
+        return redirect('Sign_in')
 
 # def court_badminton(request):
 #     get_court = CourtBadminton.objects.all()

@@ -120,10 +120,6 @@ class SignInForm(forms.Form):
         if not is_valid_email(username):
             errors['username'] = "Email không hợp lệ."
 
-        if errors:
-            print("Errors found:", errors)
-        else:
-            print("lỗi chưa được thêm")
 
         for field, error in errors.items():
             self.add_error(field, error)
@@ -135,51 +131,43 @@ class ForgotPasswordForm(forms.Form):
     username = forms.CharField(
         max_length=150,
         required=True,
-        label="Tên đăng nhập",
         widget=forms.TextInput(attrs={
-            'placeholder': 'Nhập email'
+            'placeholder': 'Nhập email',
         })
     )
     
-    otp = forms.CharField(
-        max_length=6,
-        required=False,
-        label="Nhập mã OTP",
-        widget=forms.TextInput(attrs={
-            'placeholder': 'Nhập mã OTP'
-        })
-    )
-
     def clean(self):
         cleaned_data = super().clean()
         username = cleaned_data.get("username")
-        errors = validate_username_and_otp(cleaned_data, self.initial)
+        errors = {}
+
+        if not is_valid_email(username):
+            errors['username'] = "Email không hợp lệ."
 
         if not User.objects.filter(username = username).exists():
             errors['username'] = "Người dùng không tồn tại."
 
-        
 
         for field, error in errors.items():
             self.add_error(field, error)
 
         return cleaned_data
     
-class ChangePassword(forms.Form):
+class NewPasswordForm(forms.Form):
     new_password = forms.CharField(
         max_length=128,
-        required=True,
-        label="Nhập mật khẩu",
+        required=True,   
         widget=forms.PasswordInput(attrs={
-            'placeholder': 'Mật khẩu'
+            'placeholder': 'Nhập mật khẩu mới',
+            'id': 'id_new_password'
         })
     )
     confirm_new_password = forms.CharField(
         max_length=128,
         required=True,
-        label="Nhập lại mật khẩu",
         widget=forms.PasswordInput(attrs={
-            'placeholder': 'Nhập lại mật khẩu'
+            'placeholder': 'Nhập lại mật khẩu',
+            'id': 'id_confirm_new_password'
         })
     )
 

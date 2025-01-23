@@ -64,19 +64,25 @@ document.getElementById('resend-otp').addEventListener('click', (event) => {
     startTimer(60);
 });
 
-// Thu thập mã OTP và gửi đến server
+// Thu thập mã OTP và gửi đến server của đăng ký 
 document.getElementById("submit-otp").addEventListener("click", () => {
+    const action = document.getElementById("action").value;
+    // console.log(action);
+    
     let otpCode = "";
 
     // Ghép mã OTP từ các trường input
     otpInputs.forEach((input) => {
-        otpCode += input.value.trim();
+        otpCode += input.value.trim();  
     });
 
     // Kiểm tra xem mã OTP đã đủ ký tự chưa
     if (otpCode.length === otpInputs.length) {
+        const endpoint = action === "FORGOT_PASSWORD" ?"/validate_otp_fogotpassword/" : "/validate_otp_and_register/" ;
+        const redirectUrl = action === "FORGOT_PASSWORD" ?  "/new_password/" :"/sign_in/";
+
         // Gửi mã OTP đến server qua fetch
-        fetch("/validate_otp_and_register/", {
+        fetch(endpoint, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -88,7 +94,7 @@ document.getElementById("submit-otp").addEventListener("click", () => {
             .then((data) => {
                 if (data.success) {
                     alert(data.message); // Hiển thị thông báo thành công
-                    window.location.href = "/trangchu/"; // Chuyển hướng đến trang chính
+                    window.location.href = redirectUrl; // Chuyển hướng đến trang chính
                 } else {
                     alert(data.message); // Hiển thị thông báo lỗi
                 }
@@ -96,7 +102,7 @@ document.getElementById("submit-otp").addEventListener("click", () => {
             .catch((error) => {
                 console.error("Lỗi khi gửi mã OTP:", error);
                 alert("Đã xảy ra lỗi khi kiểm tra mã OTP. Vui lòng thử lại sau.");
-            });
+            }); 
     } else {
         alert("Vui lòng nhập đủ mã OTP!");
     }
@@ -127,3 +133,4 @@ document.getElementById("resend-otp").addEventListener("click", function () {
             alert("Đã xảy ra lỗi. Vui lòng thử lại.");
         });
 });
+
