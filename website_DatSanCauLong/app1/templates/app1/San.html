@@ -4,38 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Các sân cầu lông</title>
-    <link rel="stylesheet" href="/project_Group6/website_DatSanCauLong/app1/static/app1/CSS/San.css" />
-    <link rel="stylesheet" href="/project_Group6/website_DatSanCauLong/app1/static/app1/CSS/Menu.css" />
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      href="/project_Group6/website_DatSanCauLong/app1/static/app1/CSS/San.css"
     />
   </head>
   <body>
-    <input type="checkbox" id="check" />
-    <div class="overlay"></div>
-    <label for="check">
-      <i class="fas fa-bars" id="btn"></i>
-    </label>
-    <div class="side-bar">
-      <ul>
-        <li>
-          <a href="/project_Group6/website_DatSanCauLong/app1/templates/app1/TrangChu1.html"
-            ><i class="fa-solid fa-house"></i>Trang Chủ</a
-          >
-        </li>
-        <li>
-          <a href="#"><i class="fa-solid fa-list"></i>Sân Cầu Lông</a>
-          <div class="sub-menu">
-            <a href="/project_Group6/website_DatSanCauLong/app1/templates/app1/San.html">Thông tin các sân</a>
-            <a href="/project_Group6/website_DatSanCauLong/app1/templates/app1/LichSuDatSan.html">Lịch sử đặt sân</a>
-          </div>
-        </li>
-        <li>
-          <a href=""><i class="fa-solid fa-money-check-dollar"></i>Giá vé</a>
-        </li>
-      </ul>
-    </div>
+    <div id="menu-container"></div>
     <div class="container">
       <!-- Sân 1 -->
       <div class="court">
@@ -163,5 +138,26 @@
         <button class="book-btn">Đặt sân</button>
       </div>
     </div>
+    <script>
+      window.onload = function () {
+        // Tải nội dung menu.html vào phần tử có id="menu-container"
+        fetch("Menu.html")
+          .then((response) => response.text())
+          .then((data) => {
+            document.getElementById("menu-container").innerHTML = data;
+          })
+          .catch((error) => console.error("Lỗi tải menu:", error));
+
+        // Tải nội dung footer.html vào phần tử cuối của trang
+        fetch("Footer.html")
+          .then((response) => response.text())
+          .then((data) => {
+            const footerContainer = document.createElement("div");
+            footerContainer.innerHTML = data; // Chèn nội dung từ footer.html vào
+            document.body.appendChild(footerContainer); // Thêm footer vào cuối body
+          })
+          .catch((error) => console.error("Lỗi tải footer:", error));
+      };
+    </script>
   </body>
 </html>
