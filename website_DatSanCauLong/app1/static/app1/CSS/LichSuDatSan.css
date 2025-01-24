@@ -1,0 +1,183 @@
+/* Reset CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    padding: 20px;
+  }
+  
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  h2 {
+    background-color: #f0f0f0;
+    font-size: 2rem;
+    color: #333 !important; /* Đảm bảo màu chữ luôn là #333 */
+    text-transform: uppercase;
+  }
+  
+  p {
+    color: #333 !important; /* Đảm bảo màu chữ luôn là #333 */
+    text-transform: uppercase;
+  }
+  /* Container cho các thẻ vé */
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  /* Định dạng cho mỗi thẻ vé */
+  .ticket {
+    width: calc(
+      50% - 10px
+    ); /* Mỗi thẻ chiếm 50% chiều rộng container trừ khoảng cách */
+    background-color: #fff;
+    padding: 20px;
+    border: 2px solid #3498db; /* Sửa màu viền thành xanh dương nhẹ */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+    margin-bottom: 20px;
+    position: relative;
+    font-size: 0.9rem;
+    opacity: 0;
+    animation: fadeIn 1s forwards;
+  }
+  
+  /* Hiệu ứng mờ dần khi trang tải */
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  
+  /* Đường vạch ngang như vé xem phim */
+  .ticket:before {
+    content: "";
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50%;
+    height: 2px;
+    background-color: #3498db; /* Màu vạch ngang cùng màu với viền */
+  }
+  
+  /* Hiệu ứng hover khi di chuột qua thẻ vé */
+  .ticket:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 20px rgba(174, 157, 157, 0.2);
+    filter: brightness(1.1);
+    border-color: #2980b9; /* Thay đổi màu viền khi hover (tối hơn một chút) */
+  }
+  
+  /* Tiêu đề sân */
+  .ticket h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333 !important; /* Đảm bảo màu chữ luôn là #333 */
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  /* Định dạng cho các thông tin ngày, giờ và giá */
+  .ticket .date,
+  .ticket .address,
+  .ticket .hours,
+  .ticket .price {
+    font-size: 1rem;
+    color: #555 !important; /* Đảm bảo màu chữ luôn là #555 */
+    margin-bottom: 8px;
+    text-align: left;
+  }
+  
+  /* Định dạng cho các trạng thái thanh toán và hết hạn */
+  .ticket .status {
+    font-size: 1rem;
+    margin-bottom: 5px;
+    text-align: left;
+  }
+  
+  /* Nhãn trạng thái (paid, not-paid, valid, expired) */
+  .not-paid {
+    background-color: #e74c3c;
+    color: white !important;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .expired {
+    background-color: #f39c12;
+    color: white !important;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Nút Hủy */
+  .cancel-btn {
+    padding: 10px 20px;
+    background-color: #e74c3c;
+    color: white !important; /* Đảm bảo màu chữ luôn là trắng */
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    font-weight: bold;
+    margin-top: 15px;
+    display: inline-block;
+  }
+  
+  /* Hiệu ứng khi di chuột qua nút Hủy */
+  .cancel-btn:hover {
+    background-color: #c0392b;
+    transform: translateY(-3px);
+  }
+  
+  /* Hiệu ứng khi nhấn nút Hủy */
+  .cancel-btn:active {
+    transform: translateY(1px);
+  }
+  
+  /* Đảm bảo các thẻ vé và nút Hủy cách đều và thẳng hàng */
+  .ticket-footer {
+    margin-top: 15px;
+    border-top: 2px dashed #f1c40f;
+    padding-top: 10px;
+    font-size: 0.9rem;
+    color: #333 !important;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+  
+  /* Responsive cho màn hình nhỏ */
+  @media (max-width: 768px) {
+    .ticket {
+      width: 100%; /* Mỗi vé chiếm toàn bộ chiều rộng trên màn hình nhỏ */
+    }
+  }
+  
