@@ -31,7 +31,7 @@ body {
     top: 100px;
     left: -200px;
     width: 200px; /* Chiều rộng của sidebar */
-    height: 65%; /* Đảm bảo chiều cao của sidebar bao phủ toàn bộ chiều cao trang */
+    height: 65% !important; /* Đảm bảo chiều cao của sidebar bao phủ toàn bộ chiều cao trang */
     background: linear-gradient(
       45deg,
       #dedada,

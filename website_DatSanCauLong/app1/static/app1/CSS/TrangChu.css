@@ -138,27 +138,22 @@ h6:hover {
 
 /* Nút "Đặt Sân" */
 .btn-primary {
-  background: linear-gradient(
-    45deg,
-    var(--primary-color),
-    var(--secondary-color)
-  );
+  background: linear-gradient(45deg, var(--primary-color));
   color: rgb(16, 15, 15);
-  padding: 20px 40px !important;  
+  padding: 20px 40px !important;
   border: none;
   border-radius: var(--btn-border-radius);
   cursor: pointer;
-  font-size: 1.2rem !important;  /* Tăng kích thước font chữ */
+  font-size: 1.2rem !important; /* Tăng kích thước font chữ */
   transition: background-color 0.3s ease, transform 0.3s ease;
   box-shadow: 0 6px 15px rgba(255, 87, 34, 0.3);
 }
 
 .btn-primary:hover {
   background-color: #ff5722;
-  transform: scale(1.1);  /* Tăng kích thước khi hover */
+  transform: scale(1.1); /* Tăng kích thước khi hover */
   box-shadow: 0 8px 25px rgba(255, 87, 34, 0.4);
 }
-
 
 /* Các phần dịch vụ */
 .services {
