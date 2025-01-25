@@ -287,6 +287,54 @@ class New_password(View):
         messages.success(request, "Đổi mật khẩu thành công!")
         return redirect('Sign_in')
 
+def TrangChu1(request):
+    return render(request, 'app1/TrangChu1.html')
+
+def LichSuDatSan(request):
+    return render(request, 'app1/LichSuDatSan.html')
+
+def San(request):
+    return render(request, 'app1/San.html')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # def court_badminton(request):
 #     get_court = CourtBadminton.objects.all()
 #     context = {'courts': get_court}

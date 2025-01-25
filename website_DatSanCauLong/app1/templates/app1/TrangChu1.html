@@ -1,10 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Trang Chủ</title>
-    <link rel="stylesheet" href="/project_Group6/website_DatSanCauLong/app1/static/app1/CSS/TrangChu.css" />
+    <link rel="stylesheet" href="{% static 'app1/css/TrangChu.css' %}" />
   </head>
   <body>
     <div id="menu-container"></div>
@@ -28,7 +29,7 @@
         </div>
         <section class="services">
           <div class="service">
-            <img src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/img1.jpg" alt="Thiết kế hiện đại"  />
+            <img src="{% static 'app1/images/img1.jpg' %}" alt="Thiết kế hiện đại" />
             <h3>Thiết Kế Hiện Đại</h3>
             <p>
               Sân được thiết kế đẹp mắt, tiện nghi và thoáng mát, mang lại cảm

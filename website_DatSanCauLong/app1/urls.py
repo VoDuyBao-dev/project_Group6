@@ -17,6 +17,10 @@ urlpatterns = [
     path('new_password/', New_password.as_view(), name= 'New_Password'),
     path('trangchu/', views.TrangChu, name= 'TrangChu'),
     path('trangOTP/', views.trangOTP, name= 'trangOTP'),
+
+    path('TrangChu1/', views.TrangChu1, name= 'TrangChu1'),
+    path('LichSuDatSan/', views.LichSuDatSan, name= 'LichSuDatSan'),
+    path('San/', views.San, name= 'San'),
    
 ]
 
