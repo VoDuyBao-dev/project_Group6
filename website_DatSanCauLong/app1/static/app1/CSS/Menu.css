@@ -1,0 +1,137 @@
+body {
+    font-family: "Times New Roman", serif;
+    background-color: #f0f8ff; /* Màu nền nhẹ nhàng cho toàn trang */
+    color: #dcd8d8;
+    transition: background-color 0.5s ease;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-decoration: none;
+  }
+  
+  /* Lớp phủ mờ nền */
+  .overlay {
+    display: none; /* Mặc định ẩn lớp phủ */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(110, 107, 107, 0.5); /* Màu nền mờ */
+    z-index: 999; /* Đảm bảo lớp phủ nằm trên nền */
+    transition: all 0.5s ease;
+  }
+  
+  /* Sidebar */
+  .side-bar {
+    position: fixed;
+    top: 100px;
+    left: -200px;
+    width: 200px; /* Chiều rộng của sidebar */
+    height: 65% !important; /* Đảm bảo chiều cao của sidebar bao phủ toàn bộ chiều cao trang */
+    background: linear-gradient(
+      45deg,
+      #dedada,
+      hsl(94, 11%, 88%)
+    ); /* Màu nền gradient cho sidebar */
+    transition: all 0.5s ease;
+    z-index: 1000; /* Đảm bảo sidebar không bị che khuất */
+    border-radius: 20px;
+  }
+  
+  header {
+    margin-top: 42px;
+    font-size: 24px;
+    text-align: center;
+    line-height: 70px;
+    background: linear-gradient(
+      45deg,
+      #ddd8d8,
+      #cdcecd
+    ); /* Màu nền gradient cho header */
+    color: rgb(39, 37, 37);
+    user-select: none;
+    font-weight: 500;
+  }
+  
+  ul li a {
+    display: block;
+    margin-left: 10px;
+    width: 100%;
+    height: 100%;
+    font-size: 16px;
+    color: rgb(24, 24, 24);
+    line-height: 65px;
+    padding-left: 10px;
+    box-sizing: border-box;
+    transition: 0.5s ease;
+  }
+  
+  ul li a i {
+    margin-right: 10px; /* Khoảng cách giữa icon và chữ */
+  }
+  
+  ul li a:hover {
+    padding-left: 50px;
+    background-color: #a8c9e1; /* Màu nền khi hover */
+    transition: 0.5s ease;
+  }
+  
+  #check {
+    display: none; /* Ẩn checkbox thực tế */
+  }
+  
+  label #btn {
+    position: fixed;
+    cursor: pointer;
+    background: #a1a3a5; /* Màu nền tươi cho nút */
+    border-radius: 15px;
+    z-index: 1111;
+    left: 1px;
+    top: 100px;
+    font-size: 25px;
+    color: rgb(35, 32, 32);
+    padding: 10px 10px;
+    transition: all 0.5s ease;
+  }
+  
+  /* Khi sidebar mở, lớp phủ mờ sẽ hiển thị */
+  #check:checked ~ .overlay {
+    display: block; /* Hiển thị lớp phủ */
+  }
+  
+  /* Khi checkbox được tick, sidebar sẽ di chuyển ra ngoài */
+  #check:checked ~ .side-bar {
+    left: 0;
+    z-index: 1001; /* Đảm bảo sidebar không bị đè lên lớp phủ */
+  }
+  
+  /* Khi sidebar mở, nút điều khiển di chuyển sang phải */
+  #check:checked ~ label #btn {
+    left: 200px;
+  }
+  
+  /* Submenu */
+  .sub-menu {
+    display: none; /* Mặc định ẩn submenu */
+  }
+  
+  .sub-menu a {
+    padding-left: 50px; /* Indent cho các mục con */
+    padding: 10px;
+    text-decoration: none;
+  }
+  
+  ul li:hover .sub-menu {
+    display: block; /* Hiển thị submenu khi hover vào li chứa submenu */
+  }
+  
+  /* Điều chỉnh khoảng cách khi sidebar mở */
+  #check:checked ~ #main {
+    margin-left: 200px; /* Tạo khoảng cách cho phần nội dung chính */
+    transition: margin-left 0.5s ease;
+  }
+  

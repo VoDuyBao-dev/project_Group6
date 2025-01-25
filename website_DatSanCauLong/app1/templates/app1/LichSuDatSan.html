@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lịch Sử Đặt Sân</title>
+    <link rel="stylesheet" href="/project_Group6/website_DatSanCauLong/app1/static/app1/CSS/LichSuDatSan.css" />
+  </head>
+  <body>
+    <div id="menu-container"></div>
+          <h2>Lịch Sử Đặt Sân</h2>
+    <div class="container">
+      <div class="ticket">
+        <h3>Sân 1</h3>
+        <p class="date">Ngày Đặt: <span id="date-2">21/01/2025</span></p>
+        <p class="address">Địa Chỉ: Đường XYZ, Quận ABC</p>
+        <p class="hours">Giờ: 8:00 - 22:00</p>
+        <p class="price">Giá Thuê: 100.000 VND/giờ</p>
+        <div class="ticket-footer">
+            <button class="cancel-btn">Hủy</button> <!-- Nút hủy -->
+          </div>
+      </div>
+
+      <div class="ticket">
+        <h3>Sân 2</h3>
+        <p class="date">Ngày Đặt: <span id="date-2">15/01/2025</span></p>
+        <p class="address">Địa Chỉ: Đường DEF, Quận GHI</p>
+        <p class="hours">Giờ : 7:00 - 23:00</p>
+        <p class="price">Giá Thuê: 120.000 VND/giờ</p>
+        <div class="ticket-footer">
+            <button class="cancel-btn">Hủy</button> <!-- Nút hủy -->
+          </div>
+      </div>
+      <script>
+        window.onload = function () {
+          // Tải nội dung menu.html vào phần tử có id="menu-container"
+          fetch("Menu.html")
+            .then((response) => response.text())
+            .then((data) => {
+              document.getElementById("menu-container").innerHTML = data;
+            })
+            .catch((error) => console.error("Lỗi tải menu:", error));
+  
+          // Tải nội dung footer.html vào phần tử cuối của trang
+          fetch("Footer.html")
+            .then((response) => response.text())
+            .then((data) => {
+              const footerContainer = document.createElement("div");
+              footerContainer.innerHTML = data; // Chèn nội dung từ footer.html vào
+              document.body.appendChild(footerContainer); // Thêm footer vào cuối body
+            })
+            .catch((error) => console.error("Lỗi tải footer:", error));
+        };
+      </script>
+  </body>
+</html>
