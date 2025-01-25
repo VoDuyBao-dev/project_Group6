@@ -158,44 +158,64 @@ def resend_otp(request):
 
 class Sign_In(View):
     def get(self, request):
-        # Kiểm tra xem cookie có lưu email không
+        # Lấy email từ cookie nếu có
         remembered_email = request.COOKIES.get('remembered_email', '')
-        sign_in = SignInForm(initial={'username': remembered_email})
-        context = {'SignIn': sign_in, 'remember_me': bool(remembered_email)}
+        sign_in_form = SignInForm(initial={'username': remembered_email})
+        
+        context = {
+            'SignIn': sign_in_form,
+            'remember_me': bool(remembered_email),
+        }
         return render(request, 'app1/Sign_in.html', context)
 
     def post(self, request):
-        sign_in = SignInForm(request.POST)
-        context = {'SignIn': sign_in}
-        
-        if not sign_in.is_valid():
+        # Khởi tạo form với dữ liệu POST
+        sign_in_form = SignInForm(request.POST)
+        context = {'SignIn': sign_in_form}
+       
+        # Lấy số lần đăng nhập sai từ session (mặc định là 0)
+        failed_attempts = request.session.get('failed_attempts', 0)
+
+
+        # Kiểm tra form hợp lệ
+        if not sign_in_form.is_valid():
             return render(request, 'app1/Sign_in.html', context)
 
-        username = sign_in.cleaned_data['username']
-        password = sign_in.cleaned_data['password']
-        remember_me = request.POST.get('remember_me')  # Lấy giá trị checkbox "Nhớ tài khoản"
-        
-        # Xác thực người dùng
-        try:
-            user = User.objects.get(username=username)
-            user = authenticate(username=user.username, password=password)
-        except User.DoesNotExist:
-            user = None
+        # Lấy dữ liệu từ form
+        username = sign_in_form.cleaned_data['username']
+        password = sign_in_form.cleaned_data['password']
+        remember_me = request.POST.get('remember_me') == 'on'  # Checkbox "Nhớ tài khoản"
 
-        if user is not None:
+        # Xác thực người dùng
+        user = authenticate(username=username, password=password)
+
+        if user:
+            # Đăng nhập thành công
             login(request, user)
             response = redirect('TrangChu')
-            
-            # Lưu username vào cookie nếu chọn "Nhớ tài khoản"
+
+            # Reset số lần đăng nhập sai
+            request.session.pop('failed_attempts', None)
+
+            # Xử lý cookie nhớ tài khoản
             if remember_me:
                 response.set_cookie('remembered_email', username, max_age=7 * 24 * 60 * 60)  # Lưu trong 7 ngày
             else:
-                response.delete_cookie('remembered_email')  # Xóa cookie nếu không chọn
-            
+                response.delete_cookie('remembered_email')
+
             return response
         else:
-            sign_in.add_error('username', "Email hoặc mật khẩu không đúng.")
+            # Nếu đã sai 5 lần trở lên, yêu cầu reset mật khẩu
+            if failed_attempts >= 5:
+                context['error_message'] = "Bạn đã nhập sai quá 5 lần. Vui lòng lấy lại mật khẩu."
+                return render(request, 'app1/Sign_in.html', context)
+            # Đăng nhập thất bại: tăng số lần sai và thông báo lỗi
+            failed_attempts += 1
+            request.session['failed_attempts'] = failed_attempts
+
+            context['error_message'] = "Email hoặc mật khẩu không đúng."
             return render(request, 'app1/Sign_in.html', context)
+
 
 # Quên mật khẩu
 class ForgotPassword(View):
