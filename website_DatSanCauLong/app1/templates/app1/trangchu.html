@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cửa Hàng Trực Tuyến</title>
+    <link
+      rel="stylesheet"
+      href="{% static 'QuanLiUser/css/courtbadminton.css' %}"
+    />
+    <style>
+      .message {
+        display: none;
+        padding: 10px;
+        margin: 15px 0;
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        border-radius: 5px;
+      }
+      .search-bar {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+      }
+      .search-bar input[type="text"] {
+        width: 300px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px 0 0 5px;
+      }
+      .search-bar button {
+        padding: 10px 20px;
+        border: none;
+        background-color: #007bff;
+        color: white;
+        border-radius: 0 5px 5px 0;
+        cursor: pointer;
+      }
+      .search-bar button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      
+      <h1>Cửa Hàng Trực Tuyến</h1>
+      
+      <nav>
+        <ul>
+          <li><a href="#">Trang Chủ</a></li>
+          <li><a href="#">Tìm kiếm</a></li>
+          {% comment %} <li><a href="{% url 'login' %}">Đăng nhập</a></li>
+          <li><a href="{% url 'historybooking' %}">Lịch sử đặt sân</a></li> {% endcomment %}
+        </ul>
+      </nav>
+      
+      <!-- Thanh tìm kiếm -->
+      <div class="search-bar">
+        {% comment %} <form method="GET" action="{% url 'kqtimkiem' %}">
+         
+          <input
+            type="text"
+            name="search_court"
+            placeholder="Tìm kiếm sân cầu lông..."
+            value="{{ request.GET.search_court|default_if_none:'' }}"
+          />
+          <button type="submit">Tìm kiếm</button>
+        </form> {% endcomment %}
+      </div>
+    </header>
+
+    <main>
+      <h2>Sản Phẩm Nổi Bật</h2>
+      <div class="product-grid">
+        {% for court in courts %}
+        <div class="product">
+          <img src="{{ court.ImageURL }}" alt="{{ court.court_name }}" />
+          <h3>{{ court.court_name }}</h3>
+          <p>{{ court.price_per_house }}</p>
+          <button><a href="{% url 'datsan' %}">Đặt sân</a></button>
+        </div>
+        {% endfor %}
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Cửa Hàng Trực Tuyến. Tất cả quyền được bảo lưu.</p>
+    </footer>
+    <script>
+        // Hiển thị thông báo nếu có
+        const messageDiv = document.querySelector('.message');
+        if (messageDiv) {
+            messageDiv.style.display = 'block'; // Hiển thị thông báo
+            setTimeout(() => {
+                messageDiv.style.display = 'none'; // Ẩn thông báo sau 1 giây
+            }, 1000);
+        }
+    </script>
+  </body>
+</html>
