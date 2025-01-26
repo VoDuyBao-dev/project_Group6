@@ -1,0 +1,110 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Cấu hình body */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Căn giữa form theo chiều dọc */
+    align-items: center;
+    min-height: 100vh; /* Chiếm ít nhất chiều cao màn hình */
+    margin: 0;
+}
+
+/* Container chính của form */
+.checkin-container {
+    background-color: #fff;
+    padding: 50px; /* Tăng padding để tạo khoảng cách rộng hơn bên trong form */
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px; /* Tăng chiều rộng tối đa của form */
+    min-height: 600px; /* Đảm bảo chiều cao của form lớn hơn */
+    margin-bottom: 30px; /* Khoảng cách giữa form và footer */
+}
+
+/* Tiêu đề form */
+.checkin-container h2 {
+    text-align: center;
+    font-size: 28px; /* Tăng kích thước font cho tiêu đề */
+    color: #333;
+    margin-bottom: 40px; /* Tăng khoảng cách giữa tiêu đề và các trường nhập */
+}
+
+/* Định dạng label cho các trường nhập */
+.checkin-container label {
+    font-size: 16px; /* Tăng kích thước font của label */
+    margin-bottom: 12px; /* Tăng khoảng cách giữa label và trường nhập */
+    display: block;
+    color: #555;
+}
+
+/* Định dạng input fields */
+.checkin-container input {
+    width: 100%;
+    padding: 16px; /* Tăng padding cho các trường input */
+    margin-bottom: 25px; /* Tăng khoảng cách giữa các trường nhập */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 18px; /* Tăng kích thước font cho trường nhập */
+    color: #333;
+    transition: border 0.3s ease;
+}
+
+/* Hiệu ứng khi focus vào input */
+.checkin-container input:focus {
+    border-color: #358138;
+    outline: none;
+}
+
+/* Định dạng nút submit */
+.checkin-container button {
+    width: 100%;
+    padding: 16px; /* Tăng padding cho nút submit */
+    background-color: #1f82a0;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 20px; /* Tăng kích thước font cho nút submit */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Hiệu ứng khi hover vào nút submit */
+.checkin-container button:hover {
+    background-color: #45a049;
+}
+
+/* Định dạng thông báo sau khi submit */
+.message {
+    text-align: center;
+    font-size: 18px; /* Tăng kích thước font cho thông báo */
+    margin-top: 30px; /* Tăng khoảng cách giữa thông báo và form */
+    color: #333;
+}
+
+/* Thông báo thành công */
+.message.success {
+    color: rgb(50, 227, 11);
+}
+
+/* Thông báo lỗi */
+.message.error {
+    color: rgb(255, 1, 1);
+}
+
+/* Footer */
+footer {
+    width: 100%;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 15px 0; /* Tăng padding cho footer */
+    font-size: 16px;
+    position: relative;
+}
