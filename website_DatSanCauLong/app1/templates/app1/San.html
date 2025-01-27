@@ -12,133 +12,34 @@
   </head>
   <body>
     <div id="menu-container"></div>
+    {% comment %} thanhthanh Tìm kiếm {% endcomment %}
+    
+    <form method="get" action="{% url 'SearchCourt' %}">
+      {% csrf_token %}
+      <div class="search-container">
+        {{ searchCourt.query }}  <!-- Hiển thị riêng trường query -->
+        <button class="search-btn" type="submit">Tìm kiếm</button>
+      </div>
+    </form>
+
     <div class="container">
-      <!-- Sân 1 -->
+      <!-- Full sân -->
+      {% for court in courts %}
       <div class="court">
         <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
-          alt="Sân Cầu Lông 1"
+          src="{{ court.ImageURL }}"
+          alt="{{ court.name }}"
           class="court-image"
         />
-        <h3>Sân 1</h3>
-        <p>Địa chỉ: Đường XYZ, Quận ABC</p>
+        <h3>{{ court.name }}</h3>
+        <p>Địa chỉ: {{ court.badminton_hall_id.address }}</p>
         <p>Giờ hoạt động: 8:00 - 22:00</p>
         <p>Ngày: Thứ 2 - Chủ Nhật</p>
-        <button class="book-btn">Đặt sân</button>
+        <button class="book-btn"><a href="#">Đặt sân</a></button>
       </div>
+      {% endfor %}
 
-      <!-- Sân 2 -->
-      <div class="court">
-        <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
-          alt="Sân Cầu Lông 2"
-          class="court-image"
-        />
-        <h3>Sân 2</h3>
-        <p>Địa chỉ: Đường DEF, Quận GHI</p>
-        <p>Giờ hoạt động: 7:00 - 23:00</p>
-        <p>Ngày: Thứ 2 - Chủ Nhật</p>
-        <button class="book-btn">Đặt sân</button>
-      </div>
-
-      <!-- Sân 3 -->
-      <div class="court">
-        <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
-          alt="Sân Cầu Lông 3"
-          class="court-image"
-        />
-        <h3>Sân 3</h3>
-        <p>Địa chỉ: Đường JKL, Quận MNO</p>
-        <p>Giờ hoạt động: 9:00 - 21:00</p>
-        <p>Ngày: Thứ 2 - Chủ Nhật</p>
-        <button class="book-btn">Đặt sân</button>
-      </div>
-
-      <!-- Sân 4 -->
-      <div class="court">
-        <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
-          alt="Sân Cầu Lông 4"
-          class="court-image"
-        />
-        <h3>Sân 4</h3>
-        <p>Địa chỉ: Đường LMN, Quận PQR</p>
-        <p>Giờ hoạt động: 8:00 - 20:00</p>
-        <p>Ngày: Thứ 2 - Chủ Nhật</p>
-        <button class="book-btn">Đặt sân</button>
-      </div>
-
-      <!-- Sân 5 -->
-      <div class="court">
-        <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
-          alt="Sân Cầu Lông 5"
-          class="court-image"
-        />
-        <h3>Sân 5</h3>
-        <p>Địa chỉ: Đường STU, Quận VWX</p>
-        <p>Giờ hoạt động: 6:00 - 22:00</p>
-        <p>Ngày: Thứ 2 - Chủ Nhật</p>
-        <button class="book-btn">Đặt sân</button>
-      </div>
-
-      <!-- Sân 6 -->
-      <div class="court">
-        <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
-          alt="Sân Cầu Lông 6"
-          class="court-image"
-        />
-        <h3>Sân 6</h3>
-        <p>Địa chỉ: Đường ABC, Quận DEF</p>
-        <p>Giờ hoạt động: 8:00 - 21:00</p>
-        <p>Ngày: Thứ 2 - Chủ Nhật</p>
-        <button class="book-btn">Đặt sân</button>
-      </div>
-
-      <!-- Sân 7 -->
-      <div class="court">
-        <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
-          alt="Sân Cầu Lông 7"
-          class="court-image"
-        />
-        <h3>Sân 7</h3>
-        <p>Địa chỉ: Đường GHI, Quận JKL</p>
-        <p>Giờ hoạt động: 7:00 - 22:00</p>
-        <p>Ngày: Thứ 2 - Chủ Nhật</p>
-        <button class="book-btn">Đặt sân</button>
-      </div>
-
-      <!-- Sân 8 -->
-      <div class="court">
-        <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
-          alt="Sân Cầu Lông 8"
-          class="court-image"
-        />
-        <h3>Sân 8</h3>
-        <p>Địa chỉ: Đường MNO, Quận PQR</p>
-        <p>Giờ hoạt động: 9:00 - 23:00</p>
-        <p>Ngày: Thứ 2 - Chủ Nhật</p>
-        <button class="book-btn">Đặt sân</button>
-      </div>
-
-      <!-- Sân 9 -->
-      <div class="court">
-        <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
-          alt="Sân Cầu Lông 9"
-          class="court-image"
-        />
-        <h3>Sân 9</h3>
-        <p>Địa chỉ: Đường XYZ, Quận ABC</p>
-        <p>Giờ hoạt động: 8:00 - 22:00</p>
-        <p>Ngày: Thứ 2 - Chủ Nhật</p>
-        <button class="book-btn">Đặt sân</button>
-      </div>
-    </div>
+    </div> 
     <script>
       window.onload = function () {
         // Tải nội dung menu.html vào phần tử có id="menu-container"

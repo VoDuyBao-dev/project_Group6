@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kết quả tìm kiếm sân cầu lông</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        margin: 20px;
+      }
+      .court {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .court img {
+        max-width: 300px;
+        height: auto;
+        margin-bottom: 10px;
+      }
+      .court h3 {
+        margin: 5px 0;
+      }
+      .court p {
+        margin: 5px 0;
+      }
+      .book-btn a {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+      .book-btn a:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+        <div>
+        <!-- Full sân -->
+        {% if courts %}
+        {% for court in courts %}
+        <div class="court">
+          <img
+            src="{{ court.ImageURL }}"
+            alt="{{ court.name }}"
+            class="court-image"
+          />
+          <h3>{{ court.name }}</h3>
+          <p>Địa chỉ: {{ court.badminton_hall_id.address }}</p>
+          <p>Giờ hoạt động: 8:00 - 22:00</p>
+          <p>Ngày: Thứ 2 - Chủ Nhật</p>
+          <button class="book-btn"><a href="#">Đặt sân</a></button>
+        </div>
+        {% endfor %}
+        </div>
+        {% else %}
+      <p>Không tìm thấy sân cầu lông nào phù hợp với từ khóa "{{ searchCourt.query }}".</p>
+        {% endif %}
+    </div> 
+  </body>
+</html>

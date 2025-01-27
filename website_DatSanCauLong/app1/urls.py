@@ -15,13 +15,15 @@ urlpatterns = [
     path('validate_otp_fogotpassword/', views.validate_otp_of_ForgotPassword, name='validate_otp_of_ForgotPassword'),
 
     path('new_password/', New_password.as_view(), name= 'New_Password'),
-    path('trangchu/', views.TrangChu, name= 'TrangChu'),
+    
     path('trangOTP/', views.trangOTP, name= 'trangOTP'),
-
-    path('TrangChu1/', views.TrangChu1, name= 'TrangChu1'),
+    path('TrangChu/', views.TrangChu, name= 'TrangChu'),
+   
     path('LichSuDatSan/', views.LichSuDatSan, name= 'LichSuDatSan'),
     path('San/', views.San, name= 'San'),
-   
+    # Tìm kiếm sân
+    path('SearchCourt/', views.SearchCourt, name= 'SearchCourt'),
+    
 ]
 
 # coi urls

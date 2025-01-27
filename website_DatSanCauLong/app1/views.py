@@ -13,6 +13,7 @@ from .utils import send_otp_email, generate_otp
 from django.utils import timezone
 from datetime import timedelta
 from django.http import JsonResponse
+from .models import *
 
 import json
 
@@ -30,10 +31,6 @@ def handle_send_otp(request, form_input):
         request.session['otp_created_at'] = timezone.now().isoformat()  # Lưu thời gian tạo OTP
         send_otp_email(username, otp)
         
-
-def TrangChu(request):
-    return render(request, 'app1/trangchu.html')
-
 
 class Sign_Up(View):
     def get(self, request):
@@ -287,17 +284,40 @@ class New_password(View):
         messages.success(request, "Đổi mật khẩu thành công!")
         return redirect('Sign_in')
 
-def TrangChu1(request):
-    return render(request, 'app1/TrangChu1.html')
+def TrangChu(request):
+    return render(request, 'app1/TrangChu.html')
 
 def LichSuDatSan(request):
     return render(request, 'app1/LichSuDatSan.html')
 
 def San(request):
-    return render(request, 'app1/San.html')
+    courts = Court.objects.all()
+    search_court = SearchForm()
+    context = {
+        'courts': courts,
+        'searchCourt': search_court}
+    return render(request, 'app1/San.html', context)
 
 
+def SearchCourt(request):
+    search_court = SearchForm(request.GET or None)  # Lấy giá trị GET từ người dùng
+    results = []
 
+    if search_court.is_valid():
+        query = search_court.cleaned_data['query']
+        
+        if query:
+            # Tìm kiếm sân theo tên hoặc địa chỉ tương đối
+            filters = Q()
+            filters |= Q(name__icontains=query)  # Tìm tên sân chứa từ khóa
+            filters |= Q(badminton_hall_id__address__icontains=query)  # Tìm địa chỉ sân chứa từ khóa
+            results = Court.objects.filter(filters)  # Thực hiện tìm kiếm với bộ lọc
+            
+    context = {
+        'searchCourt': search_court,
+        'courts': results  # Trả về kết quả tìm kiếm
+    }
+    return render(request, 'app1/kqTimKiem.html', context)
 
 
 

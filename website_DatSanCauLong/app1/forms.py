@@ -186,3 +186,11 @@ class NewPasswordForm(forms.Form):
         return cleaned_data  # Trả về dữ liệu đã làm sạch
     
 
+class SearchForm(forms.Form):
+    query = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Tìm sân cầu lông...'
+        })
+    )
+  
