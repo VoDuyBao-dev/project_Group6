@@ -5,24 +5,24 @@ import uuid
 # User model
 class User(AbstractUser):
     USER_TYPES = (
-    ('guest', 'Guest'),
-    ('customer', 'Customer'),
-    ('court_manager', 'Court Manager'),
-    ('court_staff', 'Court Staff'),
-    ('admin', 'System Admin'),
+        ('guest', 'Guest'),
+        ('customer', 'Customer'),
+        ('court_manager', 'Court Manager'),
+        ('court_staff', 'Court Staff'),
+        ('admin', 'System Admin'),
     )
     user_type = models.CharField(max_length=20, choices=USER_TYPES, default='guest')
 
     groups = models.ManyToManyField(
         'auth.Group',
-        related_name='user_user_set', # Add related_name to avoid clashes
+        related_name='user_user_set',  # Add related_name to avoid clashes
         blank=True,
         help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
         verbose_name='groups',
     )
     user_permissions = models.ManyToManyField(
         'auth.Permission',
-        related_name='user_user_set', # Add related_name to avoid clashes
+        related_name='user_user_set',  # Add related_name to avoid clashes
         blank=True,
         help_text='Specific permissions for this user.',
         verbose_name='user permissions',
@@ -33,16 +33,16 @@ class Customer(models.Model):
     customer_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
     Thongtintaikhoan = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
     # stk = models.CharField(max_length=20, null=True, blank=True)
-    def __str__(self):
-    return self.user.username
+    # def __str__(self):
+    #     return self.Thongtintaikhoan.username
 
 # Court Manager models
 class CourtManager(models.Model):
     courtManager_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
     Thongtintaikhoan = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_manager')
 
-    def __str__(self):
-    return self.user.username
+    # def __str__(self):
+    #     return self.Thongtintaikhoan.username
 
 # System Admin model
 class SystemAdmin(models.Model):
@@ -79,7 +79,7 @@ class Booking(models.Model):
     status = models.BooleanField(default=False) # đã đặt hoặc đã hủy
 
     def __str__(self):
-    return f"Booking for {self.customer} on {self.date} at {self.time}"
+        return f"Booking for {self.customer} on {self.date} at {self.time}"
 
 
 class Payment(models.Model):
@@ -87,7 +87,7 @@ class Payment(models.Model):
     booking_id = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='payment')
     customer_id = models.OneToOneField(Customer, on_delete=models.CASCADE, default='p1', related_name='payment')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_date = models.DateTimeField(auto_now_add=True)\
+    payment_date = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField(default=False) # đã thanh toán hay chưa
 
 class BadmintonHall(models.Model):
@@ -97,13 +97,14 @@ class BadmintonHall(models.Model):
     address = models.TextField()
 
     def __str__(self):
-    return self.name
+        return self.name
 
 # Court model
 class Court(models.Model):
     court_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
     badminton_hall_id = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, default='c1', related_name='courts')
     name = models.CharField(max_length=255)
+    image = models.ImageField(null=True, blank=True)
 
 class TimeSlotTemplate(models.Model):
     template_id = models.CharField(max_length=36, primary_key=True, default=uuid.uuid4, editable=False)
@@ -115,7 +116,7 @@ class TimeSlotTemplate(models.Model):
     status = models.CharField(max_length=20, default="available") # Trạng thái
 
     def __str__(self):
-    return f"{self.day_of_week} | {self.time_frame}"
+        return f"{self.day_of_week} | {self.time_frame}"
 
 class Slot(models.Model):
     slot_id = models.CharField(max_length=36, primary_key=True, default=uuid.uuid4, editable=False)
