@@ -17,6 +17,8 @@ from django.http import JsonResponse
 import json
 
 
+from .forms import TimeSlotTemplateForm
+
 # Create your views here.   
 
 # HÀM KIỂM TRA MÃ OTP ĐỂ TÁI SỬ DỤNG:
@@ -417,3 +419,23 @@ class New_password(View):
 #     qr_code_data = f'data:image/png;base64,{encoded_img}'
 #     return render(request, 'QuanLiUser/qr_code.html', {'qr_code_data': qr_code_data})
 
+
+
+
+
+
+
+
+
+
+
+
+def add_timeslot_template(request):
+    if request.method == 'POST':
+        form = TimeSlotTemplateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('success_url')  # Thay 'success_url' bằng URL bạn muốn chuyển hướng đến sau khi lưu thành công
+    else:
+        form = TimeSlotTemplateForm()
+    return render(request, 'add_timeslot_template.html', {'form': form})
