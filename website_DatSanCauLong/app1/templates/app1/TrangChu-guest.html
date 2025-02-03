@@ -4,11 +4,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Trang Chủ</title>
-    <link rel="stylesheet" href="{% static 'app1/css/TrangChu.css' %}" />
+    <title>{% block title %} Trang Chủ {% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'app1/CSS/TrangChu.css' %}" />
+    <script src="{% static 'app1/js/layout-guest.js' %}" defer></script>
   </head>
   <body>
-    <div id="menu-container"></div>
+    {% include 'app1/Header-guest.html' %}
+
+    {% include 'app1/Menu.html' %}
+    
+    {% block content %}
     <section id="main">
       <div class="main-container">
         <h1 class="intro-heading">Chào Mừng Đến Với Sân Cầu Lông</h1>
@@ -18,7 +23,7 @@
           tạo điều kiện tốt nhất cho cả vận động viên chuyên nghiệp và người
           chơi yêu thích.
         </p>
-        <button class="btn btn-primary"><a href="{% url 'San' %}">Đặt sân</a></button>
+        <button class="btn btn-primary"><a href="{% url 'san_customer'%}">Đặt sân</a></button>
       </div>
     </section>
     <section class="services">
@@ -29,7 +34,7 @@
         </div>
         <section class="services">
           <div class="service">
-            <img src="{% static 'app1/images/img1.jpg' %}" alt="Thiết kế hiện đại" />
+            <img src="{% static 'app1/images/img1.jpg' %}" alt="Thiết kế hiện đại"  />
             <h3>Thiết Kế Hiện Đại</h3>
             <p>
               Sân được thiết kế đẹp mắt, tiện nghi và thoáng mát, mang lại cảm
@@ -38,7 +43,7 @@
           </div>
 
           <div class="service">
-            <img src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/img2.jpg" alt="Trang thiết bị đầy đủ" />
+            <img src="{% static 'app1/images/img2.jpg' %}" alt="Trang thiết bị đầy đủ" />
             <h3>Trang thiết bị đầy đủ</h3>
             <p>
               Chúng tôi trang bị những dụng cụ và thiết bị cao cấp, đảm bảo chất
@@ -47,7 +52,7 @@
           </div>
 
           <div class="service">
-            <img src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/img3.jpg" alt="Tiêu chuẩn quốc tế" />
+            <img src="{% static 'app1/images/img3.jpg' %}" alt="Tiêu chuẩn quốc tế" />
             <h3>Tiêu chuẩn quốc tế</h3>
             <p>
               Sân đáp ứng các tiêu chuẩn thi đấu quốc tế, tạo điều kiện thuận
@@ -56,7 +61,7 @@
           </div>
 
           <div class="service">
-            <img src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/img4.jpg" alt="Phù hợp mọi đối tượng" />
+            <img src="{% static 'app1/images/img4.jpg' %}" alt="Phù hợp mọi đối tượng" />
             <h3>Phù hợp mọi đối tượng</h3>
             <p>
               Sân của chúng tôi phù hợp với mọi lứa tuổi và trình độ, từ người
@@ -87,7 +92,7 @@
           </p>
         </div>
         <div class="about-image">
-          <img src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/img4.jpg" alt="Ảnh" />
+          <img src="{% static 'app1/images/img4.jpg' %}" alt="Ảnh" />
         </div>
       </div>
     </section>
@@ -99,29 +104,12 @@
           chuyên nghiệp. Chúng tôi luôn sẵn sàng đồng hành cùng bạn chinh phục
           đam mê.
         </p>
-        <button class="btn btn-primary"><a href="{% url 'San' %}">Đặt Sân Ngay</a></button>
+        <button class="btn btn-primary"><a href="{% url 'san_customer'%}">Đặt Sân Ngay</a></button>
       </div>
     </section>
-    <script>
-      window.onload = function () {
-        // Tải nội dung menu.html vào phần tử có id="menu-container"
-        fetch("Menu.html")
-          .then((response) => response.text())
-          .then((data) => {
-            document.getElementById("menu-container").innerHTML = data;
-          })
-          .catch((error) => console.error("Lỗi tải menu:", error));
+    {% endblock %}
 
-        // Tải nội dung footer.html vào phần tử cuối của trang
-        fetch("footer.html")
-          .then((response) => response.text())
-          .then((data) => {
-            const footerContainer = document.createElement("div");
-            footerContainer.innerHTML = data; // Chèn nội dung từ footer.html vào
-            document.body.appendChild(footerContainer); // Thêm footer vào cuối body
-          })
-          .catch((error) => console.error("Lỗi tải footer:", error));
-      };
-    </script>
+    {% include 'app1/Footer.html' %}
+    
   </body>
 </html>

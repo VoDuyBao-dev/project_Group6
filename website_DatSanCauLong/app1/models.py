@@ -1,32 +1,33 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
 import uuid
 
 # User model
-class User(AbstractUser):
-    USER_TYPES = (
-    ('guest', 'Guest'),
-    ('customer', 'Customer'),
-    ('court_manager', 'Court Manager'),
-    ('court_staff', 'Court Staff'),
-    ('admin', 'System Admin'),
-    )
-    user_type = models.CharField(max_length=20, choices=USER_TYPES, default='guest')
+# class User(AbstractUser):
+#     USER_TYPES = (
+#     ('guest', 'Guest'),
+#     ('customer', 'Customer'),
+#     ('court_manager', 'Court Manager'),
+#     ('court_staff', 'Court Staff'),
+#     ('admin', 'System Admin'),
+#     )
+#     user_type = models.CharField(max_length=20, choices=USER_TYPES, default='guest')
 
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='user_user_set', # Add related_name to avoid clashes
-        blank=True,
-        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
-        verbose_name='groups',
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='user_user_set', # Add related_name to avoid clashes
-        blank=True,
-        help_text='Specific permissions for this user.',
-        verbose_name='user permissions',
-    )
+#     groups = models.ManyToManyField(
+#         'auth.Group',
+#         related_name='user_user_set', # Add related_name to avoid clashes
+#         blank=True,
+#         help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
+#         verbose_name='groups',
+#     )
+#     user_permissions = models.ManyToManyField(
+#         'auth.Permission',
+#         related_name='user_user_set', # Add related_name to avoid clashes
+#         blank=True,
+#         help_text='Specific permissions for this user.',
+#         verbose_name='user permissions',
+#     )
 
 # Guest and Customer models
 class Customer(models.Model):

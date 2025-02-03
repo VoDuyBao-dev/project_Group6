@@ -190,7 +190,7 @@ class SearchForm(forms.Form):
     query = forms.CharField(
         max_length=100,
         widget=forms.TextInput(attrs={
-            'placeholder': 'Tìm sân cầu lông...'
+            'placeholder': 'Tìm kiếm...'
         })
     )
   
