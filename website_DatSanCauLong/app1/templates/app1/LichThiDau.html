@@ -1,12 +1,17 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quản lý lịch thi đấu</title>
-    <link rel="stylesheet" href="/project_Group6/website_DatSanCauLong/app1/static/app1/CSS/LichThiDau.css" />
+    <link rel="stylesheet" href="{% static 'app1/CSS/LichThiDau.css' %}" />
+    <script src="{% static 'app1/js/layout-customer.js' %}"></script>
   </head>
   <body>
+    {% include 'app1/Header-customer.html' %}
+    {% include 'app1/Menu-manager.html' %}
+    {% block content %}
     <div id="menu-container"></div>
     <h1>Quản lý lịch thi đấu</h1>
 
@@ -111,5 +116,7 @@
 
     <!-- Lớp phủ bóng khi form cập nhật hiển thị -->
     <div id="updateFormOverlay" class="overlay"></div>
+    {% endblock %}
+    {% include 'app1/Footer.html' %}
   </body>
 </html>

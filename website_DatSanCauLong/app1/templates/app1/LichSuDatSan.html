@@ -1,13 +1,17 @@
+{%load static %}
 <!DOCTYPE html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lịch Sử Đặt Sân</title>
-    <link rel="stylesheet" href="/project_Group6/website_DatSanCauLong/app1/static/app1/CSS/LichSuDatSan.css" />
+    <link rel="stylesheet" href="{% static 'app1/CSS/LichSuDatSan.css' %}" />
+    <script src="{% static 'app1/js/layout-customer.js' %}"></script>
   </head>
   <body>
-    <div id="menu-container"></div>
+    {% include 'app1/Header-customer.html' %}
+    {% include 'app1/Menu.html' %}
+    
           <h2>Lịch Sử Đặt Sân</h2>
     <div class="container">
       <div class="ticket">
@@ -31,26 +35,6 @@
             <button class="cancel-btn">Hủy</button> <!-- Nút hủy -->
           </div>
       </div>
-      <script>
-        window.onload = function () {
-          // Tải nội dung menu.html vào phần tử có id="menu-container"
-          fetch("Menu.html")
-            .then((response) => response.text())
-            .then((data) => {
-              document.getElementById("menu-container").innerHTML = data;
-            })
-            .catch((error) => console.error("Lỗi tải menu:", error));
-  
-          // Tải nội dung footer.html vào phần tử cuối của trang
-          fetch("Footer.html")
-            .then((response) => response.text())
-            .then((data) => {
-              const footerContainer = document.createElement("div");
-              footerContainer.innerHTML = data; // Chèn nội dung từ footer.html vào
-              document.body.appendChild(footerContainer); // Thêm footer vào cuối body
-            })
-            .catch((error) => console.error("Lỗi tải footer:", error));
-        };
-      </script>
+      {% include 'app1/Footer.html' %}
   </body>
 </html>

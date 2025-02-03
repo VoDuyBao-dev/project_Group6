@@ -1,0 +1,75 @@
+body {
+    font-family: 'Poppins', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f8ff;
+    color: #282828;
+    overflow: visible;
+}
+
+.container {
+    width: 90%;
+    max-width: 900px;
+    margin: 20px auto;
+    background: #fff !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+
+}
+
+.title {
+    background: #004d99 !important;
+    color: #fff !important;
+    padding: 20px;
+    text-align: center;
+    font-size: 35px;
+    color: #e6c542 !important;
+    font-weight: bold;
+}
+
+.pricing-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.pricing-table th,
+.pricing-table td {
+    padding: 15px;
+    text-align: center;
+    border: 1px solid #ddd;
+    font-size: 18px;
+    color: #000;
+}
+
+.pricing-table td[rowspan] {
+    background-color: #004d99 !important;
+    color: #ffffff !important;
+    font-weight: bold;
+    font-size: 22px;
+    font-family: 'Playfair Display', serif;
+}
+
+.pricing-table th {
+    background: #004d99 !important;
+    color: #ffffff !important;
+    font-weight: bold;
+    font-size: 22px;
+    font-family: 'Playfair Display', serif;
+}
+
+.row-highlight {
+    background: #9bcdff !important;
+}
+
+.highlight {
+    color: #cbd039 !important;
+    font-weight: bold;
+}
+
+.note {
+    padding: 15px;
+    background: #fffae6 !important;
+    color: #805700 !important;
+    border-left: 5px solid #ffd633;
+    margin: 15px 0;
+}

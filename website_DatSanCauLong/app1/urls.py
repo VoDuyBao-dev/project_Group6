@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.shortcuts import render 
 from . import views
 from .views import *
 
@@ -15,9 +16,25 @@ urlpatterns = [
     path('validate_otp_fogotpassword/', views.validate_otp_of_ForgotPassword, name='validate_otp_of_ForgotPassword'),
 
     path('new_password/', New_password.as_view(), name= 'New_Password'),
-    path('trangchu/', views.TrangChu, name= 'TrangChu'),
+    path('trangchu_guest/', views.TrangChu_guest, name= 'TrangChu_guest'),
+    path('trangchu_customer/', views.TrangChu_customer, name= 'TrangChu_customer'),
     path('trangOTP/', views.trangOTP, name= 'trangOTP'),
-   
+    path('header_guest/', views.header_guest, name='header'),
+    path('header_customer/', views.header_customer, name='header1'),
+    path('menu/', views.menu, name='menu'),
+    path('footer/', views.footer, name='footer'),
+    path('History/', views.History, name= 'History'),
+    path('fee_guest/', views.fee_guest, name='fee_guest'),
+    path('fee_customer/', views.fee_customer, name='fee_customer'),
+    path('san_guest/', views.san_guest, name='san_guest'),
+    path('san_customer/', views.san_customer, name='san_customer'),
+    path('bao_cao/', views.bao_cao, name='bao_cao'),
+    path('checkin/', views.checkin, name='checkin'),
+    path('dang_ky/', views.dangky, name='dang_ky'),
+    path('lichThiDau/', views.lichThiDau, name='lichThiDau'),
+    path('them_san/', views.themSan, name='them_san'),
+  
 ]
+# coi url
 
-# coi urls
+

@@ -1,3 +1,4 @@
+{%load static %}
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -5,14 +6,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Footer Example</title>
-    <link rel="stylesheet" href="/project_Group6/website_DatSanCauLong/app1/static/app1/CSS/Footer.css">
+    <link rel="stylesheet" href="{% static 'app1/CSS/Footer.css'%}">
 </head>
 
 <body>
+
     <div class="footer">
         <div class="footer-column">
             <div class="footer-logo">
-                <img src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/logo.jpg" alt="Beta Cinemas Logo">
+                <img src="{% static 'app1/images/logo.png' %}" alt="Beta Cinemas Logo">
             </div>
             <h3>Sân cầu lông siêu cấp VIP PRO</h3>
             <h3>Liên hệ hợp tác kinh doanh:</h3>

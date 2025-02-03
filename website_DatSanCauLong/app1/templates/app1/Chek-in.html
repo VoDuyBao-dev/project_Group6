@@ -1,13 +1,19 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Check-in</title>
-    <link rel="stylesheet" href="/project_Group6/website_DatSanCauLong/app1/static/app1/CSS/Check-in.css" />
+    <link rel="stylesheet" href="{% static 'app1/CSS/Check-in.css' %}" />
+    <script src="{% static 'app1/js/layout-customer.js' %}"></script>
   </head>
+
   <body>
-    <div id="menu-container"></div>
+    {% include 'app1/Header-customer.html' %}
+    {% include 'app1/Menu-manager.html' %}
+    {% block content %}
+    <div id="menu2-container"></div>
     <div class="checkin-container">
       <h2>Check-in</h2>
       <form id="checkinForm">
@@ -43,5 +49,7 @@
 
       <div id="message" class="message"></div>
     </div>
+    {% endblock %}
+    {% include 'app1/Footer.html' %}
   </body>
 </html>

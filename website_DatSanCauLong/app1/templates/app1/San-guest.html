@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="vi">
   <head>
@@ -6,16 +7,21 @@
     <title>Các sân cầu lông</title>
     <link
       rel="stylesheet"
-      href="/project_Group6/website_DatSanCauLong/app1/static/app1/CSS/San.css"
+      href="{% static 'app1/css/San.css' %}"
     />
   </head>
+
   <body>
+    {% include 'app1/Header-guest.html' %}
+    {% include 'app1/Menu.html' %}
+   
+
     <div id="menu-container"></div>
     <div class="container">
       <!-- Sân 1 -->
       <div class="court">
         <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
+          src="{% static 'app1/images/sancaulong.png' %}"
           alt="Sân Cầu Lông 1"
           class="court-image"
         />
@@ -29,7 +35,7 @@
       <!-- Sân 2 -->
       <div class="court">
         <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
+          src="{% static 'app1/images/sancaulong.png' %}"
           alt="Sân Cầu Lông 2"
           class="court-image"
         />
@@ -43,7 +49,7 @@
       <!-- Sân 3 -->
       <div class="court">
         <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
+          src="{% static 'app1/images/sancaulong.png' %}"
           alt="Sân Cầu Lông 3"
           class="court-image"
         />
@@ -57,7 +63,7 @@
       <!-- Sân 4 -->
       <div class="court">
         <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
+          src="{% static 'app1/images/sancaulong.png' %}"
           alt="Sân Cầu Lông 4"
           class="court-image"
         />
@@ -71,7 +77,7 @@
       <!-- Sân 5 -->
       <div class="court">
         <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
+          src="{% static 'app1/images/sancaulong.png' %}"
           alt="Sân Cầu Lông 5"
           class="court-image"
         />
@@ -85,7 +91,7 @@
       <!-- Sân 6 -->
       <div class="court">
         <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
+          src="{% static 'app1/images/sancaulong.png' %}"
           alt="Sân Cầu Lông 6"
           class="court-image"
         />
@@ -99,7 +105,7 @@
       <!-- Sân 7 -->
       <div class="court">
         <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
+          src="{% static 'app1/images/sancaulong.png' %}"
           alt="Sân Cầu Lông 7"
           class="court-image"
         />
@@ -113,7 +119,7 @@
       <!-- Sân 8 -->
       <div class="court">
         <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
+          src="{% static 'app1/images/sancaulong.png' %}"
           alt="Sân Cầu Lông 8"
           class="court-image"
         />
@@ -127,7 +133,7 @@
       <!-- Sân 9 -->
       <div class="court">
         <img
-          src="/project_Group6/website_DatSanCauLong/app1/static/app1/images/sancaulong.png"
+          src="{% static 'app1/images/sancaulong.png' %}"
           alt="Sân Cầu Lông 9"
           class="court-image"
         />
@@ -138,26 +144,6 @@
         <button class="book-btn">Đặt sân</button>
       </div>
     </div>
-    <script>
-      window.onload = function () {
-        // Tải nội dung menu.html vào phần tử có id="menu-container"
-        fetch("Menu.html")
-          .then((response) => response.text())
-          .then((data) => {
-            document.getElementById("menu-container").innerHTML = data;
-          })
-          .catch((error) => console.error("Lỗi tải menu:", error));
-
-        // Tải nội dung footer.html vào phần tử cuối của trang
-        fetch("Footer.html")
-          .then((response) => response.text())
-          .then((data) => {
-            const footerContainer = document.createElement("div");
-            footerContainer.innerHTML = data; // Chèn nội dung từ footer.html vào
-            document.body.appendChild(footerContainer); // Thêm footer vào cuối body
-          })
-          .catch((error) => console.error("Lỗi tải footer:", error));
-      };
-    </script>
+    {% include 'app1/Footer.html' %}
   </body>
 </html>

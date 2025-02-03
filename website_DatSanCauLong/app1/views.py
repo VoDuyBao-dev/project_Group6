@@ -31,9 +31,26 @@ def handle_send_otp(request, form_input):
         send_otp_email(username, otp)
         
 
-def TrangChu(request):
-    return render(request, 'app1/trangchu.html')
+def TrangChu_guest(request):
+    return render(request, 'app1/TrangChu-guest.html')
 
+def TrangChu_customer(request):
+    return render(request, 'app1/TrangChu-customer.html')
+
+def header_guest(request):
+    return render(request, 'app1/Header-guest.html')
+
+def header_customer(request):
+    return render(request, 'app1/Header-customer.html')
+
+def menu(request):
+    return render(request, 'app1/Menu.html')
+
+def menu_manager(request):
+    return render(request, 'app1/Menu-manager.html')
+
+def footer(request):
+    return render(request, 'app1/Footer.html')
 
 class Sign_Up(View):
     def get(self, request):
@@ -266,6 +283,35 @@ class New_password(View):
         user.save()
         messages.success(request, "Đổi mật khẩu thành công!")
         return redirect('Sign_in')
+def History(request):
+    return render(request, 'app1/LichSuDatSan.html')
+
+def fee_guest(request):
+    return render(request, 'app1/fee-guest.html')
+
+def fee_customer(request):
+    return render(request, 'app1/fee_customer.html')
+
+def san_guest(request):
+    return render(request, 'app1/San-guest.html')
+
+def san_customer(request):
+    return render(request, 'app1/San-customer.html')
+
+def bao_cao(request):
+    return render(request, 'app1/BaoCaoDoanhThu.html')
+
+def checkin(request):
+    return render(request, 'app1/Chek-in.html')
+
+def dangky(request):
+    return render(request, 'app1/DangKiTaiKhoanThanhToan.html')
+
+def lichThiDau(request):
+    return render(request, 'app1/LichThiDau.html')
+
+def themSan(request):
+    return render(request, 'app1/ThemSanMoi.html')
 
 # def court_badminton(request):
 #     get_court = CourtBadminton.objects.all()

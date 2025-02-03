@@ -1,14 +1,20 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng ký tài khoản thanh toán</title>
-    <link rel="stylesheet" href="/project_Group6/website_DatSanCauLong/app1/static/app1/CSS/DangKiTaiKhoanThanhToan.css">
+    <link rel="stylesheet" href="{% static 'app1/CSS/DangKiTaiKhoanThanhToan.css' %}"/>
+    <script src="{% static 'app1/js/layout-customer.js' %}"></script>
 </head>
+
 <body>
+    {% include 'app1/Header-customer.html' %}
+    {% include 'app1/Menu-manager.html' %}
+    {% block content %}
     <div id="menu-container"></div>
-<div class="registration-container">
+    <div class="registration-container">
     <h2>Đăng ký tài khoản thanh toán</h2>
     <form id="registrationForm">
         <label for="accountHolder">Tên chủ tài khoản</label>
@@ -29,5 +35,7 @@
 
     <div id="message" class="message"></div>
 </div>
+{% endblock %}
+{% include 'app1/Footer.html' %}
 </body>
 </html>
