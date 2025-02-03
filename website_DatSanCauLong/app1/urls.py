@@ -18,7 +18,7 @@ urlpatterns = [
     path('trangchu/', views.TrangChu, name= 'TrangChu'),
     path('trangOTP/', views.trangOTP, name= 'trangOTP'),
 # thêm thông tin về giá và thời gian của các lịch đặt sân.
-    path('add-timeslot-template/', add_timeslot_template, name='add_timeslot_template'),
+    path('add_timeslot_template/', add_timeslot_template, name='add_timeslot_template'),
 
 
 ]

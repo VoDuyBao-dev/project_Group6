@@ -438,4 +438,4 @@ def add_timeslot_template(request):
             return redirect('success_url')  # Thay 'success_url' bằng URL bạn muốn chuyển hướng đến sau khi lưu thành công
     else:
         form = TimeSlotTemplateForm()
-    return render(request, 'add_timeslot_template.html', {'form': form})
+    return render(request, 'app1/add_timeslot_template.html', {'form': form})
