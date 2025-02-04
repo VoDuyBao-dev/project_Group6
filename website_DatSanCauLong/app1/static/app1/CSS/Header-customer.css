@@ -1,0 +1,174 @@
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+.header-container {
+    position: relative;
+    /* Làm hệ quy chiếu cho logo */
+    background: radial-gradient(circle at bottom, #d4f1f9 0%, #9ccfe6 25%, #72b0c8 50%, #5094b6 75%, #1f78a7 100%) !important;
+    height: 68px;
+    /* Chiều cao của thanh header */
+    overflow: visible !important;
+    z-index: 1000;
+}
+
+.logo-section {
+    position: absolute;
+    align-items: center;
+    padding: 0 15px;
+    top: -20px;
+    left: 80px;
+    z-index: 50;
+}
+
+.logo-img {
+    height: 20%;
+    width: 20%;
+    padding: 10px;
+
+}
+
+.header {
+    display: flex;
+    padding: 8px 0;
+    color: #0e0e56 !important;
+    position: fixed;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+.search-container {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px 0 15px 0;
+}
+
+
+.nav {
+    padding: 0 0 0 350px;
+    display: flex;
+    align-items: center;
+}
+
+.search-form {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-form input {
+    padding: 10px;
+    width: 400px;
+    border-radius: 25px 0 0 25px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+.search-form button {
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #5094b6 !important;
+    color: white !important;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    outline: none;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+.search-form button i {
+    font-size: 18px;
+}
+
+.search-form button:hover {
+    background-color: #777 !important;
+}
+
+.btn {
+    text-decoration: none;
+    color: white !important;
+    background-color: #555 !important;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-left: 10px;
+    transition: background 0.3s;
+}
+
+.btn:hover {
+    background-color: #777 !important;
+}
+
+.login-btn {
+    background-color: #007bff !important;
+}
+
+.login-btn:hover {
+    background-color: #0056b3 !important;
+}
+
+.signup-btn {
+    background-color: #28a745 !important;
+}
+
+.signup-btn:hover {
+    background-color: #218838 !important;
+}
+
+.user-info {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    z-index: 1000;
+}
+
+.user-info img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    right: 15px;
+    background-color: white !important;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    display: none;
+    width: 180px;
+    z-index: 9999;
+}
+
+.dropdown.active {
+    display: block;
+}
+
+.dropdown a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333333 !important;
+    border-bottom: 1px solid #ddd;
+}
+
+.dropdown a:last-child {
+    border-bottom: none;
+}
+
+.dropdown a:hover {
+    background-color: #4675dc !important;
+    color: white !important;
+}

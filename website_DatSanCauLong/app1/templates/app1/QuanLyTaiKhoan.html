@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý tài khoản</title>
+    <link rel="stylesheet" href="/project_Group6/website_DatSanCauLong/app1/static/app1/CSS/QuanLyTaiKhoan.css">
+    <!-- Thêm liên kết Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="menu-container"></div>
+    <h1>Quản lý tài khoản</h1>
+    <div class="container">
+        <!-- Form Thêm tài khoản -->
+        <div class="form-container">
+            <h2>Thêm tài khoản mới</h2>
+            <form id="addAccountForm">
+                <input type="text" id="username" placeholder="Tên đăng nhập" required>
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Mật khẩu" required>
+                <select id="role" required>
+                    <option value="" disabled selected>Chọn vai trò</option>
+                    <option value="admin">Quản trị viên</option>
+                    <option value="user">Người dùng</option>
+                </select>
+                <button type="submit" class="btn"><i class="fas fa-plus"></i> Thêm tài khoản</button>
+            </form>
+        </div>
+
+        <!-- Danh sách tài khoản -->
+        <h2>Danh sách tài khoản</h2>
+        <table id="accountList">
+            <thead>
+                <tr>
+                    <th>Tên đăng nhập</th>
+                    <th>Email</th>
+                    <th>Vai trò</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Các tài khoản sẽ được thêm vào đây -->
+            </tbody>
+        </table>
+
+        <!-- Chỉnh sửa tài khoản -->
+        <div class="account-detail hidden">
+            <h2>Chỉnh sửa tài khoản</h2>
+            <form id="editAccountForm">
+                <input type="text" id="editUsername" placeholder="Tên đăng nhập" required>
+                <input type="email" id="editEmail" placeholder="Email" required>
+                <input type="text" id="editPassword" placeholder="Mật khẩu" required>
+                <select id="editRole" required>
+                    <option value="admin">Quản trị viên</option>
+                    <option value="user">Người dùng</option>
+                </select>
+                <div class="actions">
+                    <button type="submit" class="btn">Cập nhật tài khoản</button>
+                    <button type="button" class="btn" onclick="deleteAccount()">Xóa tài khoản</button>
+                    <button type="button" class="btn" onclick="cancelEdit()">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

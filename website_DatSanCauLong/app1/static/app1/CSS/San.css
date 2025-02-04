@@ -1,0 +1,160 @@
+/* Đặt lại các kiểu mặc định của trình duyệt */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: visible;
+}
+
+/* Định dạng cho body */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f7f7f7;
+    padding: 0;
+    margin: 0;
+    overflow: visible
+}
+
+/* Định dạng cho container */
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 30px;
+    /* Khoảng cách giữa các sân */
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+    top: 50px;
+    overflow: visible;
+}
+
+/* Định dạng cho mỗi sân */
+.court {
+    width: 30%;
+    /* Mỗi sân chiếm 1/3 chiều rộng của container */
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.4s ease, box-shadow 0.4s ease, background-color 0.3s ease;
+    overflow: hidden;
+    /* Đảm bảo không bị tràn ngoài */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    overflow: visible;
+}
+
+/* Hiệu ứng hover cho sân */
+.court:hover {
+    transform: scale(1.05);
+    /* Phóng to sân khi hover */
+    box-shadow: 0 8px 20px rgba(174, 157, 157, 0.2);
+    background-color: #f1f1f1;
+    /* Thêm hiệu ứng thay đổi màu nền */
+}
+
+/* Tiêu đề sân */
+.court h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    margin: 15px 0;
+    transition: color 0.3s ease;
+}
+
+/* Hiệu ứng cho tiêu đề khi hover */
+.court:hover h3 {
+    color: #6ab4c8;
+    /* Thay đổi màu chữ khi hover */
+}
+
+/* Định dạng cho hình ảnh sân */
+.court-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+    /* Bo tròn các góc của hình ảnh */
+    margin-bottom: 15px;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    /* Thêm hiệu ứng cho zoom và hiệu ứng mờ */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    /* Thêm bóng đổ nhẹ cho hình ảnh */
+}
+
+/* Hiệu ứng zoom hình ảnh khi hover */
+.court:hover .court-image {
+    transform: scale(1.1);
+    /* Zoom ảnh khi hover */
+    filter: brightness(0.8);
+    /* Tối một chút hình ảnh khi hover */
+}
+
+/* Thông tin sân */
+.court p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+/* Nút đặt sân */
+.book-btn {
+    padding: 12px 25px;
+    background-color: #6ab4c8;
+    color: white;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    margin-top: auto;
+    /* Đẩy nút xuống dưới cùng */
+    position: relative;
+}
+
+/* Hiệu ứng hover cho nút */
+.book-btn:hover {
+    background-color: #ed5928;
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    /* Thêm bóng cho nút khi hover */
+}
+
+/* Hiệu ứng động cho sân khi load */
+.court {
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+}
+
+/* Animation khi sân xuất hiện */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Media Query cho màn hình nhỏ */
+@media (max-width: 1024px) {
+    .court {
+        width: 48%;
+        /* Hai sân trên cùng một hàng */
+    }
+}
+
+@media (max-width: 768px) {
+    .court {
+        width: 100%;
+        /* Mỗi sân chiếm toàn bộ chiều rộng trên màn hình nhỏ */
+    }
+}

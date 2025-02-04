@@ -1,0 +1,26 @@
+const loadCSS = (url) => {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = url;
+  document.head.appendChild(link);
+};
+
+const loadHTML = (url, containerId, cssUrl) => {
+  fetch(url)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then((data) => {
+      document.getElementById(containerId).innerHTML = data;
+      if (cssUrl) loadCSS(cssUrl); // Chỉ thêm CSS nếu có URL được cung cấp
+    })
+    .catch((error) => console.error(`Lỗi tải ${url}:`, error));
+};
+
+// Gọi hàm loadHTML với file CSS tương ứng
+loadHTML("/header/", "header-container", "/static/app1/css/header.css");
+loadHTML("/menu/", "menu-container", "/static/app1/css/menu.css");
+loadHTML("/footer/", "footer-container", "/static/app1/css/footer.css");

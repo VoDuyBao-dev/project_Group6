@@ -1,0 +1,41 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1000px; /* Tăng chiều rộng container */
+    margin: 40px auto;
+    padding: 40px;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+    text-align: center;
+    color: #333 !important;
+    font-size: 36px; /* Tăng kích thước chữ tiêu đề */
+    margin-bottom: 20px;
+}
+
+.select-container {
+    margin: 30px 0;
+    text-align: center;
+    color: black !important;
+}
+
+select {
+    padding: 15px;
+    font-size: 18px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    width: 200px; /* Tăng chiều rộng của dropdown */
+}
+
+canvas {
+    margin-top: 40px;
+    width: 100% !important; /* Đảm bảo biểu đồ chiếm 100% chiều rộng */
+    height: 400px !important; /* Tăng chiều cao của biểu đồ */
+}
