@@ -93,14 +93,14 @@ from decouple import config
 
 
 DATABASES = {
-'default': {
-'ENGINE': 'django.db.backends.mysql',
-'NAME': 'tmp',
-'USER': 'root',
-'PASSWORD': 'mysqlvilan',
-'HOST': '127.0.0.1', # hoặc địa chỉ IP máy chủ MySQL
-'PORT': '3306',
-}
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'tmp',
+        'USER': 'root',
+        'PASSWORD': 'mysqlvilan',
+        'HOST': '127.0.0.1', # hoặc địa chỉ IP máy chủ MySQL
+        'PORT': '3306',
+    }
 }
 
 
