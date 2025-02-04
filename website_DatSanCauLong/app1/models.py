@@ -30,7 +30,7 @@ class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
     # stk = models.CharField(max_length=20, null=True, blank=True)
     def __str__(self):
-        return self.user_id.username
+        return self.user.username
 
 # Court Manager models
 class CourtManager(models.Model):
@@ -38,7 +38,7 @@ class CourtManager(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_manager')
 
     def __str__(self):
-        return self.user_id.username
+        return self.user.username
 
 # System Admin model
 class SystemAdmin(models.Model):
@@ -75,13 +75,12 @@ class Booking(models.Model):
     status = models.BooleanField(default=False) # đã đặt hoặc đã hủy
 
     def __str__(self):
-        return f"Booking for {self.customer_id.user_id.username} on {self.date} at {self.start_time}"
+        return f"Booking for {self.customer.user.username} on {self.date} at {self.start_time}"
 
 
 class Payment(models.Model):
     payment_id = models.CharField(primary_key=True, max_length=5, default=lambda: nanoid.generate(size=5), editable=False)
-    booking = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='payment')
-    customer = models.OneToOneField(Customer, on_delete=models.CASCADE, related_name='payment')
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='payment')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_date = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField(default=False) # đã thanh toán hay chưa
@@ -130,9 +129,10 @@ class CourtStaff(models.Model):
     badminton_hall = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, related_name='staff')
     court = models.ManyToManyField(Court, related_name='court_staff', blank=True)  # Thêm liên kết với Court
 
-    def get_court_status(self):
-        """Lấy danh sách tình trạng sân mà nhân viên có thể xem"""
-        return {court.name: court.slots.all() for court in self.courts.all()}
+    # def get_court_status(self):
+    #     """Lấy danh sách tình trạng sân mà nhân viên có thể xem"""
+    #     return {c.name: c.slots.all() for c in self.courts.all()}
+
 
     def __str__(self):
         return f"{self.user.username} - {self.badminton_hall.name}"
@@ -143,6 +143,7 @@ class CheckIn(models.Model):
     court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='check_ins')
     court_staff = models.ForeignKey(CourtStaff, on_delete=models.SET_NULL, null=True, related_name='check_ins')
     check_in_time = models.DateTimeField(auto_now_add=True)
+    badminton_hall = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, related_name='check_ins')
 
     def __str__(self):
         return f"{self.customer.user.username} checked in at {self.court.name} on {self.check_in_time}"
@@ -155,10 +156,13 @@ class Revenue(models.Model):
     total_revenue = models.DecimalField(max_digits=15, decimal_places=2)
     generated_at = models.DateTimeField(auto_now_add=True)
 
-    def calculate_total_revenue(self):
-        """Tính tổng doanh thu dựa trên các khoản thanh toán liên quan"""
-        self.total_revenue = self.payments.aggregate(total=models.Sum('amount'))['total'] or 0
-        self.save()
+# from django.db.models import Sum
+
+    # def calculate_total_revenue(self):
+    #     """Tính tổng doanh thu dựa trên các khoản thanh toán liên quan"""
+    #     total = self.payments.aggregate(total=Sum('amount'))['total']
+    #     self.total_revenue = total if total is not None else 0
+    #     self.save()
 
     def __str__(self):
         return f"Revenue Report ({self.generated_at.date()}) - {self.total_revenue} VND"
