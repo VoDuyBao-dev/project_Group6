@@ -33,6 +33,8 @@ urlpatterns = [
     path('dang_ky/', views.dangky, name='dang_ky'),
     path('lichThiDau/', views.lichThiDau, name='lichThiDau'),
     path('them_san/', views.themSan, name='them_san'),
+    path('payment/', views.payment, name='payment'),
+    path('booking/', views.booking, name='booking'),
   
 ]
 # coi url

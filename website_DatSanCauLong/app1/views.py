@@ -313,6 +313,12 @@ def lichThiDau(request):
 def themSan(request):
     return render(request, 'app1/ThemSanMoi.html')
 
+def booking(request):
+    return render(request, 'app1/Book.html')
+
+def payment(request):
+    return render(request, 'app1/payment.html')
+
 # def court_badminton(request):
 #     get_court = CourtBadminton.objects.all()
 #     context = {'courts': get_court}
