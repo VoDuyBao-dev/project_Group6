@@ -136,8 +136,7 @@ class CourtStaff(models.Model):
 # Revenue Report model
 class RevenueReport(models.Model):
     revenueReport_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
-    badminton_hall_id = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, related_name='revenue_reports',
-    null=True, blank=True)
+    badminton_hall_id = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, related_name='revenue_reports',)
     generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
     total_revenue = models.DecimalField(max_digits=15, decimal_places=2)
     generated_at = models.DateTimeField(auto_now_add=True)
