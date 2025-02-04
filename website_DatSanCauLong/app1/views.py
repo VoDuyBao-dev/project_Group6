@@ -3,7 +3,7 @@ from django.shortcuts import render,redirect
 from django.views import View
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from django.contrib.auth import authenticate, login, decorators
+from django.contrib.auth import authenticate, login, decorators, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
@@ -32,17 +32,16 @@ def handle_send_otp(request, form_input):
         send_otp_email(username, otp)
         
 
-def TrangChu_guest(request):
-    return render(request, 'app1/TrangChu-guest.html')
+def TrangChu(request):
+    search_court = SearchForm() 
+    context = {'searchCourt': search_court}  
+    return render(request, 'app1/TrangChu.html', context)
 
-def TrangChu_customer(request):
-    return render(request, 'app1/TrangChu-customer.html')
 
-def header_guest(request):
-    return render(request, 'app1/Header-guest.html')
-
-def header_customer(request):
-    return render(request, 'app1/Header-customer.html')
+def header_user(request):
+    search_court = SearchForm() 
+    context = {'searchCourt': search_court}  
+    return render(request, 'app1/Header-user.html',context)
 
 def menu(request):
     return render(request, 'app1/Menu.html')
@@ -186,13 +185,16 @@ class Sign_In(View):
         return render(request, 'app1/Sign_in.html', context)
 
     def post(self, request):
-        # Khởi tạo form với dữ liệu POST
+        # Nếu user đã đăng nhập, không cần đăng nhập lại
+        if request.user.is_authenticated:
+            return redirect('TrangChu')
+
+        # Khởi tạo form với dữ liệu từ request.POST
         sign_in_form = SignInForm(request.POST)
         context = {'SignIn': sign_in_form}
-       
+
         # Lấy số lần đăng nhập sai từ session (mặc định là 0)
         failed_attempts = request.session.get('failed_attempts', 0)
-
 
         # Kiểm tra form hợp lệ
         if not sign_in_form.is_valid():
@@ -204,34 +206,32 @@ class Sign_In(View):
         remember_me = request.POST.get('remember_me') == 'on'  # Checkbox "Nhớ tài khoản"
 
         # Xác thực người dùng
-        user = authenticate(username=username, password=password)
-        print(user)
+        user = authenticate(request, username=username, password=password)
 
-        if user:
-            # Đăng nhập thành công
+        if user is not None:
+            # Đăng nhập user vào session
             login(request, user)
-            response = redirect('TrangChu_customer')
-            
-            # Lưu username vào cookie nếu chọn "Nhớ tài khoản"
+            request.session['failed_attempts'] = 0  # Reset số lần sai
+
+            # Chuyển hướng về trang chủ sau khi đăng nhập thành công
+            response = redirect('TrangChu')
+
+            # Lưu email vào cookie nếu chọn "Nhớ tài khoản"
             if remember_me:
-                response.set_cookie('remembered_email', username, max_age=7 * 24 * 60 * 60)  # Lưu trong 7 ngày
+                response.set_cookie('remembered_email', username, max_age=7 * 24 * 60 * 60)
             else:
                 response.delete_cookie('remembered_email')
 
             return response
         else:
-            # Nếu đã sai 5 lần trở lên, yêu cầu reset mật khẩu
-            if failed_attempts >= 5:
-                context['error_message'] = "Bạn đã nhập sai quá 5 lần. Vui lòng lấy lại mật khẩu."
-                return render(request, 'app1/Sign_in.html', context)
-            # Đăng nhập thất bại: tăng số lần sai và thông báo lỗi
-            failed_attempts += 1
-            request.session['failed_attempts'] = failed_attempts
+            # Nếu nhập sai 5 lần trở lên, yêu cầu reset mật khẩu
+            if failed_attempts >= 4:
+                context['error_message'] = "Bạn đã nhập sai quá 5 lần. Vui lòng đặt lại mật khẩu."
+            else:
+                request.session['failed_attempts'] = failed_attempts + 1
+                context['error_message'] = "Email hoặc mật khẩu không đúng."
 
-            context['error_message'] = "Email hoặc mật khẩu không đúng."
             return render(request, 'app1/Sign_in.html', context)
-
-
 # Quên mật khẩu
 class ForgotPassword(View):
     def get(self,request):
@@ -301,21 +301,28 @@ class New_password(View):
         user.save()
         messages.success(request, "Đổi mật khẩu thành công!")
         return redirect('Sign_in')
+    
+# Đăng xuất 
+def Logout(request):
+    logout(request)
+    return redirect('TrangChu')
+
 def History(request):
     return render(request, 'app1/LichSuDatSan.html')
 
 def price_list(request):
-    return render(request, 'app1/price_list.html')
+    search_court = SearchForm() 
+    context = {'searchCourt': search_court}  
+    return render(request, 'app1/price_list.html',context)
 
-def san_guest(request):
+def San(request):
     courts = Court.objects.all()
-    context = {'courts': courts}
-    return render(request, 'app1/San-guest.html', context)
-
-def san_customer(request):
-    courts = Court.objects.all()
-    context = {'courts': courts}
-    return render(request, 'app1/San-customer.html', context)
+    search_court = SearchForm()
+    context = {
+        'courts': courts,
+        'searchCourt': search_court
+    }
+    return render(request, 'app1/San.html', context)
 
 def bao_cao(request):
     return render(request, 'app1/BaoCaoDoanhThu.html')
@@ -332,31 +339,31 @@ def lichThiDau(request):
 def themSan(request):
     return render(request, 'app1/ThemSanMoi.html')
 
+        
+
 class SearchCourt(View):
     def get(self, request):
-        search_court = SearchForm() 
-        context = {'search_court': search_court}  
-        return render(request, 'app1/Header-customer.html',context)
-        
-    def post(self, request):
-        search_court = SearchForm(request.GET or None)  # Lấy giá trị GET từ người dùng
+        search_court = SearchForm(request.GET)  # Lấy giá trị GET từ người dùng
         results = []
 
         if search_court.is_valid():
-            query = search_court.cleaned_data['query']
+            query = search_court.cleaned_data.get('query', '').strip()
             
+            # Chỉ tìm kiếm khi có dữ liệu
             if query:
                 # Tìm kiếm sân theo tên hoặc địa chỉ tương đối
                 filters = Q()
                 filters |= Q(name__icontains=query)  # Tìm tên sân chứa từ khóa
                 filters |= Q(badminton_hall_id__address__icontains=query)  # Tìm địa chỉ sân chứa từ khóa
-                results = Court.objects.filter(filters)  # Thực hiện tìm kiếm với bộ lọc
+                results = Court.objects.filter(filters).order_by('name')  # Thực hiện tìm kiếm với bộ lọc
                 
         context = {
             'searchCourt': search_court,
             'courts': results  # Trả về kết quả tìm kiếm
         }
         return render(request, 'app1/kqTimKiem.html', context)
+        
+    
 
 
 

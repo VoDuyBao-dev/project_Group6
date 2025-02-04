@@ -65,7 +65,7 @@
         {% endfor %}
         </div>
         {% else %}
-      <p>Không tìm thấy sân cầu lông nào phù hợp với từ khóa "{{ searchCourt.query }}".</p>
+      <p>Không tìm thấy sân cầu lông nào phù hợp với từ khóa "{{ request.GET.query }}".</p>
         {% endif %}
     </div> 
   </body>
