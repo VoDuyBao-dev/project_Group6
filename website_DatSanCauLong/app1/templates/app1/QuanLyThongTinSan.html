@@ -1,3 +1,4 @@
+{% load static%}
 <!DOCTYPE html>
 <html lang="vi">
   <head>
@@ -6,10 +7,13 @@
     <title>Quản Lý Thông Tin Sân</title>
     <link
       rel="stylesheet"
-      href="/project_Group6/website_DatSanCauLong/app1/static/app1/CSS/QuanLyThongTinSan.css"
+      href="{% static 'app1/CSS/QuanLyThongTinSan.css' %}"
     />
   </head>
   <body>
+    {% include 'app1/Header-customer.html' %}
+    {% include 'app1/Menu-manager.html' %}
+    {% block content %}
     <h1>Quản Lý Sân</h1>
     <main>
       <section>
@@ -70,5 +74,7 @@
     </main>
 
     <button class="add-court-btn" onclick="addCourt()">+</button>
+    {% endblock %}
+    {% include 'app1/Footer.html' %}
   </body>
 </html>

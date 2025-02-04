@@ -84,6 +84,7 @@ body {
     align-items: center;
     justify-content: center;
     transition: background 0.3s;
+    width: 50px;
 }
 
 .search-form button i {

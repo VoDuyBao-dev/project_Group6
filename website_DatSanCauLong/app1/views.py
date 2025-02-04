@@ -315,11 +315,17 @@ def lichThiDau(request):
 def themSan(request):
     return render(request, 'app1/ThemSanMoi.html')
 
-def QuanLyThongTinSan(request):
-    return render(request, 'app1/QuanLyThongTinSan.html')
+def booking(request):
+    return render(request, 'app1/Book.html')
 
-def QuanLyTaiKhoan(request):
+def payment(request):
+    return render(request, 'app1/payment.html')
+
+def manager_taikhoan(request):
     return render(request, 'app1/QuanLyTaiKhoan.html')
+
+def manager_san(request):
+    return render(request, 'app1/QuanLyThongTinSan.html')
 
 # def court_badminton(request):
 #     get_court = CourtBadminton.objects.all()
