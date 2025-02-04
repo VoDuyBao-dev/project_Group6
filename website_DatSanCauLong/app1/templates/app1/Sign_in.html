@@ -14,20 +14,21 @@
 
   <body>
     {% if messages %}
-      <ul>
-        {% for message in messages %}
-        <li>{{ message }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
+    <ul class="messages">
+      {% for message in messages %}
+      <li class="{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% if error_message %}
+    <div class="alert alert-danger">{{ error_message }}</div>
+    {% endif %}
     <form class="login-form" action="{% url 'Sign_in' %}" method="post">
-        {% csrf_token %}
+      {% csrf_token %}
       <h1 class="login-title">Đăng nhập</h1>
       <div class="input-box">
-        <i class="bx bxs-user"></i>
-        <!-- Hiển thị trường input -->
+        <i class="fas fa-user"></i>
         {{ SignIn.username }}
-        
         {% if SignIn.username.errors %}
         <ul class="error-list">
           {% for error in SignIn.username.errors %}
@@ -37,10 +38,8 @@
         {% endif %}
       </div>
       <div class="input-box">
-        <i class="bx bxs-lock-alt"></i>
-        <!-- Hiển thị trường input -->
+        <i class="fas fa-lock"></i>
         {{ SignIn.password }}
-        
         <span
           class="toggle-password"
           onclick="togglePasswordVisibility('id_password')"
@@ -50,7 +49,12 @@
       </div>
       <div class="remember-fogot-box">
         <label for="remember">
-            <input type="checkbox" id="remember" name="remember_me" {% if remember_me %}checked{% endif %} />
+          <input
+            type="checkbox"
+            id="remember"
+            name="remember_me"
+            {% if remember_me %}checked{% endif %}
+          />
           Nhớ tài khoản
         </label>
         <a href="{% url 'Forgot_password' %}">Quên mật khẩu?</a>
@@ -58,10 +62,9 @@
       <button class="Login-btn">Đăng nhập</button>
       <p class="register">
         Chưa có tài khoản?
-        <a href="{% url 'Sign_up'%}">Đăng ký tại đây</a>
+        <a href="{% url 'Sign_up' %}">Đăng ký tại đây</a>
       </p>
-      <script src="{% static 'app1/js/Script-icon.js'%}"></script>
+      <script src="{% static 'app1/js/Script-icon.js' %}"></script>
     </form>
-  
   </body>
 </html>

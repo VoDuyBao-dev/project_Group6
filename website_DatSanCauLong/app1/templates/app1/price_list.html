@@ -7,14 +7,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bảng Giá Thuê Sân</title>
     <link rel="stylesheet" href="{% static 'app1/CSS/Fee.css' %}">
-    <script src="{% static 'app1/js/layout-guest.js'%}" defer></script>
+    <script src="{% static 'app1/js/layout-customer.js'%}" defer></script>
 </head>
 
 <body>
 
-    {% include 'app1/Header-guest.html' %}
+    {% include 'app1/Header-user.html' %}
     {% include 'app1/Menu.html' %}
-    {% block content %}
+ {% block content %}
     <div class="container">
         <h1 class="title">BẢNG GIÁ THUÊ SÂN</h1>
         <table class="pricing-table">

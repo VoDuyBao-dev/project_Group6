@@ -100,6 +100,16 @@ class Court(models.Model):
     court_id = models.CharField(primary_key=True, max_length=5, default=lambda: nanoid.generate(size=5), editable=False)
     badminton_hall = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, related_name='courts')
     name = models.CharField(max_length=255)
+    image = models.ImageField(null=True, blank=True)
+    def __str__(self):
+        return f"{self.name}"
+    @property
+    def ImageURL(self):
+        try:
+            url = self.image.url
+        except:
+            url =''
+        return url
 
 class TimeSlotTemplate(models.Model):
     STATUS_CHOICES = (
@@ -122,6 +132,33 @@ class Slot(models.Model):
     court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='slots') # Gắn với sân
     template = models.ForeignKey(TimeSlotTemplate, on_delete=models.CASCADE, related_name='slots')
 
+# Booking model
+class Booking(models.Model):
+    booking_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
+    BOOKING_TYPES = (
+    ('fixed', 'Fixed'),
+    ('daily', 'Daily'),
+    ('flexible', 'Flexible'),
+    )
+    customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='bookings')
+    court_id = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='bookings')
+    slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name='bookings')
+    booking_type = models.CharField(max_length=20, choices=BOOKING_TYPES)
+    date = models.DateField()
+    start_time = models.TimeField(default='00:00:00')
+    end_time = models.TimeField(default='00:00:00')
+    status = models.BooleanField(default=False) # đã đặt hoặc đã hủy
+
+    def __str__(self):
+        return f"Booking for {self.customer} on {self.date} at {self.time}"
+
+class Payment(models.Model):
+    payment_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
+    booking_id = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='payment')
+    customer_id = models.OneToOneField(Customer, on_delete=models.CASCADE, default='p1', related_name='payment')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_date = models.DateTimeField(auto_now_add=True)
+    status = models.BooleanField(default=False) # đã thanh toán hay chưa
 
 # Court Staff model
 class CourtStaff(models.Model):

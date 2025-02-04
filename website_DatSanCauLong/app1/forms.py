@@ -195,3 +195,12 @@ class TimeSlotTemplateForm(forms.ModelForm):
     class Meta:
         model = TimeSlotTemplate
         fields = ['day_of_week', 'time_frame', 'fixed_price', 'daily_price', 'flexible_price', 'status']
+        
+class SearchForm(forms.Form):
+    query = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Tìm kiếm...'
+        })
+    )
+  
