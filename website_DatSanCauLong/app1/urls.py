@@ -5,6 +5,7 @@ from . import views
 from .views import *
 
 urlpatterns = [
+    path('', views.TrangChu, name= 'TrangChu'),
     path('sign_in/', Sign_In.as_view(), name= 'Sign_in'),
     path('Logout/', views.Logout, name='Logout'),
     path('sign_up/', Sign_Up.as_view(), name= 'Sign_up'),
@@ -17,7 +18,7 @@ urlpatterns = [
     # xác thực OTP quên mật khẩu
     path('validate_otp_fogotpassword/', views.validate_otp_of_ForgotPassword, name='validate_otp_of_ForgotPassword'),
     path('new_password/', New_password.as_view(), name= 'New_Password'),
-    path('TrangChu/', views.TrangChu, name= 'TrangChu'),
+    
    
     # Tìm kiếm sân:
     path('SearchCourt/', SearchCourt.as_view(), name= 'SearchCourt'),
