@@ -16,17 +16,6 @@ urlpatterns = [
     path('validate_otp_fogotpassword/', views.validate_otp_of_ForgotPassword, name='validate_otp_of_ForgotPassword'),
 
     path('new_password/', New_password.as_view(), name= 'New_Password'),
-<<<<<<< HEAD
-    path('trangchu/', views.TrangChu, name= 'TrangChu'),
-    path('trangOTP/', views.trangOTP, name= 'trangOTP'),
-# thêm thông tin về giá và thời gian của các lịch đặt sân.
-    path('add_timeslot_template/', add_timeslot_template, name='add_timeslot_template'),
-
-
-]
-
-# coi urls
-=======
     path('trangchu_guest/', views.TrangChu_guest, name= 'TrangChu_guest'),
     path('trangchu_customer/', views.TrangChu_customer, name= 'TrangChu_customer'),
     path('trangOTP/', views.trangOTP, name= 'trangOTP'),
@@ -49,4 +38,3 @@ urlpatterns = [
 # coi url
 
 
->>>>>>> Frontend/HuynhThiTuyetSang

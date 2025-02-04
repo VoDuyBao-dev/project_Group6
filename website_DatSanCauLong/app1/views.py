@@ -294,8 +294,6 @@ class New_password(View):
         user.save()
         messages.success(request, "Đổi mật khẩu thành công!")
         return redirect('Sign_in')
-<<<<<<< HEAD
-=======
 def History(request):
     return render(request, 'app1/LichSuDatSan.html')
 
@@ -325,7 +323,6 @@ def lichThiDau(request):
 
 def themSan(request):
     return render(request, 'app1/ThemSanMoi.html')
->>>>>>> Frontend/HuynhThiTuyetSang
 
 # def court_badminton(request):
 #     get_court = CourtBadminton.objects.all()
@@ -477,7 +474,6 @@ def themSan(request):
 #     qr_code_data = f'data:image/png;base64,{encoded_img}'
 #     return render(request, 'QuanLiUser/qr_code.html', {'qr_code_data': qr_code_data})
 
-<<<<<<< HEAD
 
 
 
@@ -498,5 +494,3 @@ def add_timeslot_template(request):
     else:
         form = TimeSlotTemplateForm()
     return render(request, 'app1/add_timeslot_template.html', {'form': form})
-=======
->>>>>>> Frontend/HuynhThiTuyetSang
