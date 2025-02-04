@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -78,30 +80,22 @@ WSGI_APPLICATION = 'website_DatSanCauLong.wsgi.application'
 from decouple import config
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': config('DB_NAME'),
-#         'USER': config('DB_USER'),
-#         'PASSWORD': config('DB_PASSWORD'),
-#         'HOST': config('DB_HOST'),
-#         'PORT': config('DB_PORT'),
-#     }
-   
-# }
-
-
 DATABASES = {
-'default': {
-'ENGINE': 'django.db.backends.mysql',
-'NAME': 'tmp',
-'USER': 'root',
-'PASSWORD': 'mysqlvilan',
-'HOST': '127.0.0.1', # hoặc địa chỉ IP máy chủ MySQL
-'PORT': '3306',
-}
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
+    }
+   
 }
 
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 
 # Password validation
@@ -139,16 +133,25 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'app1/static')]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Images
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static')
+]
+    
+MEDIA_URL = '/image/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'app1/static/app1/images')
+
 # EMAIL
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'mariathanhsuong1206@gmail.com'  
-EMAIL_HOST_PASSWORD = 'uhgqyngohcrlqnax'  
+EMAIL_HOST = config('EMAIL_HOST')  
+EMAIL_PORT = config('EMAIL_PORT', cast=int)  
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool) 
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')  
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')  
