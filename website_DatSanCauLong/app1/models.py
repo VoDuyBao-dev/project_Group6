@@ -81,6 +81,7 @@ class Booking(models.Model):
 class Payment(models.Model):
     payment_id = models.CharField(primary_key=True, max_length=5, default=lambda: nanoid.generate(size=5), editable=False)
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='payment')
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='payments')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_date = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField(default=False) # đã thanh toán hay chưa
@@ -129,10 +130,8 @@ class CourtStaff(models.Model):
     badminton_hall = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, related_name='staff')
     court = models.ManyToManyField(Court, related_name='court_staff', blank=True)  # Thêm liên kết với Court
 
-    # def get_court_status(self):
-    #     """Lấy danh sách tình trạng sân mà nhân viên có thể xem"""
-    #     return {c.name: c.slots.all() for c in self.courts.all()}
-
+    def get_court_status(self):
+        return {c.name: c.slots.all() for c in self.courts.all()}
 
     def __str__(self):
         return f"{self.user.username} - {self.badminton_hall.name}"
@@ -143,11 +142,6 @@ class CheckIn(models.Model):
     court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='check_ins')
     court_staff = models.ForeignKey(CourtStaff, on_delete=models.SET_NULL, null=True, related_name='check_ins')
     check_in_time = models.DateTimeField(auto_now_add=True)
-    badminton_hall = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, related_name='check_ins')
-
-    def __str__(self):
-        return f"{self.customer.user.username} checked in at {self.court.name} on {self.check_in_time}"
-
 
 class Revenue(models.Model):
     revenue_id = models.CharField(primary_key=True, max_length=5, default=lambda: nanoid.generate(size=5), editable=False)
