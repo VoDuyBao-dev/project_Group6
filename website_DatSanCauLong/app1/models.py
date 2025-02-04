@@ -56,28 +56,6 @@ class SystemAdmin(models.Model):
 # user = User.register_account(username=username, password=password, email=email, user_type='customer')
 # return Customer.objects.create(user=user)
 
-
-# Booking model
-class Booking(models.Model):
-    booking_id = models.CharField(primary_key=True, max_length=5, default=lambda: nanoid.generate(size=5), editable=False)
-    BOOKING_TYPES = (
-        ('fixed', 'Fixed'),
-        ('daily', 'Daily'),
-        ('flexible', 'Flexible'),
-    )
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='bookings')
-    court = models.ForeignKey('Court', on_delete=models.CASCADE, related_name='bookings')
-    slot = models.ForeignKey('Slot', on_delete=models.CASCADE, related_name='bookings')
-    booking_type = models.CharField(max_length=20, choices=BOOKING_TYPES)
-    date = models.DateField()
-    start_time = models.TimeField(default='00:00:00')
-    end_time = models.TimeField(default='00:00:00')
-    status = models.BooleanField(default=False) # đã đặt hoặc đã hủy
-
-    def __str__(self):
-        return f"Booking for {self.customer.user.username} on {self.date} at {self.start_time}"
-
-
 class Payment(models.Model):
     payment_id = models.CharField(primary_key=True, max_length=5, default=lambda: nanoid.generate(size=5), editable=False)
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='payment')
@@ -136,9 +114,9 @@ class Slot(models.Model):
 class Booking(models.Model):
     booking_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
     BOOKING_TYPES = (
-    ('fixed', 'Fixed'),
-    ('daily', 'Daily'),
-    ('flexible', 'Flexible'),
+        ('fixed', 'Fixed'),
+        ('daily', 'Daily'),
+        ('flexible', 'Flexible'),
     )
     customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='bookings')
     court_id = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='bookings')
