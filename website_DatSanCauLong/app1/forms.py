@@ -3,11 +3,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
-<<<<<<< HEAD
 from .models import TimeSlotTemplate
 
-=======
->>>>>>> Frontend/HuynhThiTuyetSang
 # Kiểm tra định dạng email
 def is_valid_email(email):
     
@@ -191,7 +188,6 @@ class NewPasswordForm(forms.Form):
         return cleaned_data  # Trả về dữ liệu đã làm sạch
     
 
-<<<<<<< HEAD
 
 
 # Tạo form cho TimeSlotTemplate(thêm khung thời gian và giá)
@@ -199,5 +195,3 @@ class TimeSlotTemplateForm(forms.ModelForm):
     class Meta:
         model = TimeSlotTemplate
         fields = ['day_of_week', 'time_frame', 'fixed_price', 'daily_price', 'flexible_price', 'status']
-=======
->>>>>>> Frontend/HuynhThiTuyetSang

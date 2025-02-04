@@ -30,23 +30,23 @@ class User(AbstractUser):
 
 class Customer(models.Model):
     customer_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
-    Thongtintaikhoan = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
+    user_id = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
     # stk = models.CharField(max_length=20, null=True, blank=True)
     def __str__(self):
-        return self.Thongtintaikhoan.username
+        return self.user_id.username
 
 # Court Manager models
 class CourtManager(models.Model):
     courtManager_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
-    Thongtintaikhoan = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_manager')
+    user_id = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_manager')
 
     def __str__(self):
-        return self.Thongtintaikhoan.username
+        return self.user_id.username
 
 # System Admin model
 class SystemAdmin(models.Model):
     systemAdmin_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
-    Thongtintaikhoan = models.OneToOneField(User, on_delete=models.CASCADE, related_name='system_admin')
+    user_id = models.OneToOneField(User, on_delete=models.CASCADE, related_name='system_admin')
 
 # Guest model functionality
 # class Guest:
@@ -78,7 +78,7 @@ class Booking(models.Model):
     status = models.BooleanField(default=False) # đã đặt hoặc đã hủy
 
     def __str__(self):
-        return f"Booking for {self.customer_id.Thongtintaikhoan.username} on {self.date} at {self.start_time}"
+        return f"Booking for {self.customer_id.user_id.username} on {self.date} at {self.start_time}"
 
 
 class Payment(models.Model):
@@ -125,7 +125,7 @@ class Slot(models.Model):
 # Court Staff model
 class CourtStaff(models.Model):
     courtStaff_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
-    Thongtintaikhoan = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_staff')
+    user_id = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_staff')
     badminton_hall_id = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, related_name='staff')
 
 # # CheckIn model
@@ -136,9 +136,9 @@ class CourtStaff(models.Model):
 # check_in_time = models.DateTimeField(auto_now_add=True)
 
 # Revenue Report model
-class RevenueReport(models.Model):
-    revenueReport_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
+class Revenue(models.Model):
+    revenue_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
     badminton_hall_id = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, related_name='revenue_reports')
-    generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
     total_revenue = models.DecimalField(max_digits=15, decimal_places=2)
     generated_at = models.DateTimeField(auto_now_add=True)

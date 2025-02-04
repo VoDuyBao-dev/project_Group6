@@ -17,11 +17,8 @@ from django.http import JsonResponse
 import json
 
 
-<<<<<<< HEAD
 from .forms import TimeSlotTemplateForm
 
-=======
->>>>>>> Frontend/HuynhThiTuyetSang
 # Create your views here.   
 
 # HÀM KIỂM TRA MÃ OTP ĐỂ TÁI SỬ DỤNG:
@@ -36,11 +33,6 @@ def handle_send_otp(request, form_input):
         send_otp_email(username, otp)
         
 
-<<<<<<< HEAD
-def TrangChu(request):
-    return render(request, 'app1/trangchu.html')
-
-=======
 def TrangChu_guest(request):
     return render(request, 'app1/TrangChu-guest.html')
 
@@ -61,7 +53,6 @@ def menu_manager(request):
 
 def footer(request):
     return render(request, 'app1/Footer.html')
->>>>>>> Frontend/HuynhThiTuyetSang
 
 class Sign_Up(View):
     def get(self, request):
@@ -323,6 +314,12 @@ def lichThiDau(request):
 
 def themSan(request):
     return render(request, 'app1/ThemSanMoi.html')
+
+def QuanLyThongTinSan(request):
+    return render(request, 'app1/QuanLyThongTinSan.html')
+
+def QuanLyTaiKhoan(request):
+    return render(request, 'app1/QuanLyTaiKhoan.html')
 
 # def court_badminton(request):
 #     get_court = CourtBadminton.objects.all()

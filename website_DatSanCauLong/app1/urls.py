@@ -33,7 +33,12 @@ urlpatterns = [
     path('dang_ky/', views.dangky, name='dang_ky'),
     path('lichThiDau/', views.lichThiDau, name='lichThiDau'),
     path('them_san/', views.themSan, name='them_san'),
+    path('QuanLyThongTinSan/', views.QuanLyThongTinSan, name='QuanLyThongTinSan'),
+    path('QuanLyTaiKhoan/', views.QuanLyTaiKhoan, name='QuanLyTaiKhoan'),
   
+
+    path('add_timeslot_template/', views.add_timeslot_template, name='add_timeslot_template'),
+
 ]
 # coi url
 
