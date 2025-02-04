@@ -1,0 +1,154 @@
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4 !important;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s ease;
+}
+
+/* Đầu trang */
+h1 {
+    background-color: #dcd5d5 !important;
+    color: black !important;
+    text-align: center ;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Phần chứa nội dung chính */
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    color: black;
+}
+
+/* Thiết lập kiểu cho bảng danh sách tài khoản */
+table {
+    width: 100%;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+}
+
+/* Viền cho bảng và các ô */
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+/* Kiểu chữ cho các ô trong bảng */
+th, td {
+    padding: 12px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+/* Đổi màu nền cho tiêu đề bảng */
+th {
+    background-color: #1f82a0;
+    color: white;
+}
+
+/* Hiệu ứng hover cho các ô bảng */
+th:hover, td:hover {
+    background-color: #f1f1f1;
+}
+
+/* Các nút bấm */
+.btn {
+    background-color:#1f82a0;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hiệu ứng hover cho nút */
+.btn:hover {
+    background-color: #e3c936;
+    transform: scale(1.05); /* Hiệu ứng phóng to khi hover */
+}
+
+/* Form thêm tài khoản */
+.form-container {
+    margin-bottom: 20px;
+}
+
+/* Các ô nhập liệu trong form */
+input[type="text"], input[type="email"], input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    transition: border-color 0.3s ease;
+}
+
+/* Thay đổi màu sắc biên giới ô nhập liệu khi focus */
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+/* Định dạng cho các nút trong form chỉnh sửa */
+.actions {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Nút xóa và hủy trong form chỉnh sửa */
+.actions button {
+    background-color: #f44336;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hiệu ứng hover cho nút xóa và hủy */
+.actions button:hover {
+    background-color: #e53935;
+    transform: scale(1.05); /* Hiệu ứng phóng to khi hover */
+}
+
+/* Ẩn form chỉnh sửa khi chưa cần thiết */
+.hidden {
+    display: none;
+}
+
+/* Định dạng cho phần chỉnh sửa tài khoản */
+.account-detail {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+/* Hiệu ứng cho phần chỉnh sửa khi mở */
+.account-detail.show {
+    transform: translateY(0); /* Mở form chỉnh sửa từ dưới lên */
+}
+
+/* Thêm hiệu ứng cho phần chứa tài khoản */
+table tr:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}
+
+/* Thêm hiệu ứng cho phần tiêu đề */
+h1 {
+    font-size: 28px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}

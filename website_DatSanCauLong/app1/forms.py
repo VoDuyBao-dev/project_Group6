@@ -194,3 +194,53 @@ class SearchForm(forms.Form):
         })
     )
   
+
+class RegisterPaymentAccountForm(forms.Form):
+    accountHolder = forms.CharField(
+        label="Tên chủ tài khoản",
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Nhập tên chủ tài khoản', 
+            'required': True
+        })
+    )
+    accountNumber = forms.CharField(
+        label="Số tài khoản",
+        max_length=50,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Nhập số tài khoản', 
+            'required': True
+        })
+    )
+    paymentMethod = forms.ChoiceField(
+        label="Phương thức thanh toán",
+        choices=[
+            ("", "Chọn phương thức thanh toán"),
+            ("bank", "Ngân hàng"),
+            ("momo", "Momo")
+        ],
+        widget=forms.Select(attrs={'required': True})
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        accountHolder = cleaned_data.get("accountHolder")
+        # Loại bỏ khoảng trắng ở đầu hoặc cuối
+        accountHolder = accountHolder.strip()
+        accountNumber = cleaned_data.get("accountNumber")
+
+        errors = {}
+
+        if not re.match(r'^[A-Za-z\s]+$', accountHolder):
+            errors['accountHolder'] = "Tên chủ tài khoản chỉ được chứa chữ cái in hoa, chữ cái thường và khoảng trắng."
+
+        if not accountNumber.isdigit():
+            errors['accountNumber'] = "Số tài khoản chỉ được chứa các chữ số."
+
+        if len(accountNumber) < 8:
+            errors['accountNumber'] = "Số tài khoản phải có ít nhất 8 chữ số."
+            
+        for field, error in errors.items():
+            self.add_error(field, error)
+
+        return cleaned_data  # Trả về dữ liệu đã làm sạch

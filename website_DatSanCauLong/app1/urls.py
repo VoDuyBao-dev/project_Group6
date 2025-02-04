@@ -33,10 +33,13 @@ urlpatterns = [
     path('San/', views.San, name='San'),
     path('bao_cao/', views.bao_cao, name='bao_cao'),
     path('checkin/', views.checkin, name='checkin'),
-    path('dang_ky/', views.dangky, name='dang_ky'),
+    path('DangKyTaiKhoanThanhToan/', DangKyTaiKhoanThanhToan.as_view(), name='DangKyTaiKhoanThanhToan'),
     path('lichThiDau/', views.lichThiDau, name='lichThiDau'),
     path('them_san/', views.themSan, name='them_san'),
-  
+    path('payment/', views.payment, name='payment'),
+    path('booking/', views.booking, name='booking'),
+    path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
+    path('manager_san/', views.manager_san, name='manager_san'),
 ]
 # coi url
 

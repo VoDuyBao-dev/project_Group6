@@ -330,8 +330,37 @@ def bao_cao(request):
 def checkin(request):
     return render(request, 'app1/Chek-in.html')
 
-def dangky(request):
-    return render(request, 'app1/DangKiTaiKhoanThanhToan.html')
+class DangKyTaiKhoanThanhToan(View):
+
+    def get(self,request):
+        register_payment_Account=RegisterPaymentAccountForm()
+        search_court = SearchForm()
+        context = {
+            'Register_Payment_Account': register_payment_Account,
+            'searchCourt': search_court
+        }
+        return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+
+    def post(self,request):
+        register_payment_Account=RegisterPaymentAccountForm(request.POST)
+        search_court = SearchForm()
+        context = {
+            'Register_Payment_Account': register_payment_Account,
+            'searchCourt': search_court
+        }
+
+        if not register_payment_Account.is_valid():
+            return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+        
+        # Nếu form hợp lệ, lưu thông tin tạm thời vào session
+        username = register_payment_Account.cleaned_data['username']
+        request.session['username'] = username
+        # Gửi OTP sau khi form hợp lệ
+        handle_send_otp(request, register_payment_Account)
+
+        context['action'] = 'REGISTER_PAYMENT_ACCOUNT'  
+
+        return render(request, 'app1/Enter_OTP.html', context)
 
 def lichThiDau(request):
     return render(request, 'app1/LichThiDau.html')
@@ -339,6 +368,75 @@ def lichThiDau(request):
 def themSan(request):
     return render(request, 'app1/ThemSanMoi.html')
 
+def booking(request):
+    return render(request, 'app1/Book.html')
+
+def payment(request):
+    return render(request, 'app1/payment.html')
+
+def manager_taikhoan(request):
+    return render(request, 'app1/QuanLyTaiKhoan.html')
+
+def manager_san(request):
+    return render(request, 'app1/QuanLyThongTinSan.html')
+
+# def court_badminton(request):
+#     get_court = CourtBadminton.objects.all()
+#     context = {'courts': get_court}
+#     return render(request, 'QuanLiUser/courtbadminton.html', context)
+
+# @decorators.login_required(login_url='login')
+# def history_booking(request):
+   
+#     get_history = CourtBooking.objects.all()
+#     context = {'historys': get_history}
+#     return render(request,'QuanLiUser/historybooking.html', context)
+
+# def search_court(request):
+#     query = request.GET.get('search_court')
+#     results = []
+#     if query:
+#         results = CourtBadminton.objects.filter(court_name__icontains = query)
+#     return render(request, 'QuanLiUser/kq_tim_kiem.html.html', {'query': query, 'results': results})
+
+# def search_court_two(request):
+#     data = CourtBadminton.objects.values_list('court_name','location','price_per_house')
+#     courts, locations, prices = zip(*data)
+#     return render(request, 'QuanLiUser/search_court2.html', {'courts': courts, 'locations': locations, 'prices': prices}) 
+
+# def result_search(request):
+#     court_name = request.GET.get('court_name')
+#     location = request.GET.get('location')
+#     prices = request.GET.get('price_per_house')
+#     is_available = request.GET.get('is_available')
+#     #chuyển sang true false:
+#     is_available = True if is_available == '1' else False
+#     results = []
+#     results = CourtBadminton.objects.filter(
+#         (Q(court_name__icontains = court_name) | Q(location__icontains = location)|Q(price_per_house__icontains = prices)) & Q(is_available = is_available)
+#     )
+#     return render(request, 'QuanLiUser/kq_tim_kiem.html', {'results': results})
+
+
+
+
+
+
+
+# class ForgotPassword(View):
+
+#     def get(self,request):
+#         ForgotPassword_Form = ForgotPasswordForm()
+#         context = {'form': ForgotPassword_Form}
+#         return render(request, 'QuanLiUser/Forgot_Password.html', context)
+
+#     def post(self, request):
+#         ForgotPassword_Form= ForgotPasswordForm(request.POST, initial={'otp': request.session.get('otp')})
+#         context = {'form': ForgotPassword_Form} 
+
+#         if 'send_otp' in request.POST:
+#             handle_send_otp(request, ForgotPassword_Form, context)
+#             return render(request, 'QuanLiUser/Forgot_Password.html', context)
         
 
 class SearchCourt(View):
