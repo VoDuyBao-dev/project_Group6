@@ -102,9 +102,18 @@ class TimeSlotTemplate(models.Model):
         ('available', 'Available'),
         ('unavailable', 'Unavailable'),
     )
+    DAY_CHOICES = (
+        ('Monday', 'Monday'),
+        ('Tuesday', 'Tuesday'),
+        ('Wednesday', 'Wednesday'),
+        ('Thursday', 'Thursday'),
+        ('Friday', 'Friday'),
+        ('Saturday', 'Saturday'),
+        ('Sunday', 'Sunday'),
+    )
     template_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
-    day_of_week = models.CharField(max_length=20) # Thứ (Monday, Tuesday, ...)
-    time_frame = models.CharField(max_length=50) # Khung giờ (e.g., 05:00-17:00)
+    day_of_week = models.CharField(max_length=20, choices=DAY_CHOICES)
+    time_frame = models.CharField(max_length=50) 
     fixed_price = models.DecimalField(max_digits=10, decimal_places=2)
     daily_price = models.DecimalField(max_digits=10, decimal_places=2)
     flexible_price = models.DecimalField(max_digits=10, decimal_places=2)

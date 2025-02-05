@@ -1,9 +1,12 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Manage Time Slots</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'app1/css/style_time_slots.css' %}" />
   </head>
   <body>
     <h1>Manage Time Slots</h1>
@@ -38,7 +41,11 @@
           <td>{{ slot.flexible_price }}</td>
           <td>{{ slot.status }}</td>
           <td>
-            <a href="{% url 'delete_time_slot' slot.id %}">Delete</a>
+            {% if slot.template_id %}
+              <a href="{% url 'delete_time_slot' slot.template_id %}">Delete</a>
+            {% else %}
+              <span>No ID</span>
+            {% endif %}
           </td>
         </tr>
       {% endfor %}

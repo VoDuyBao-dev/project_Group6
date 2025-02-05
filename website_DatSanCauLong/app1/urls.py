@@ -41,8 +41,8 @@ urlpatterns = [
     # path('manager_san/', views.manager_san, name='manager_san'),
 
 
-    path("manage-time-slots/", views.manage_time_slots, name="manage_time_slots"),
-    path("delete-time-slot/<int:slot_id>/", views.delete_time_slot, name="delete_time_slot"),
+    path('manage_time_slots/', views.manage_time_slots, name='manage_time_slots'),
+    path('delete_time_slot/<str:slot_id>/', views.delete_time_slot, name='delete_time_slot'),
 ]
 # coi url
 

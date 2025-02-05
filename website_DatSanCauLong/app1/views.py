@@ -384,6 +384,7 @@ class SearchCourt(View):
 
 
 
+import nanoid
 
 
 
@@ -393,7 +394,7 @@ def manage_time_slots(request):
         form = TimeSlotTemplateForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect("app1/manage_time_slots")  # Reload lại trang sau khi lưu
+            return redirect("manage_time_slots")  # Reload lại trang sau khi lưu
     else:
         form = TimeSlotTemplateForm()
 
@@ -402,6 +403,6 @@ def manage_time_slots(request):
 
 
 def delete_time_slot(request, slot_id):
-    slot = get_object_or_404(TimeSlotTemplate, id=slot_id)
+    slot = get_object_or_404(TimeSlotTemplate, template_id=slot_id)
     slot.delete()
-    return redirect("app1/manage_time_slots")
+    return redirect("manage_time_slots")
