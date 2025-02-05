@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Báo Cáo Doanh Thu</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{% static 'app1/CSS/BaoCaoDoanhThu.css' %}" />
+    <script src="{% static 'app1/JS/layout-customer.js' %}"></script>
+  </head>
+  <body>
+    {% include 'app1/Header-customer.html' %}
+    {% include 'app1/Menu-manager.html' %}
+    {% block content %}
+    <div id="menu2-container"></div>
+    <div class="container">
+      <h1>Báo Cáo Doanh Thu</h1>
+
+      <!-- Chọn loại báo cáo -->
+      <div class="select-container">
+        <label for="report-type">Chọn loại báo cáo:</label>
+        <select id="report-type" onchange="generateReport()">
+          <option value="month">Theo Tháng</option>
+          <option value="quarter">Theo Quý</option>
+          <option value="year">Theo Năm</option>
+        </select>
+      </div>
+
+      <!-- Biểu đồ doanh thu -->
+      <canvas id="revenueChart" width="400" height="200"></canvas>
+    </div>
+    {% endblock %}
+    {% include 'app1/Footer.html' %}
+  </body>
+</html>
