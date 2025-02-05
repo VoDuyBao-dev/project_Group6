@@ -18,6 +18,7 @@ urlpatterns = [
     path('validate_otp_fogotpassword/', views.validate_otp_of_ForgotPassword, name='validate_otp_of_ForgotPassword'),
     path('new_password/', New_password.as_view(), name= 'New_Password'),
     path('TrangChu/', views.TrangChu, name= 'TrangChu'),
+    path('Email_Sign_up/', views.Email_Sign_up, name= 'Email_Sign_up'),
    
     # Tìm kiếm sân:
     path('SearchCourt/', SearchCourt.as_view(), name= 'SearchCourt'),
@@ -32,15 +33,20 @@ urlpatterns = [
     path('San/', views.San, name='San'),
     path('bao_cao/', views.bao_cao, name='bao_cao'),
     path('checkin/', views.checkin, name='checkin'),
-    path('dang_ky/', views.dangky, name='dang_ky'),
+    path('dang_ky/', views.dangky, name='dang_ky'), # đăng kí tài khoản thanh toán.
     path('lichThiDau/', views.lichThiDau, name='lichThiDau'),
     path('them_san/', views.themSan, name='them_san'),
-    path('payment/', views.Payment, name='payment'),
-    path('booking/', views.Booking, name='booking'),
-    # path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
-    # path('manager_san/', views.manager_san, name='manager_san'),
+    path('payment/', views.payment, name='payment'),
+    path('booking/', views.booking, name='booking'),
+    path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
+    path('manager_san/', views.manager_san, name='manager_san'),
 
+
+    # path('menu_manager/', views.menu_manager, name='menu_manager'),
+    path('header_guest/', views.header_guest, name='header'),
+    path('header_customer/', views.header_customer, name='header1'),
     path('fee_customer/', views.fee_customer, name='fee_customer'),
+    path('fee_guest/', views.fee_guest, name='fee_guest'),
     path('manage_time_slots/', views.manage_time_slots, name='manage_time_slots'),
     path('delete_time_slot/<str:slot_id>/', views.delete_time_slot, name='delete_time_slot'),
 ]

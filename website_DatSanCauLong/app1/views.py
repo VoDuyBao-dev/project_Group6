@@ -317,6 +317,9 @@ def Logout(request):
 def History(request):
     return render(request, 'app1/LichSuDatSan.html')
 
+def payment(request):
+    return render(request, 'app1/payment.html')
+
 def price_list(request):
     search_court = SearchForm() 
     context = {'searchCourt': search_court}  
@@ -347,7 +350,17 @@ def themSan(request):
     return render(request, 'app1/ThemSanMoi.html')
 
 def fee_customer(request):
-    return render(request, 'app1/fee_customer.html')       
+    return render(request, 'app1/fee_customer.html')  
+
+def fee_guest(request):
+    return render(request, 'app1/fee-guest.html')       
+
+def booking(request):
+    return render(request, 'app1/Book.html')
+
+def Email_Sign_up(request):
+    return render(request, 'app1/Email_Sign_up.html')
+
 
 class SearchCourt(View):
     def get(self, request):
@@ -379,8 +392,17 @@ class SearchCourt(View):
 
 
 
+def header_guest(request):
+    return render(request, 'app1/Header-guest.html')
 
+def header_customer(request):
+    return render(request, 'app1/Header-customer.html')
 
+def manager_taikhoan(request):
+    return render(request, 'app1/QuanLyTaiKhoan.html')
+
+def manager_san(request):
+    return render(request, 'app1/QuanLyThongTinSan.html')
 
 
 
