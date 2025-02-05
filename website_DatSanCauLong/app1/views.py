@@ -346,7 +346,8 @@ def lichThiDau(request):
 def themSan(request):
     return render(request, 'app1/ThemSanMoi.html')
 
-        
+def fee_customer(request):
+    return render(request, 'app1/fee_customer.html')       
 
 class SearchCourt(View):
     def get(self, request):

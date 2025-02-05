@@ -40,7 +40,7 @@ urlpatterns = [
     # path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
     # path('manager_san/', views.manager_san, name='manager_san'),
 
-
+    path('fee_customer/', views.fee_customer, name='fee_customer'),
     path('manage_time_slots/', views.manage_time_slots, name='manage_time_slots'),
     path('delete_time_slot/<str:slot_id>/', views.delete_time_slot, name='delete_time_slot'),
 ]
