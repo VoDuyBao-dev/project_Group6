@@ -18,6 +18,8 @@ from .models import *
 import json
 
 
+# from .forms import TimeSlotTemplateForm
+
 # Create your views here.   
 
 # HÀM KIỂM TRA MÃ OTP ĐỂ TÁI SỬ DỤNG:
@@ -36,8 +38,6 @@ def TrangChu(request):
     search_court = SearchForm() 
     context = {'searchCourt': search_court}  
     return render(request, 'app1/TrangChu.html', context)
-
-
 def header_user(request):
     search_court = SearchForm() 
     context = {'searchCourt': search_court}  
@@ -46,8 +46,8 @@ def header_user(request):
 def menu(request):
     return render(request, 'app1/Menu.html')
 
-def menu_manager(request):
-    return render(request, 'app1/Menu-manager.html')
+# def menu_manager(request):
+#     return render(request, 'app1/Menu-manager.html')
 
 def footer(request):
     return render(request, 'app1/Footer.html')
@@ -330,6 +330,30 @@ def bao_cao(request):
 def checkin(request):
     return render(request, 'app1/Chek-in.html')
 
+# Tìm kiếm sân
+class SearchCourt(View):
+    def get(self, request):
+        search_court = SearchForm(request.GET)  # Lấy giá trị GET từ người dùng
+        results = []
+
+        if search_court.is_valid():
+            query = search_court.cleaned_data.get('query', '').strip()
+            
+            # Chỉ tìm kiếm khi có dữ liệu
+            if query:
+                # Tìm kiếm sân theo tên hoặc địa chỉ tương đối
+                filters = Q()
+                filters |= Q(name__icontains=query)  # Tìm tên sân chứa từ khóa
+                filters |= Q(badminton_hall_id__address__icontains=query)  # Tìm địa chỉ sân chứa từ khóa
+                results = Court.objects.filter(filters).order_by('name')  # Thực hiện tìm kiếm với bộ lọc
+                
+        context = {
+            'searchCourt': search_court,
+            'courts': results  # Trả về kết quả tìm kiếm
+        }
+        return render(request, 'app1/kqTimKiem.html', context)
+
+# Đăng ký tài khoản thanh toán của manager
 class DangKyTaiKhoanThanhToan(View):
 
     def get(self,request):
@@ -352,15 +376,19 @@ class DangKyTaiKhoanThanhToan(View):
         if not register_payment_Account.is_valid():
             return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
         
-        # Nếu form hợp lệ, lưu thông tin tạm thời vào session
-        username = register_payment_Account.cleaned_data['username']
-        request.session['username'] = username
-        # Gửi OTP sau khi form hợp lệ
-        handle_send_otp(request, register_payment_Account)
+        # form hợp lệ thì lấy dữ liệu từ form
+        accountHolder = register_payment_Account.cleaned_data['accountHolder']
+        accountNumber = register_payment_Account.cleaned_data['accountNumber']
+        paymentMethod = register_payment_Account.cleaned_data['paymentMethod']
 
-        context['action'] = 'REGISTER_PAYMENT_ACCOUNT'  
+        payment_account = PaymentAccount.objects.create(
+            accountHolder=accountHolder,
+            accountNumber=accountNumber,
+            paymentMethod=paymentMethod
+        )
+        messages.success(request, "Đăng ký tài khoản thanh toán thành công!")
 
-        return render(request, 'app1/Enter_OTP.html', context)
+        return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
 
 def lichThiDau(request):
     return render(request, 'app1/LichThiDau.html')
@@ -379,6 +407,17 @@ def manager_taikhoan(request):
 
 def manager_san(request):
     return render(request, 'app1/QuanLyThongTinSan.html')
+
+
+
+
+
+
+
+
+
+
+
 
 # def court_badminton(request):
 #     get_court = CourtBadminton.objects.all()
@@ -439,27 +478,7 @@ def manager_san(request):
 #             return render(request, 'QuanLiUser/Forgot_Password.html', context)
         
 
-class SearchCourt(View):
-    def get(self, request):
-        search_court = SearchForm(request.GET)  # Lấy giá trị GET từ người dùng
-        results = []
 
-        if search_court.is_valid():
-            query = search_court.cleaned_data.get('query', '').strip()
-            
-            # Chỉ tìm kiếm khi có dữ liệu
-            if query:
-                # Tìm kiếm sân theo tên hoặc địa chỉ tương đối
-                filters = Q()
-                filters |= Q(name__icontains=query)  # Tìm tên sân chứa từ khóa
-                filters |= Q(badminton_hall_id__address__icontains=query)  # Tìm địa chỉ sân chứa từ khóa
-                results = Court.objects.filter(filters).order_by('name')  # Thực hiện tìm kiếm với bộ lọc
-                
-        context = {
-            'searchCourt': search_court,
-            'courts': results  # Trả về kết quả tìm kiếm
-        }
-        return render(request, 'app1/kqTimKiem.html', context)
         
     
 
@@ -471,3 +490,23 @@ class SearchCourt(View):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+# def add_timeslot_template(request):
+#     if request.method == 'POST':
+#         form = TimeSlotTemplateForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('success_url')  # Thay 'success_url' bằng URL bạn muốn chuyển hướng đến sau khi lưu thành công
+#     else:
+#         form = TimeSlotTemplateForm()
+#     return render(request, 'app1/add_timeslot_template.html', {'form': form})
