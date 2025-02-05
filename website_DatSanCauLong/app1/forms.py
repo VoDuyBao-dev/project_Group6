@@ -103,7 +103,8 @@ class SignInForm(forms.Form):
         max_length=150,
         required=True,
         widget=forms.TextInput(attrs={
-            'placeholder': 'Nhập email'
+            'placeholder': 'Nhập email',
+            'id': 'username'
         })
     )
    
@@ -194,7 +195,8 @@ class SearchForm(forms.Form):
     query = forms.CharField(
         max_length=100,
         widget=forms.TextInput(attrs={
-            'placeholder': 'Tìm kiếm...'
+            'placeholder': 'Tìm kiếm...',
+            'id': 'search_query'
         })
     )
   
