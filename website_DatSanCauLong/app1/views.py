@@ -320,10 +320,10 @@ def History(request):
 def payment(request):
     return render(request, 'app1/payment.html')
 
-def price_list(request):
-    search_court = SearchForm() 
-    context = {'searchCourt': search_court}  
-    return render(request, 'app1/price_list.html',context)
+# def price_list(request):
+#     search_court = SearchForm() 
+#     context = {'searchCourt': search_court}  
+#     return render(request, 'app1/price_list.html',context)
 
 def San(request):
     courts = Court.objects.all()
@@ -350,10 +350,12 @@ def themSan(request):
     return render(request, 'app1/ThemSanMoi.html')
 
 def fee_customer(request):
-    return render(request, 'app1/fee_customer.html')  
+    time_slots = TimeSlotTemplate.objects.all()
+    return render(request, "app1/fee_customer.html", {"time_slots": time_slots})
 
 def fee_guest(request):
-    return render(request, 'app1/fee-guest.html')       
+    time_slots = TimeSlotTemplate.objects.all()
+    return render(request, "app1/fee-guest.html", {"time_slots": time_slots})
 
 def booking(request):
     return render(request, 'app1/Book.html')
@@ -423,6 +425,11 @@ def manage_time_slots(request):
 
     time_slots = TimeSlotTemplate.objects.all()
     return render(request, "app1/manage_time_slots.html", {"form": form, "time_slots": time_slots})
+
+# thêm thời gian và giá của từng loại hình đặt lịch
+def price_list(request):
+    time_slots = TimeSlotTemplate.objects.all()
+    return render(request, "app1/price_list.html", {"time_slots": time_slots})
 
 
 def delete_time_slot(request, slot_id):

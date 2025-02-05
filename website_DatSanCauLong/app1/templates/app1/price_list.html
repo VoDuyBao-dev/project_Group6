@@ -1,81 +1,61 @@
-{%load static%}
+{% load static %}
 <!DOCTYPE html>
 <html lang="vi">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bảng Giá Thuê Sân</title>
-    <link rel="stylesheet" href="{% static 'app1/CSS/Fee.css' %}">
-    <script src="{% static 'app1/js/layout-customer.js'%}" defer></script>
-</head>
+    <link rel="stylesheet" href="{% static 'app1/CSS/Fee.css' %}" />
+    <script src="{% static 'app1/js/layout-customer.js' %}" defer></script>
+  </head>
 
-<body>
-
+  <body>
     {% include 'app1/Header-user.html' %}
     {% include 'app1/Menu.html' %}
- {% block content %}
-    <div class="container">
+    {% block content %}
+      <div class="container">
         <h1 class="title">BẢNG GIÁ THUÊ SÂN</h1>
         <table class="pricing-table">
-            <thead>
-                <tr>
-                    <th>Thời Gian</th>
-                    <th>Khung Giờ</th>
-                    <th>Cố Định</th>
-                    <th>Linh hoạt</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td rowspan="3">Thứ 2 - 6</td>
-                    <td>5h - 17h</td>
-                    <td>60k</td>
-                    <td>70k</td>
-                </tr>
-                <tr>
-                    <td>17h - 22h</td>
-                    <td>110k</td>
-                    <td>120k</td>
-                </tr>
-                <tr>
-                    <td>22h - 24h</td>
-                    <td>60k</td>
-                    <td>60k</td>
-                </tr>
-                <tr class="row-highlight">
-                    <td rowspan="3">Thứ 7</td>
-                    <td>5h - 17h</td>
-                    <td>90k</td>
-                    <td>100k</td>
-                </tr>
-                <tr class="row-highlight">
-                    <td>17h - 22h</td>
-                    <td>110k</td>
-                    <td>120k</td>
-                </tr>
-                <tr class="row-highlight">
-                    <td>22h - 24h</td>
-                    <td>60k</td>
-                    <td>60k</td>
-                </tr>
-                <tr>
-                    <td rowspan="3">Chủ Nhật</td>
-                    <td>Cả ngày</td>
-                    <td>100k</td>
-                    <td>120k</td>
-                </tr>
-            </tbody>
+          <thead>
+            <tr>
+              <th>Thời Gian</th>
+              <th>Khung Giờ</th>
+              <th>Lịch cố định</th>
+              <th>Lịch ngày</th>
+              <th>Lịch linh hoạt</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for price in time_slots %}
+              {% if forloop.counter0 == 0 or forloop.counter == 16 or forloop.counter == 19 %}
+                <th rowspan="4">{{ price.day_of_week }}</th>
+              {% endif %}
+              {% if forloop.counter0 < 3 or forloop.counter > 15 %}
+                {% if forloop.counter0 < 18 and forloop.counter > 15 %}
+                  <tr class="row-highlight">
+                    <td>{{ price.time_frame }}</td>
+                    <td>{{ price.fixed_price|floatformat:0 }}.000 VND</td>
+                    <td>{{ price.daily_price|floatformat:0 }}.000 VND</td>
+                    <td>{{ price.flexible_price|floatformat:0 }}.000 VND</td>
+                  </tr>
+                {% else %}
+                  <tr>
+                    <td>{{ price.time_frame }}</td>
+                    <td>{{ price.fixed_price|floatformat:0 }}.000 VND</td>
+                    <td>{{ price.daily_price|floatformat:0 }}.000 VND</td>
+                    <td>{{ price.flexible_price|floatformat:0 }}.000 VND</td>
+                  </tr>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          </tbody>
         </table>
 
         <div class="note">
-            <strong>Lưu ý:</strong> Ưu đãi 50% chi phí trải nghiệm sân từ ngày 10/12/2024 đến hết ngày 15/12/2024. Các
-            ưu đãi trên chỉ áp dụng khi đăng ký qua Hotline trước ngày 15/12/2024.
+          <strong>Lưu ý:</strong> Ưu đãi 50% chi phí trải nghiệm sân từ ngày 10/12/2024 đến hết ngày 15/12/2024. Các ưu đãi trên chỉ áp dụng khi đăng ký qua Hotline trước ngày 15/12/2024.
         </div>
-    </div>
-    {% endblock  %}
+      </div>
+    {% endblock %}
     {% include 'app1/Footer.html' %}
-
-</body>
-
+  </body>
 </html>

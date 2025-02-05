@@ -17,7 +17,7 @@ urlpatterns = [
     # xác thực OTP quên mật khẩu
     path('validate_otp_fogotpassword/', views.validate_otp_of_ForgotPassword, name='validate_otp_of_ForgotPassword'),
     path('new_password/', New_password.as_view(), name= 'New_Password'),
-    path('TrangChu/', views.TrangChu, name= 'TrangChu'),
+    path('', views.TrangChu, name= 'TrangChu'),
     path('Email_Sign_up/', views.Email_Sign_up, name= 'Email_Sign_up'),
    
     # Tìm kiếm sân:
