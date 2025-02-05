@@ -18,7 +18,10 @@ from .models import *
 import json
 
 
-from .forms import TimeSlotTemplateForm
+from .models import TimeSlotTemplate
+from .forms import TimeSlotTemplateForm  # Sẽ tạo file form ở bước tiếp theo
+from django.shortcuts import get_object_or_404
+
 
 # Create your views here.   
 
@@ -34,16 +37,13 @@ def handle_send_otp(request, form_input):
         send_otp_email(username, otp)
         
 
-<<<<<<< HEAD
 def TrangChu_guest(request):
     return render(request, 'app1/TrangChu-guest.html')
-=======
+
 def TrangChu(request):
     search_court = SearchForm() 
     context = {'searchCourt': search_court}  
     return render(request, 'app1/TrangChu.html', context)
-
->>>>>>> Backend/VoDuyBao
 
 def header_user(request):
     search_court = SearchForm() 
@@ -308,15 +308,12 @@ class New_password(View):
         user.save()
         messages.success(request, "Đổi mật khẩu thành công!")
         return redirect('Sign_in')
-<<<<<<< HEAD
-=======
     
 # Đăng xuất 
 def Logout(request):
     logout(request)
     return redirect('TrangChu')
 
->>>>>>> Backend/VoDuyBao
 def History(request):
     return render(request, 'app1/LichSuDatSan.html')
 
@@ -348,21 +345,6 @@ def lichThiDau(request):
 
 def themSan(request):
     return render(request, 'app1/ThemSanMoi.html')
-<<<<<<< HEAD
-
-def booking(request):
-    return render(request, 'app1/Book.html')
-
-def payment(request):
-    return render(request, 'app1/payment.html')
-
-def manager_taikhoan(request):
-    return render(request, 'app1/QuanLyTaiKhoan.html')
-
-def manager_san(request):
-    return render(request, 'app1/QuanLyThongTinSan.html')
-=======
->>>>>>> Backend/VoDuyBao
 
         
 
@@ -405,16 +387,21 @@ class SearchCourt(View):
 
 
 
-
-
-
-
-def add_timeslot_template(request):
-    if request.method == 'POST':
+# thêm thời gian và giá của từng loại hình đặt lịch
+def manage_time_slots(request):
+    if request.method == "POST":
         form = TimeSlotTemplateForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('success_url')  # Thay 'success_url' bằng URL bạn muốn chuyển hướng đến sau khi lưu thành công
+            return redirect("app1/manage_time_slots")  # Reload lại trang sau khi lưu
     else:
         form = TimeSlotTemplateForm()
-    return render(request, 'app1/add_timeslot_template.html', {'form': form})
+
+    time_slots = TimeSlotTemplate.objects.all()
+    return render(request, "app1/manage_time_slots.html", {"form": form, "time_slots": time_slots})
+
+
+def delete_time_slot(request, slot_id):
+    slot = get_object_or_404(TimeSlotTemplate, id=slot_id)
+    slot.delete()
+    return redirect("app1/manage_time_slots")

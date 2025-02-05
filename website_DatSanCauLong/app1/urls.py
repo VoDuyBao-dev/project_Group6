@@ -17,13 +17,6 @@ urlpatterns = [
     # xác thực OTP quên mật khẩu
     path('validate_otp_fogotpassword/', views.validate_otp_of_ForgotPassword, name='validate_otp_of_ForgotPassword'),
     path('new_password/', New_password.as_view(), name= 'New_Password'),
-<<<<<<< HEAD
-    path('trangchu_guest/', views.TrangChu_guest, name= 'TrangChu_guest'),
-    path('trangchu_customer/', views.TrangChu_customer, name= 'TrangChu_customer'),
-    path('trangOTP/', views.trangOTP, name= 'trangOTP'),
-    path('header_guest/', views.header_guest, name='header'),
-    path('header_customer/', views.header_customer, name='header1'),
-=======
     path('TrangChu/', views.TrangChu, name= 'TrangChu'),
    
     # Tìm kiếm sân:
@@ -31,7 +24,6 @@ urlpatterns = [
     
     
     path('header_user/', views.header_user, name='header_user'),
->>>>>>> Backend/VoDuyBao
     path('menu/', views.menu, name='menu'),
     path('footer/', views.footer, name='footer'),
     path('History/', views.History, name= 'History'),
@@ -43,10 +35,14 @@ urlpatterns = [
     path('dang_ky/', views.dangky, name='dang_ky'),
     path('lichThiDau/', views.lichThiDau, name='lichThiDau'),
     path('them_san/', views.themSan, name='them_san'),
-    path('payment/', views.payment, name='payment'),
-    path('booking/', views.booking, name='booking'),
-    path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
-    path('manager_san/', views.manager_san, name='manager_san'),
+    path('payment/', views.Payment, name='payment'),
+    path('booking/', views.Booking, name='booking'),
+    # path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
+    # path('manager_san/', views.manager_san, name='manager_san'),
+
+
+    path("manage-time-slots/", views.manage_time_slots, name="manage_time_slots"),
+    path("delete-time-slot/<int:slot_id>/", views.delete_time_slot, name="delete_time_slot"),
 ]
 # coi url
 
