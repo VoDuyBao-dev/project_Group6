@@ -398,6 +398,14 @@ def manager_taikhoan(request):
 def manager_san(request):
     return render(request, 'app1/QuanLyThongTinSan.html')
 
+def ThongTinCaNhan(request):
+    return render(request, 'app1/ThongTinCaNhan.html')
+
+def ChinhSuaThongTin(request):
+    return render(request, 'app1/ChinhSuaThongTin.html')
+
+
+
 
 
 # từ khúc này là con Lan làm có gì thì né né ra nha.
