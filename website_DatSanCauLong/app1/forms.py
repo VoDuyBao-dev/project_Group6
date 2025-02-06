@@ -40,14 +40,16 @@ class SignUpForm(forms.Form):
         max_length=150,
         required=True,
         widget=forms.TextInput(attrs={
-            'placeholder': 'Nhập email'
+            'placeholder': 'Nhập email',
+            'id': 'username_SignUp'
         })
     )
     full_name = forms.CharField(
         max_length=255,
         required=True,
         widget=forms.TextInput(attrs={
-            'placeholder': 'Nhập họ và tên'
+            'placeholder': 'Nhập họ và tên',
+            'id': 'full_name'
         })
     )
     
@@ -137,6 +139,8 @@ class ForgotPasswordForm(forms.Form):
         required=True,
         widget=forms.TextInput(attrs={
             'placeholder': 'Nhập email',
+            'id': 'id_username_ForgotPassword'
+
         })
     )
     

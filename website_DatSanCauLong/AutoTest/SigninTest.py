@@ -43,24 +43,28 @@ class TestUserSignIn(unittest.TestCase):
         time.sleep(2)  
 
         # Tìm nút "Đăng nhập"
-        login_button = driver.find_element(By.CSS_SELECTOR, ".btn.login-btn")  # Hoặc By.CLASS_NAME nếu có class
+        SignIn_button = driver.find_element(By.CSS_SELECTOR, ".btn.login-btn")  
 
         # Nhấn vào nút "Đăng nhập"
-        login_button.click()
+        SignIn_button.click()
         time.sleep(2)  # Chờ 2 giây sau khi chuyển trang
 
         # Kiểm tra kết quả
         self.assertIn("Đăng nhập", driver.title)  # Kiểm tra xem tiêu đề có đúng là trang đăng nhập không
         # In kết quả ra terminal
         print("Đã nhấn vào nút Đăng nhập và chuyển hướng thành công.")
-
-        # Nhập sai tên tài khoản
+        # Tìm nút xem mật khẩu
+        eye_button = driver.find_element(By.ID, "new-password-icon")
+        # Nhập sai định dạng tên tài khoản
         inputUserName = driver.find_element(By.ID, "username")
         password = driver.find_element(By.ID, "id_password")
-
+        
         inputUserName.send_keys("voduybao1905200gmail")
         time.sleep(1)  # Nghỉ 1s trước khi nhập mật khẩu
         password.send_keys("12345")
+        time.sleep(1)
+        # xem password
+        eye_button.click()
         time.sleep(1.5)  # Chờ 1.5s trước khi nhấn Enter
         password.send_keys(Keys.RETURN)
         time.sleep(3)  # Chờ 3s để trang load lại
@@ -99,6 +103,83 @@ class TestUserSignIn(unittest.TestCase):
             print("Test đăng nhập thành công")
         except:
             print("Test đăng nhập thất bại")
+
+        # đăng xuất để test chức năng nhớ tài khoản
+        user_info = driver.find_element(By.CLASS_NAME, "user-info")
+        user_info.click()
+        time.sleep(0.5)
+        logout_button = driver.find_element(By.ID, "logout")
+        # Nhấn vào nút "Đăng xuất"
+        logout_button.click()
+        time.sleep(2)  # Chờ 2 giây sau khi chuyển trang
+
+        try:
+            # Đợi phần tử đặc trưng của trang chủ khi chưa đăng nhập xuất hiện
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".btn.login-btn")))
+            print("Đã nhấn vào nút Đăng xuất và chuyển hướng đến đăng nhập thành công.")
+        except:
+            print("Test đăng xuất thất bại")
+
+        # Nhấn đăng nhập lại
+        SignIn_button = driver.find_element(By.CSS_SELECTOR, ".btn.login-btn")  
+        SignIn_button.click()
+        time.sleep(2)  # Chờ 2 giây sau khi chuyển trang
+
+        # Kiểm tra kết quả
+        self.assertIn("Đăng nhập", driver.title)  
+        print("Đã nhấn vào nút Đăng nhập và chuyển hướng thành công.")
+        inputUserName = driver.find_element(By.ID, "username")
+        password = driver.find_element(By.ID, "id_password")
+        # Tìm nút nhớ tài khoản và xem mật khẩu
+        remember_button = driver.find_element(By.ID, "remember")
+        eye_button = driver.find_element(By.ID, "new-password-icon")
+        # Nhấn nhớ tài khoản
+        remember_button.click()
+        print("Nhấn nhớ tài khoản thành công")
+        time.sleep(2)
+        inputUserName.send_keys("voduybao19052005@gmail.com")
+        password.send_keys("123")
+        # xem password
+        eye_button.click()
+        time.sleep(1.5) 
+        password.send_keys(Keys.RETURN)
+        # Kiểm tra xem đăng nhập có thành công không
+        try:
+            WebDriverWait(driver, 5).until(EC.title_contains("Trang Chủ"))
+            actualTitle = driver.title
+            print("Tiêu đề sau khi đăng nhập:", actualTitle)
+            self.assertEqual(actualTitle, "Trang Chủ")
+            print("Test đăng nhập thành công")
+        except:
+            print("Test đăng nhập thất bại")
+        
+        time.sleep(1)
+        # tìm lại nút đăng xuất khi tải trang mớimới
+        user_info = driver.find_element(By.CLASS_NAME, "user-info")
+        user_info.click()
+        time.sleep(0.5)
+        logout_button = driver.find_element(By.ID, "logout")
+        # Nhấn vào nút "Đăng xuất"
+        logout_button.click()
+        time.sleep(2)  # Chờ 2 giây sau khi chuyển trang
+        try:
+            # Đợi phần tử đặc trưng của trang chủ khi chưa đăng nhập xuất hiện
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".btn.login-btn")))
+            print("Đã nhấn vào nút Đăng xuất và chuyển hướng đến đăng nhập thành công.")
+        except:
+            print("Test đăng xuất thất bại")
+
+        time.sleep(1)
+        SignIn_button = driver.find_element(By.CSS_SELECTOR, ".btn.login-btn")  
+        SignIn_button.click()
+        time.sleep(2)  # Chờ 2 giây sau khi chuyển trang
+        self.assertIn("Đăng nhập", driver.title)  # Kiểm tra xem tiêu đề có đúng là trang đăng nhập không
+        # In kết quả ra terminal
+        print("Đã nhấn vào nút Đăng nhập và chuyển hướng thành công.")
+        
+
+        
+        
 
 if __name__ == "__main__":
     unittest.main()
