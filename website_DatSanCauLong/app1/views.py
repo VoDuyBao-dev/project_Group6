@@ -450,16 +450,16 @@ def them_san_moi(request):
 
 def them_san(request):
     if request.method == "POST":
-        badminton_hall = request.POST.get('address')
+        badminton_hall_id = request.POST.get('address')
         name = request.POST.get('name')
         image = request.FILES.get('image') 
         status = request.POST.get('status')
 
         # Kiểm tra nếu tên hoặc địa chỉ bị bỏ trống
-        if not name or not badminton_hall or not status:
+        if not name or not badminton_hall_id or not status:
             messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
             return redirect('them_san')
-        # badminton_hall = get_object_or_404(BadmintonHall, id=badminton_hall_id)
+        badminton_hall = get_object_or_404(BadmintonHall, badminton_hall_id=badminton_hall_id)
         # Lưu dữ liệu nếu hợp lệ
         Court.objects.create(badminton_hall=badminton_hall, name=name, image=image, status=status)
         messages.success(request, "Thêm sân mới thành công!")
@@ -468,18 +468,3 @@ def them_san(request):
     courts = Court.objects.all()
     badminton_halls = BadmintonHall.objects.all()
     return render(request, 'app1/them_san.html', {"courts": courts, "badminton_halls": badminton_halls})
-
-
-# thêm dữ liệu của một sân cầu lông(sân trong chi nhánh)
-# def them_san(request):
-#     if request.method == "POST":
-#         form = themSanForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return redirect("San")  # Reload lại trang sau khi lưu
-#     else:
-#         form = themSanForm()
-
-#     courts = Court.objects.all()
-#     return render(request, "app1/them_san.html", {"form": form, "courts": courts})
-    
