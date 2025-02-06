@@ -4,6 +4,11 @@ from django.shortcuts import render
 from . import views
 from .views import *
 
+
+from django.conf import settings
+from django.conf.urls.static import static
+
+
 urlpatterns = [
     path('sign_in/', Sign_In.as_view(), name= 'Sign_in'),
     path('Logout/', views.Logout, name='Logout'),
@@ -35,7 +40,8 @@ urlpatterns = [
     path('checkin/', views.checkin, name='checkin'),
     path('dang_ky/', views.dangky, name='dang_ky'), # đăng kí tài khoản thanh toán.
     path('lichThiDau/', views.lichThiDau, name='lichThiDau'),
-    path('them_san/', views.themSan, name='them_san'),
+    path('them_san_moi/', views.them_san_moi, name='them_san_moi'),
+    path('them_san/', views.them_san, name='them_san'),
     path('payment/', views.payment, name='payment'),
     path('booking/', views.booking, name='booking'),
     path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
@@ -49,7 +55,7 @@ urlpatterns = [
     path('fee_guest/', views.fee_guest, name='fee_guest'),
     path('manage_time_slots/', views.manage_time_slots, name='manage_time_slots'),
     path('delete_time_slot/<str:slot_id>/', views.delete_time_slot, name='delete_time_slot'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # coi url
 
 

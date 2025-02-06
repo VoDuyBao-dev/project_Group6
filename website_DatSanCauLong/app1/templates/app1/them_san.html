@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thêm Sân Mới</title>
+    {% comment %} <link rel="stylesheet" href="{% static 'app1/CSS/ThemSanMoi.css' %}" /> {% endcomment %}
+    <link rel="stylesheet" type="text/css" href="{% static 'app1/css/style_time_slots.css' %}" />
+    {% comment %} <script src="{% static 'app1/js/layout-customer.js' %}"></script> {% endcomment %}
+  </head>
+
+  <body>
+    {% comment %} {% include 'app1/Header-customer.html' %}
+    {% include 'app1/Menu-manager.html' %} {% endcomment %}
+    {% block content %}
+      <div class="form-container">
+        <h1>Thêm Sân Mới</h1>
+        <form action="{% url 'them_san' %}" enctype="multipart/form-data" method="POST">
+          {% csrf_token %}
+
+          <label for="address">Địa điểm</label>
+          <select id="address" name="address">
+            <option value selected></option>
+            {% for hall in badminton_halls %}
+              <option value="{{ hall.badminton_hall_id }}">{{ hall.address }}</option>
+            {% endfor %}
+          </select>
+
+          <label for="name">Tên sân</label>
+          <input type="text" id="name" name="name" required placeholder="Nhập tên sân" />
+
+          <label for="image" alt="court">Thêm ảnh</label>
+          <input type="file" id="image" name="image" placeholder="Chọn ảnh" />
+
+          <label for="status">Trạng thái</label>
+          <select id="status" name="status">
+            <option value selected></option>
+            <option value="under_maintenance">Under Maintenance</option>
+            <option value="empty">Empty</option>
+            <option value="booked">Booked</option>
+          </select>
+          <button type="submit">Thêm sân</button>
+        </form>
+        <div class="message" id="message"></div>
+      </div>
+    {% endblock %}
+    {% comment %} {% include 'app1/Footer.html' %} {% endcomment %}
+  </body>
+</html>
