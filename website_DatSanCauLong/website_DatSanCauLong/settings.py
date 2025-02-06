@@ -81,15 +81,13 @@ from decouple import config
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),
+        'NAME': 'database',
+        'USER': 'root',
+        'PASSWORD': 'truc@2005',
+        'HOST': '127.0.0.1',  # hoặc địa chỉ IP máy chủ MySQL
+        'PORT': '3306',
     }
-   
 }
-
 
 
 
