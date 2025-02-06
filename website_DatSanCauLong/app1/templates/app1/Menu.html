@@ -21,17 +21,17 @@
     <div class="side-bar">
       <ul>
         <li>
-          <a href="#"><i class="fa-solid fa-house"></i> Trang Chủ</a>
+          <a href="{% url 'TrangChu'%}"><i class="fa-solid fa-house"></i> Trang Chủ</a>
         </li>
         <li>
           <a href="#"><i class="fa-solid fa-list"></i> Sân Cầu Lông</a>
           <div class="sub-menu">
-            <a href="#" method="post" action="#">      Thông tin các sân</a>
-            <a href="#" method="post" action="#">      Lịch sử đặt sân</a>
+            <a href="#">      Thông tin các sân</a>
+            <a href="#">      Lịch sử đặt sân</a>
           </div>
         </li>
         <li>
-          <a href="#"><i class="fa-solid fa-money-check-dollar"></i>Giá vé</a>
+          <a href="{% url 'price_list' %}"><i class="fa-solid fa-money-check-dollar"></i>Giá vé</a>
         </li>
       </ul>
     </div>

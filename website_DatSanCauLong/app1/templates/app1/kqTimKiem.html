@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Các sân cầu lông</title>
+    <link rel="stylesheet" href="{% static 'app1/css/San.css' %}" />
+  </head>
+
+  <body>
+    {% include 'app1/Header-user.html' %}
+    {% include 'app1/Menu.html' %}
+
+    <div id="menu-container"></div>
+    <div class="container">
+      <!-- Kết quả tìm kiếm sân -->
+      {% if courts %}
+        {% for court in courts %}
+          <div class="court">
+            <img src="{{ court.ImageURL }}" alt="{{ court.name }}" class="court-image" />
+            <h3>{{ court.name }}</h3>
+            <p>Địa chỉ: {{ court.badminton_hall.address }}</p>
+            <p>Giờ hoạt động: 8:00 - 22:00</p>
+            <p>Ngày: Thứ 2 - Chủ Nhật</p>
+            <button class="book-btn"><a href="#">Đặt sân</a></button>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>Không tìm thấy sân cầu lông nào phù hợp với từ khóa "{{ request.GET.query }}".</p>
+      {% endif %}
+    </div>
+    {% include 'app1/Footer.html' %}
+  </body>
+</html>

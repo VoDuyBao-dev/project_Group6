@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
+from .models import TimeSlotTemplate
+from .models import Court
+
 # Kiểm tra định dạng email
 def is_valid_email(email):
     
@@ -184,11 +187,5 @@ class NewPasswordForm(forms.Form):
             self.add_error(field, error)
 
         return cleaned_data  # Trả về dữ liệu đã làm sạch
-#đặt lịch
+    
 
-from .models import Booking
-
-class BookingForm(forms.ModelForm):
-    class Meta:
-        model = Booking
-        fields = ['court', 'date', 'time', 'schedule_type']
