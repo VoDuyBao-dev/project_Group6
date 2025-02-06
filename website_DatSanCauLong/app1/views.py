@@ -14,8 +14,9 @@ from django.utils import timezone
 from datetime import timedelta
 from django.http import JsonResponse
 
-import json
 
+from .models import Booking, Court
+from .forms import BookingForm
 
 # Create your views here.   
 
@@ -475,3 +476,27 @@ def manager_san(request):
 #     qr_code_data = f'data:image/png;base64,{encoded_img}'
 #     return render(request, 'QuanLiUser/qr_code.html', {'qr_code_data': qr_code_data})
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Booking  
+
+def booking(request):
+    if request.method == "POST":
+        schedule_type = request.POST.get("scheduleType")
+        date = request.POST.get("date")
+        time = request.POST.get("time")
+        # Kiểm tra dữ liệu hợp lệ 
+        if not schedule_type or not date or not time:
+            messages.error(request, "Vui lòng nhập đầy đủ thông tin đặt sân.")
+            return redirect('booking')
+
+        # Lưu vào database
+        try:
+            Booking.objects.create(schedule_type=schedule_type, date=date, time=time)
+            messages.success(request, "Đặt sân thành công! Vui lòng thanh toán.")
+            return redirect('payment')  # Chuyển đến trang thanh toán
+        except Exception as e:
+            messages.error(request, f"Lỗi khi đặt sân: {str(e)}")
+            return redirect('booking')
+
+    return render(request, 'app1/Book.html')

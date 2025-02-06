@@ -10,9 +10,8 @@
   </head>
 
   <body>
-    {% include 'app1/Header-customer.html' %}
-    {% include 'app1/Menu-manager.html' %}
-    {% block content %}
+    {% include 'app1/Header-customer.html' %} {% include
+    'app1/Menu-manager.html' %} {% block content %}
     <div id="menu2-container"></div>
     <div class="checkin-container">
       <h2>Check-in</h2>
@@ -49,7 +48,6 @@
 
       <div id="message" class="message"></div>
     </div>
-    {% endblock %}
-    {% include 'app1/Footer.html' %}
+    {% endblock %} {% include 'app1/Footer.html' %}
   </body>
 </html>

@@ -184,5 +184,11 @@ class NewPasswordForm(forms.Form):
             self.add_error(field, error)
 
         return cleaned_data  # Trả về dữ liệu đã làm sạch
-    
+#đặt lịch
 
+from .models import Booking
+
+class BookingForm(forms.ModelForm):
+    class Meta:
+        model = Booking
+        fields = ['court', 'date', 'time', 'schedule_type']
