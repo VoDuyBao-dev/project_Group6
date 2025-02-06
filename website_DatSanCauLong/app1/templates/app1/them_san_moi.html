@@ -25,7 +25,13 @@
 
           <button type="submit">Xác Nhận</button>
         </form>
-        <div class="message" id="message"></div>
+        {% if messages %}
+          <ul class="messages">
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
       </div>
       {% comment %} <div>
         {% for hall in halls %}

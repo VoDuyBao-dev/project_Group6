@@ -41,7 +41,13 @@
           </select>
           <button type="submit">Thêm sân</button>
         </form>
-        <div class="message" id="message"></div>
+        {% if messages %}
+          <ul class="messages">
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
       </div>
     {% endblock %}
     {% comment %} {% include 'app1/Footer.html' %} {% endcomment %}
