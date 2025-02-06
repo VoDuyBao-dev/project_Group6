@@ -349,14 +349,6 @@ def lichThiDau(request):
 
 
 
-def fee_customer(request):
-    time_slots = TimeSlotTemplate.objects.all()
-    return render(request, "app1/fee_customer.html", {"time_slots": time_slots})
-
-def fee_guest(request):
-    time_slots = TimeSlotTemplate.objects.all()
-    return render(request, "app1/fee-guest.html", {"time_slots": time_slots})
-
 def booking(request):
     return render(request, 'app1/Book.html')
 
@@ -447,11 +439,6 @@ def them_san_moi(request):
             messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
             return redirect('them_san_moi')
 
-        # Kiểm tra xem sân có bị trùng tên không
-        if BadmintonHall.objects.filter(name=name).exists():
-            messages.error(request, "Sân này đã tồn tại!")
-            return redirect('them_san_moi')
-
         # Lưu dữ liệu nếu hợp lệ
         BadmintonHall.objects.create(name=name, address=address)
         messages.success(request, "Thêm sân mới thành công!")
@@ -463,7 +450,7 @@ def them_san_moi(request):
 
 def them_san(request):
     if request.method == "POST":
-        badminton_hall = request.POST.get('badminton_hall')
+        badminton_hall = request.POST.get('address')
         name = request.POST.get('name')
         image = request.FILES.get('image') 
         status = request.POST.get('status')
@@ -472,12 +459,7 @@ def them_san(request):
         if not name or not badminton_hall or not status:
             messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
             return redirect('them_san')
-
-        # Kiểm tra xem sân có bị trùng tên không
-        if Court.objects.filter(name=name).exists():
-            messages.error(request, "Sân này đã tồn tại!")
-            return redirect('them_san')
-
+        # badminton_hall = get_object_or_404(BadmintonHall, id=badminton_hall_id)
         # Lưu dữ liệu nếu hợp lệ
         Court.objects.create(badminton_hall=badminton_hall, name=name, image=image, status=status)
         messages.success(request, "Thêm sân mới thành công!")

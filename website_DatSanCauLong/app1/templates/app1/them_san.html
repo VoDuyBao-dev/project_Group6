@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Thêm Sân Mới</title>
+    <title>Thêm Sân</title>
     {% comment %} <link rel="stylesheet" href="{% static 'app1/CSS/ThemSanMoi.css' %}" /> {% endcomment %}
     <link rel="stylesheet" type="text/css" href="{% static 'app1/css/style_time_slots.css' %}" />
     {% comment %} <script src="{% static 'app1/js/layout-customer.js' %}"></script> {% endcomment %}
@@ -15,10 +15,9 @@
     {% include 'app1/Menu-manager.html' %} {% endcomment %}
     {% block content %}
       <div class="form-container">
-        <h1>Thêm Sân Mới</h1>
+        <h1>Thêm Sân</h1>
         <form action="{% url 'them_san' %}" enctype="multipart/form-data" method="POST">
           {% csrf_token %}
-
           <label for="address">Địa điểm</label>
           <select id="address" name="address">
             <option value selected></option>
