@@ -6,84 +6,49 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Đặt Sân Cầu Lông</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="{% static 'app1/CSS/Styles-Book.css' %}" />
     <script src="{% static 'app1/js/layout-customer.js' %}"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    />
   </head>
   <body>
-    {% include 'app1/Header-customer.html' %}
+    {% include 'app1/Header-customer.html' %} {% block content %}
 
-    <div class="container mt-4">
-      <h2 class="text-center">Đặt Sân Cầu Lông</h2>
+    <!-- Hiển thị thông báo lỗi hoặc thành công -->
+    {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+      <div class="message {{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
 
-      <!-- Hiển thị thông báo lỗi hoặc thành công -->
-      {% if messages %}
-      <div class="mt-3">
-        {% for message in messages %}
-        <div
-          class="alert {{ message.tags }} alert-dismissible fade show"
-          role="alert"
-        >
-          {{ message }}
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="alert"
-          ></button>
-        </div>
-        {% endfor %}
-      </div>
-      {% endif %}
-
-      <!-- Form Đặt Sân -->
-      <form action="{% url 'booking' %}" method="post" class="mt-3">
-        {% csrf_token %}
-
-        <div class="mb-3">
-          <label for="scheduleType" class="form-label">Chọn loại lịch</label>
-          <select
-            id="scheduleType"
-            name="scheduleType"
-            class="form-select"
-            required
-          >
+    <form action="{% url 'booking' %}" method="post" id="form-group">
+      {% csrf_token %}
+      <div class="container">
+        <div class="form-group">
+          <h1>Đặt Sân Cầu Lông</h1>
+          <label for="scheduleType">Chọn loại lịch</label>
+          <select id="scheduleType" name="scheduleType" required>
             <option value="fixed">Lịch cố định</option>
             <option value="flexible">Lịch linh hoạt</option>
             <option value="daily">Lịch ngày</option>
           </select>
         </div>
-
-        <div class="mb-3">
-          <label for="date" class="form-label">Ngày</label>
-          <input
-            type="date"
-            id="date"
-            name="date"
-            class="form-control"
-            required
-          />
+        <div class="form-group">
+          <label for="date">Ngày</label>
+          <input type="date" id="date" name="date" required />
         </div>
-
-        <div class="mb-3">
-          <label for="time" class="form-label">Giờ</label>
-          <input
-            type="time"
-            id="time"
-            name="time"
-            class="form-control"
-            required
-          />
+        <div class="form-group">
+          <label for="time">Giờ</label>
+          <input type="time" id="time" name="time" required />
         </div>
+        <button type="submit">Đặt Sân</button>
+      </div>
+    </form>
 
-        <button type="submit" class="btn btn-primary w-100">Đặt Sân</button>
-      </form>
-    </div>
-
-    {% include 'app1/Footer.html' %}
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% endblock content %} {% include 'app1/Footer.html' %}
   </body>
 </html>
