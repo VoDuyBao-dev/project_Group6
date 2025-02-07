@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
+from .models import TimeSlotTemplate
+from .models import Court
+
 # Kiểm tra định dạng email
 def is_valid_email(email):
     
@@ -184,5 +187,28 @@ class NewPasswordForm(forms.Form):
             self.add_error(field, error)
 
         return cleaned_data  # Trả về dữ liệu đã làm sạch
-    
 
+   
+    
+# form này con Lan làm nha.
+class TimeSlotTemplateForm(forms.ModelForm):
+    class Meta:
+        model = TimeSlotTemplate
+        fields = ["day_of_week", "time_frame", "fixed_price", "daily_price", "flexible_price", "status"]
+   
+# class themSanForm(forms.ModelForm):
+#     class Meta:
+#         model = Court
+#         fields = ["badminton_hall", "name", "image", "status"]
+   
+
+
+ 
+class SearchForm(forms.Form):
+    query = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Tìm kiếm...'
+        })
+    )
+  

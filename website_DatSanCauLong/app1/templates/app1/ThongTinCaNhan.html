@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thông Tin Cá Nhân</title>
+    <link rel="stylesheet" href="{% static 'app1/css/ThongTinCaNhan.css' %}" />
+  </head>
+  <body>
+    {% include 'app1/Header-customer.html' %}
+    {% block content %}
+      <div class="container">
+        <h2>Thông Tin Cá Nhân</h2>
+        <!-- View Mode -->
+        <div id="info-view" class="info">
+          <p>
+            <strong>Tên:</strong> <span id="username">Nguyễn Văn A</span>
+          </p>
+          <p>
+            <strong>Ngày sinh:</strong> <span id="dob">01/01/1990</span>
+          </p>
+          <p>
+            <strong>Số điện thoại:</strong> <span id="phone">0123456789</span>
+          </p>
+          <p>
+            <strong>Email:</strong> <span id="email">nguyenvana@example.com</span>
+          </p>
+          <a href="{% url 'ChinhSuaThongTin' %}" class="button edit-button">Cập nhật thông tin</a>
+        </div>
+      </div>
+    {% endblock %}
+    {% include 'app1/Footer.html' %}
+  </body>
+</html>

@@ -9,7 +9,7 @@
     <script src="{% static 'app1/js/layout-customer.js' %}" defer></script>
   </head>
   <body>
-    {% include 'app1/Header-customer.html' %}
+    {% include 'app1/Header-user.html' %}
 
     {% include 'app1/Menu.html' %}
     
@@ -23,7 +23,7 @@
           tạo điều kiện tốt nhất cho cả vận động viên chuyên nghiệp và người
           chơi yêu thích.
         </p>
-        <button class="btn btn-primary">Đặt Sân</button>
+        <button class="btn btn-primary"><a href="{% url 'San'%}">Đặt sân</a></button>
       </div>
     </section>
     <section class="services">
@@ -104,7 +104,7 @@
           chuyên nghiệp. Chúng tôi luôn sẵn sàng đồng hành cùng bạn chinh phục
           đam mê.
         </p>
-        <button class="btn btn-primary">Đặt Sân Ngay</button>
+        <button class="btn btn-primary"><a href="{% url 'San'%}">Đặt Sân Ngay</a></button>
       </div>
     </section>
     {% endblock %}

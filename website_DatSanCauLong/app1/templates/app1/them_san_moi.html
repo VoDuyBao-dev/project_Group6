@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thêm Sân Mới</title>
+    <link rel="stylesheet" href="{% static 'app1/CSS/ThemSanMoi.css' %}" />
+    <script src="{% static 'app1/js/layout-customer.js' %}"></script>
+  </head>
+
+  <body>
+    {% include 'app1/Header-customer.html' %}
+    {% include 'app1/Menu-manager.html' %}
+    {% block content %}
+      <div class="form-container">
+        <h1>Thêm Sân Mới</h1>
+        <form id="addFieldForm" action="{% url 'them_san_moi' %}" method="POST">
+          {% csrf_token %}
+          <label for="name">Tên Sân</label>
+          <input type="text" id="name" name="name" required placeholder="Nhập tên sân" />
+
+          <label for="address">Địa điểm</label>
+          <input type="text" id="address" name="address" required placeholder="Nhập địa điểm" />
+
+          <button type="submit">Xác Nhận</button>
+        </form>
+        <div class="message" id="message"></div>
+      </div>
+      {% comment %} <div>
+        {% for hall in halls %}
+          <div style="text-align: center; font-size: 50px; color: black">
+            <div>{{ hall.name }}</div>
+            <div>{{ hall.address }}</div>
+          </div>
+        {% endfor %}
+      </div> {% endcomment %}
+    {% endblock %}
+    {% include 'app1/Footer.html' %}
+  </body>
+</html>
