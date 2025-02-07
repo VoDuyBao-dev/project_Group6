@@ -391,153 +391,34 @@ def manager_taikhoan(request):
 def manager_san(request):
     return render(request, 'app1/QuanLyThongTinSan.html')
 
-# def court_badminton(request):
-#     get_court = CourtBadminton.objects.all()
-#     context = {'courts': get_court}
-#     return render(request, 'QuanLiUser/courtbadminton.html', context)
-
-# @decorators.login_required(login_url='login')
-# def history_booking(request):
-   
-#     get_history = CourtBooking.objects.all()
-#     context = {'historys': get_history}
-#     return render(request,'QuanLiUser/historybooking.html', context)
-
-# def search_court(request):
-#     query = request.GET.get('search_court')
-#     results = []
-#     if query:
-#         results = CourtBadminton.objects.filter(court_name__icontains = query)
-#     return render(request, 'QuanLiUser/kq_tim_kiem.html.html', {'query': query, 'results': results})
-
-# def search_court_two(request):
-#     data = CourtBadminton.objects.values_list('court_name','location','price_per_house')
-#     courts, locations, prices = zip(*data)
-#     return render(request, 'QuanLiUser/search_court2.html', {'courts': courts, 'locations': locations, 'prices': prices}) 
-
-# def result_search(request):
-#     court_name = request.GET.get('court_name')
-#     location = request.GET.get('location')
-#     prices = request.GET.get('price_per_house')
-#     is_available = request.GET.get('is_available')
-#     #chuyển sang true false:
-#     is_available = True if is_available == '1' else False
-#     results = []
-#     results = CourtBadminton.objects.filter(
-#         (Q(court_name__icontains = court_name) | Q(location__icontains = location)|Q(price_per_house__icontains = prices)) & Q(is_available = is_available)
-#     )
-#     return render(request, 'QuanLiUser/kq_tim_kiem.html', {'results': results})
 
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Booking
 
+def booking(request):
+    if request.method == "POST":
+        schedule_type = request.POST.get("scheduleType")
+        date = request.POST.get("date")
+        time = request.POST.get("time")
 
+        # Kiểm tra nếu thiếu thông tin
+        if not schedule_type or not date or not time:
+            messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
+            return redirect("booking")
 
+        # Lưu thông tin đặt sân vào database
+        try:
+            new_booking = Booking.objects.create(
+                schedule_type=schedule_type,
+                date=date,
+                time=time
+            )
+            messages.success(request, "Đặt sân thành công!")
+            return redirect("payment")  # Chuyển sang trang thanh toán
+        except Exception as e:
+            messages.error(request, f"Lỗi khi đặt sân: {e}")
+            return redirect("booking")
 
-
-# class ForgotPassword(View):
-
-#     def get(self,request):
-#         ForgotPassword_Form = ForgotPasswordForm()
-#         context = {'form': ForgotPassword_Form}
-#         return render(request, 'QuanLiUser/Forgot_Password.html', context)
-
-#     def post(self, request):
-#         ForgotPassword_Form= ForgotPasswordForm(request.POST, initial={'otp': request.session.get('otp')})
-#         context = {'form': ForgotPassword_Form} 
-
-#         if 'send_otp' in request.POST:
-#             handle_send_otp(request, ForgotPassword_Form, context)
-#             return render(request, 'QuanLiUser/Forgot_Password.html', context)
-        
-#         if not ForgotPassword_Form.is_valid():
-#             return render(request, 'QuanLiUser/Forgot_Password.html', context )
-        
-#         # Kiểm tra hiệu lực OTP 
-#         if not validate_otp(request):
-#             return render(request, 'QuanLiUser/Forgot_Password.html', context)
-
-#         request.session.pop('otp', None)  # Xóa OTP khỏi session
-#         return redirect('ChangePassWord')
-    
-# class ChangePassWord(View):
-#     def get(self, request):
-#         Change_password = ChangePassword()
-#         context = {'form': Change_password}
-#         return render(request, 'QuanLiUser/ChangePassword.html', context)
-
-#     def post(self, request):
-#         Change_password = ChangePassword(request.POST)
-#         context = {'form': Change_password}
-
-#         # Kiểm tra form đổi mật khẩu
-#         if not Change_password.is_valid():
-#             return render(request, 'QuanLiUser/ChangePassword.html', context)
-
-#         # Lấy username từ session đã lưu
-#         username = request.session.get('username')  # Lấy username từ session
-#         if not username:
-#             messages.error(request, "Không thể xác định người dùng.")
-#             return redirect('ForgotPassword')
-
-#         # Lấy mật khẩu mới từ form
-#         new_password = Change_password.cleaned_data['new_password']
-
-#         # Cập nhật mật khẩu người dùng
-        
-#         user = User.objects.get(username=username)
-#         user.password = make_password(new_password)
-#         user.save()
-#         messages.success(request, "Đổi mật khẩu thành công!")
-#         return redirect('login')
-      
-
-
-
-
-# class DatSan(LoginRequiredMixin,View):
-#     login_url = 'login'
-#     def get(self, request):
-#         get_court = CourtBadminton.objects.all()
-#         context = {'courts': get_court}
-#         return render(request, 'QuanLiUser/datsan.html', context)
-    
-#     def post(self,request):
-#         court_id = request.POST.get('court')
-#         bookingDate = request.POST.get('booking_date')
-#         startTime = request.POST.get('start_time')
-#         endTime = request.POST.get('end_time')
-
-#         booking = CourtBooking.objects.create(
-#             user = request.user,
-#             court = CourtBadminton.objects.get(id = court_id),
-#             booking_date = bookingDate,
-#             start_time = startTime,
-#             end_time = endTime
-#         )
-
-#         selected_court = CourtBadminton.objects.get(id = court_id)
-#         selected_court.is_available = False
-#         selected_court.save()
-
-#         messages.success(request, "Đặt sân thành công!")
-
-        
-#         return redirect('courtbadminton')  
-
-
-# import qrcode
-# from io import BytesIO
-# from base64 import b64encode
-
-# def index(request):
-#     return render(request, 'QuanLiUser/index.html') 
-
-# def generate_qr_code(request):
-#     qr_code_img = qrcode.make("https://www.google.com/")
-#     buffer = BytesIO()
-#     qr_code_img.save(buffer)
-#     buffer.seek(0)
-#     encoded_img = b64encode(buffer.read()).decode()
-#     qr_code_data = f'data:image/png;base64,{encoded_img}'
-#     return render(request, 'QuanLiUser/qr_code.html', {'qr_code_data': qr_code_data})
-
+    return render(request, "app1/Book.html")

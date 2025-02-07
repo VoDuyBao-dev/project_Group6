@@ -48,14 +48,8 @@ urlpatterns = [
     path('manager_san/', views.manager_san, name='manager_san'),
 
 
-    # path('menu_manager/', views.menu_manager, name='menu_manager'),
-    path('header_guest/', views.header_guest, name='header'),
-    path('header_customer/', views.header_customer, name='header1'),
-    path('manage_time_slots/', views.manage_time_slots, name='manage_time_slots'),
-    path('delete_time_slot/<str:slot_id>/', views.delete_time_slot, name='delete_time_slot'),
-    path('ThongTinCaNhan/', views.ThongTinCaNhan, name='ThongTinCaNhan'),
-    path('ChinhSuaThongTin', views.ChinhSuaThongTin, name='ChinhSuaThongTin'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+] 
 # coi url
 
 

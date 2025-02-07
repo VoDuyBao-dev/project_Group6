@@ -11,8 +11,7 @@ admin.site.register(TimeSlotTemplate)
 admin.site.register(Slot)
 admin.site.register(Booking)
 admin.site.register(Payment)
-admin.site.register(CourtStaff)
-admin.site.register(Revenue)
+
 
 
 
