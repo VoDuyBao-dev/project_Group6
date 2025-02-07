@@ -8,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from Get_OTP_Email import get_otp_from_gmail
+from decouple import config
 
 class TestUserSignUp(unittest.TestCase):
     def setUp(self):
@@ -102,8 +103,8 @@ class TestUserSignUp(unittest.TestCase):
         time.sleep(1)
         # Lấy mã OTP
         # Thông tin tài khoản Gmail
-        email_user = "voduybao192005@gmail.com"
-        email_password = "sgnk ryus bmeb zcxt"
+        email_user = config("EMAIL_USER")
+        email_password = config("EMAIL_PASSWORD")
 
         # Lấy mã OTP
         otp_code = get_otp_from_gmail(email_user, email_password)

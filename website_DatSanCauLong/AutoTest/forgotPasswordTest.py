@@ -8,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from Get_OTP_Email import get_otp_from_gmail
+from decouple import config
 
 class TestUserForgotPassword(unittest.TestCase):
     def setUp(self):
@@ -121,7 +122,7 @@ class TestUserForgotPassword(unittest.TestCase):
         time.sleep(3)
         
         # Nhập đúng email đã đăng kí
-        # Test nhập email chưa đăng kí
+        
         input_username = driver.find_element(By.ID, "id_username_ForgotPassword")
         input_username.clear()
         time.sleep(1)
@@ -129,9 +130,9 @@ class TestUserForgotPassword(unittest.TestCase):
         input_username.send_keys(Keys.RETURN)
         # Kiểm tra xem đã chuyển hướng đến Đăng nhập chưa
         try:
-            WebDriverWait(driver, 5).until(EC.title_contains("Đăng nhập"))
+            WebDriverWait(driver, 5).until(EC.title_contains("Trang OTP"))
             actualTitle = driver.title
-            self.assertEqual(actualTitle, "Đăng nhập")
+            self.assertEqual(actualTitle, "Trang OTP")
             print("Test nhập email để lấy lại mật khẩu thành công")
         except:
             print("Test nhập email để lấy lại mật khẩu thất bại")
@@ -140,8 +141,8 @@ class TestUserForgotPassword(unittest.TestCase):
 
         # Lấy mã OTP từ email
         # Thông tin tài khoản Gmail
-        email_user = "voduybao192005@gmail.com"
-        email_password = "sgnk ryus bmeb zcxt"
+        email_user = config("EMAIL_USER")
+        email_password = config("EMAIL_PASSWORD")
 
         # Lấy mã OTP
         otp_code = get_otp_from_gmail(email_user, email_password)
