@@ -122,9 +122,9 @@ class Slot(models.Model):
 class Booking(models.Model):
     booking_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     BOOKING_TYPES = (
-    ('fixed', 'Fixed'),
-    ('daily', 'Daily'),
-    ('flexible', 'Flexible'),
+        ('fixed', 'Fixed'),
+        ('daily', 'Daily'),
+        ('flexible', 'Flexible'),
     )
     customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='bookings')
     court_id = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='bookings')
