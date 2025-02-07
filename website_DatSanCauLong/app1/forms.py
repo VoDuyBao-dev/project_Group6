@@ -2,6 +2,9 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+
+from .models import TimeSlotTemplate
+from .models import Court
 import re
 from .models import PaymentAccount
 # from .models import TimeSlotTemplate
@@ -191,7 +194,15 @@ class NewPasswordForm(forms.Form):
             self.add_error(field, error)
 
         return cleaned_data  # Trả về dữ liệu đã làm sạch
+
+   
     
+# form này con Lan làm nha.
+class TimeSlotTemplateForm(forms.ModelForm):
+    class Meta:
+        model = TimeSlotTemplate
+        fields = ["day_of_week", "time_frame", "fixed_price", "daily_price", "flexible_price", "status"]
+   
 
 
 class SearchForm(forms.Form):

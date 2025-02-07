@@ -18,7 +18,11 @@ from .models import *
 import json
 
 
-# from .forms import TimeSlotTemplateForm
+import nanoid
+from .models import TimeSlotTemplate
+from .forms import TimeSlotTemplateForm  # Sẽ tạo file form ở bước tiếp theo
+from django.shortcuts import get_object_or_404
+from .models import BadmintonHall
 
 # Create your views here.   
 
@@ -310,10 +314,13 @@ def Logout(request):
 def History(request):
     return render(request, 'app1/LichSuDatSan.html')
 
-def price_list(request):
-    search_court = SearchForm() 
-    context = {'searchCourt': search_court}  
-    return render(request, 'app1/price_list.html',context)
+def payment(request):
+    return render(request, 'app1/payment.html')
+
+# def price_list(request):
+#     search_court = SearchForm() 
+#     context = {'searchCourt': search_court}  
+#     return render(request, 'app1/price_list.html',context)
 
 def San(request):
     courts = Court.objects.all()
@@ -488,25 +495,95 @@ def manager_san(request):
 
 
 
+def header_guest(request):
+    return render(request, 'app1/Header-guest.html')
+
+def header_customer(request):
+    return render(request, 'app1/Header-customer.html')
+
+def manager_taikhoan(request):
+    return render(request, 'app1/QuanLyTaiKhoan.html')
+
+def manager_san(request):
+    return render(request, 'app1/QuanLyThongTinSan.html')
+
+def ThongTinCaNhan(request):
+    return render(request, 'app1/ThongTinCaNhan.html')
+
+def ChinhSuaThongTin(request):
+    return render(request, 'app1/ChinhSuaThongTin.html')
 
 
 
 
 
+# từ khúc này là con Lan làm có gì thì né né ra nha.
 
 
+# thêm thời gian(khung giờ) và giá,... của từng loại hình đặt lịch
+def manage_time_slots(request):
+    if request.method == "POST":
+        form = TimeSlotTemplateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("manage_time_slots")  # Reload lại trang sau khi lưu
+    else:
+        form = TimeSlotTemplateForm()
+
+    time_slots = TimeSlotTemplate.objects.all()
+    return render(request, "app1/manage_time_slots.html", {"form": form, "time_slots": time_slots})
+
+# xóa lịch nếu thấy bất ổn nào đó.
+def delete_time_slot(request, slot_id):
+    slot = get_object_or_404(TimeSlotTemplate, template_id=slot_id)
+    slot.delete()
+    return redirect("manage_time_slots")
+
+# lấy thông tin từ cơ sở dữ liệu của lịch sau đó hiển thị ra giao diện.
+def price_list(request):
+    time_slots = TimeSlotTemplate.objects.all()
+    return render(request, "app1/price_list.html", {"time_slots": time_slots})
 
 
+# thêm dữ liệu của một sân cầu lông mới(thêm một chi nhánh)
+def them_san_moi(request):
+    if request.method == "POST":
+        name = request.POST.get('name')
+        address = request.POST.get('address')
+
+        # Kiểm tra nếu tên hoặc địa chỉ bị bỏ trống
+        if not name or not address:
+            messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
+            return redirect('them_san_moi')
+
+        # Lưu dữ liệu nếu hợp lệ
+        BadmintonHall.objects.create(name=name, address=address)
+        messages.success(request, "Thêm sân mới thành công!")
+        return redirect('them_san_moi')
+
+    halls = BadmintonHall.objects.all()
+    return render(request, 'app1/them_san_moi.html', {'halls': halls})
 
 
+def them_san(request):
+    if request.method == "POST":
+        badminton_hall_id = request.POST.get('address')
+        name = request.POST.get('name')
+        image = request.FILES.get('image') 
+        status = request.POST.get('status')
+
+        # Kiểm tra nếu tên hoặc địa chỉ bị bỏ trống
+        if not name or not badminton_hall_id or not status:
+            messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
+            return redirect('them_san')
+        badminton_hall = get_object_or_404(BadmintonHall, badminton_hall_id=badminton_hall_id)
+        # Lưu dữ liệu nếu hợp lệ
+        Court.objects.create(badminton_hall=badminton_hall, name=name, image=image, status=status)
+        messages.success(request, "Thêm sân mới thành công!")
+        return redirect('them_san')
+
+    courts = Court.objects.all()
+    badminton_halls = BadmintonHall.objects.all()
+    return render(request, 'app1/them_san.html', {"courts": courts, "badminton_halls": badminton_halls})
 
 
-# def add_timeslot_template(request):
-#     if request.method == 'POST':
-#         form = TimeSlotTemplateForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('success_url')  # Thay 'success_url' bằng URL bạn muốn chuyển hướng đến sau khi lưu thành công
-#     else:
-#         form = TimeSlotTemplateForm()
-#     return render(request, 'app1/add_timeslot_template.html', {'form': form})
