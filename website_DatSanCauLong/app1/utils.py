@@ -6,6 +6,10 @@ from asgiref.sync import sync_to_async
 def generate_otp():
     return str(random.randint(1000, 9999))
 
+def generate_short_id():
+    """Tạo một chuỗi ngẫu nhiên dài 5 ký tự (chữ + số)."""
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
+
 def send_otp_email(username, otp):
     context = {
         'name': username,
