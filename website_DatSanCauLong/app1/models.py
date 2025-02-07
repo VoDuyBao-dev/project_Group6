@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
-import uuid
+import nanoid
 
 
 class PaymentAccount(models.Model):
@@ -40,7 +40,7 @@ class Customer(models.Model):
 
 # Court Manager models
 class CourtManager(models.Model):
-    courtManager_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
+    courtManager_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_manager')
     payment_account = models.OneToOneField(
         PaymentAccount,
@@ -54,12 +54,12 @@ class CourtManager(models.Model):
 
 # System Admin model
 class SystemAdmin(models.Model):
-    systemAdmin_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
+    systemAdmin_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='system_admin')
 
 
 class BadmintonHall(models.Model):
-    badminton_hall_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
+    badminton_hall_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     name = models.CharField(max_length=255)
     address = models.TextField()
 
