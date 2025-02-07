@@ -10,6 +10,7 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
+    path('', views.TrangChu, name= 'TrangChu'),
     path('sign_in/', Sign_In.as_view(), name= 'Sign_in'),
     path('Logout/', views.Logout, name='Logout'),
     path('sign_up/', Sign_Up.as_view(), name= 'Sign_up'),
@@ -27,18 +28,18 @@ urlpatterns = [
    
     # Tìm kiếm sân:
     path('SearchCourt/', SearchCourt.as_view(), name= 'SearchCourt'),
-    
-    
+    path('DangKyTaiKhoanThanhToan/', DangKyTaiKhoanThanhToan.as_view(), name='DangKyTaiKhoanThanhToan'),
     path('header_user/', views.header_user, name='header_user'),
     path('menu/', views.menu, name='menu'),
     path('footer/', views.footer, name='footer'),
     path('History/', views.History, name= 'History'),
     path('price_list/', views.price_list, name='price_list'),
    
+   
     path('San/', views.San, name='San'),
     path('bao_cao/', views.bao_cao, name='bao_cao'),
     path('checkin/', views.checkin, name='checkin'),
-    path('dang_ky/', views.dangky, name='dang_ky'), # đăng kí tài khoản thanh toán.
+    
     path('lichThiDau/', views.lichThiDau, name='lichThiDau'),
     path('them_san_moi/', views.them_san_moi, name='them_san_moi'),
     path('them_san/', views.them_san, name='them_san'),
