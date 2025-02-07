@@ -476,3 +476,5 @@ def them_san(request):
     courts = Court.objects.all()
     badminton_halls = BadmintonHall.objects.all()
     return render(request, 'app1/them_san.html', {"courts": courts, "badminton_halls": badminton_halls})
+
+

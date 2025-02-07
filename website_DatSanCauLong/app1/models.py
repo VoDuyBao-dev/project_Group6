@@ -84,7 +84,7 @@ class Court(models.Model):
     court_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     badminton_hall = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, related_name='courts')
     name = models.CharField(max_length=255, unique=True)
-    image = models.ImageField(upload_to='app1/static/app1/images', null=True, blank=True)
+    image = models.ImageField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
     def __str__(self):
         return f"{self.name}"
