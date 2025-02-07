@@ -3,7 +3,7 @@ from django.shortcuts import render,redirect
 from django.views import View
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from django.contrib.auth import authenticate, login, decorators
+from django.contrib.auth import authenticate, login, decorators, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
@@ -13,11 +13,17 @@ from .utils import send_otp_email, generate_otp
 from django.utils import timezone
 from datetime import timedelta
 from django.http import JsonResponse
+from .models import *
 
-
-from .models import Booking, Court
-from .forms import BookingForm
 import json
+
+
+import nanoid
+from .models import TimeSlotTemplate
+from .forms import TimeSlotTemplateForm  # Sẽ tạo file form ở bước tiếp theo
+from django.shortcuts import get_object_or_404
+from .models import BadmintonHall
+
 # Create your views here.   
 
 # HÀM KIỂM TRA MÃ OTP ĐỂ TÁI SỬ DỤNG:
@@ -32,23 +38,20 @@ def handle_send_otp(request, form_input):
         send_otp_email(username, otp)
         
 
-def TrangChu_guest(request):
-    return render(request, 'app1/TrangChu-guest.html')
-
-def TrangChu_customer(request):
-    return render(request, 'app1/TrangChu-customer.html')
-
-def header_guest(request):
-    return render(request, 'app1/Header-guest.html')
-
-def header_customer(request):
-    return render(request, 'app1/Header-customer.html')
+def TrangChu(request):
+    search_court = SearchForm() 
+    context = {'searchCourt': search_court}  
+    return render(request, 'app1/TrangChu.html', context)
+def header_user(request):
+    search_court = SearchForm() 
+    context = {'searchCourt': search_court}  
+    return render(request, 'app1/Header-user.html',context)
 
 def menu(request):
     return render(request, 'app1/Menu.html')
 
-def menu_manager(request):
-    return render(request, 'app1/Menu-manager.html')
+# def menu_manager(request):
+#     return render(request, 'app1/Menu-manager.html')
 
 def footer(request):
     return render(request, 'app1/Footer.html')
@@ -86,8 +89,7 @@ class Sign_Up(View):
         return render(request, 'app1/Enter_OTP.html', context)
     
 # Trang nhập mã OTP   
-def trangOTP(request):
-    
+def trangOTP(request):  
     return render(request, 'app1/Enter_OTP.html')
 
 #  hàm tạo User
@@ -176,45 +178,64 @@ def resend_otp(request):
 
 class Sign_In(View):
     def get(self, request):
-        # Kiểm tra xem cookie có lưu email không
+        # Lấy email từ cookie nếu có
         remembered_email = request.COOKIES.get('remembered_email', '')
-        sign_in = SignInForm(initial={'username': remembered_email})
-        context = {'SignIn': sign_in, 'remember_me': bool(remembered_email)}
+        sign_in_form = SignInForm(initial={'username': remembered_email})
+        
+        context = {
+            'SignIn': sign_in_form,
+            'remember_me': bool(remembered_email),
+        }
         return render(request, 'app1/Sign_in.html', context)
 
     def post(self, request):
-        sign_in = SignInForm(request.POST)
-        context = {'SignIn': sign_in}
-        
-        if not sign_in.is_valid():
+        # Nếu user đã đăng nhập, không cần đăng nhập lại
+        if request.user.is_authenticated:
+            return redirect('TrangChu')
+
+        # Khởi tạo form với dữ liệu từ request.POST
+        sign_in_form = SignInForm(request.POST)
+        context = {'SignIn': sign_in_form}
+
+        # Lấy số lần đăng nhập sai từ session (mặc định là 0)
+        failed_attempts = request.session.get('failed_attempts', 0)
+
+        # Kiểm tra form hợp lệ
+        if not sign_in_form.is_valid():
             return render(request, 'app1/Sign_in.html', context)
 
-        username = sign_in.cleaned_data['username']
-        password = sign_in.cleaned_data['password']
-        remember_me = request.POST.get('remember_me')  # Lấy giá trị checkbox "Nhớ tài khoản"
-        
+        # Lấy dữ liệu từ form
+        username = sign_in_form.cleaned_data['username']
+        password = sign_in_form.cleaned_data['password']
+        remember_me = request.POST.get('remember_me') == 'on'  # Checkbox "Nhớ tài khoản"
+
         # Xác thực người dùng
-        try:
-            user = User.objects.get(username=username)
-            user = authenticate(username=user.username, password=password)
-        except User.DoesNotExist:
-            user = None
+        user = authenticate(request, username=username, password=password)
 
         if user is not None:
+            # Đăng nhập user vào session
             login(request, user)
+            request.session['failed_attempts'] = 0  # Reset số lần sai
+
+            # Chuyển hướng về trang chủ sau khi đăng nhập thành công
             response = redirect('TrangChu')
-            
-            # Lưu username vào cookie nếu chọn "Nhớ tài khoản"
+
+            # Lưu email vào cookie nếu chọn "Nhớ tài khoản"
             if remember_me:
-                response.set_cookie('remembered_email', username, max_age=7 * 24 * 60 * 60)  # Lưu trong 7 ngày
+                response.set_cookie('remembered_email', username, max_age=7 * 24 * 60 * 60)
             else:
-                response.delete_cookie('remembered_email')  # Xóa cookie nếu không chọn
-            
+                response.delete_cookie('remembered_email')
+
             return response
         else:
-            sign_in.add_error('username', "Email hoặc mật khẩu không đúng.")
-            return render(request, 'app1/Sign_in.html', context)
+            # Nếu nhập sai 5 lần trở lên, yêu cầu reset mật khẩu
+            if failed_attempts >= 4:
+                context['error_message'] = "Bạn đã nhập sai quá 5 lần. Vui lòng đặt lại mật khẩu."
+            else:
+                request.session['failed_attempts'] = failed_attempts + 1
+                context['error_message'] = "Email hoặc mật khẩu không đúng."
 
+            return render(request, 'app1/Sign_in.html', context)
 # Quên mật khẩu
 class ForgotPassword(View):
     def get(self,request):
@@ -284,20 +305,31 @@ class New_password(View):
         user.save()
         messages.success(request, "Đổi mật khẩu thành công!")
         return redirect('Sign_in')
+    
+# Đăng xuất 
+def Logout(request):
+    logout(request)
+    return redirect('TrangChu')
+
 def History(request):
     return render(request, 'app1/LichSuDatSan.html')
 
-def fee_guest(request):
-    return render(request, 'app1/fee-guest.html')
+def payment(request):
+    return render(request, 'app1/payment.html')
 
-def fee_customer(request):
-    return render(request, 'app1/fee_customer.html')
+# def price_list(request):
+#     search_court = SearchForm() 
+#     context = {'searchCourt': search_court}  
+#     return render(request, 'app1/price_list.html',context)
 
-def san_guest(request):
-    return render(request, 'app1/San-guest.html')
-
-def san_customer(request):
-    return render(request, 'app1/San-customer.html')
+def San(request):
+    courts = Court.objects.all()
+    search_court = SearchForm()
+    context = {
+        'courts': courts,
+        'searchCourt': search_court
+    }
+    return render(request, 'app1/San.html', context)
 
 def bao_cao(request):
     return render(request, 'app1/BaoCaoDoanhThu.html')
@@ -305,8 +337,65 @@ def bao_cao(request):
 def checkin(request):
     return render(request, 'app1/Chek-in.html')
 
-def dangky(request):
-    return render(request, 'app1/DangKiTaiKhoanThanhToan.html')
+# Tìm kiếm sân
+class SearchCourt(View):
+    def get(self, request):
+        search_court = SearchForm(request.GET)  # Lấy giá trị GET từ người dùng
+        results = []
+
+        if search_court.is_valid():
+            query = search_court.cleaned_data.get('query', '').strip()
+            
+            # Chỉ tìm kiếm khi có dữ liệu
+            if query:
+                # Tìm kiếm sân theo tên hoặc địa chỉ tương đối
+                filters = Q()
+                filters |= Q(name__icontains=query)  # Tìm tên sân chứa từ khóa
+                filters |= Q(badminton_hall_id__address__icontains=query)  # Tìm địa chỉ sân chứa từ khóa
+                results = Court.objects.filter(filters).order_by('name')  # Thực hiện tìm kiếm với bộ lọc
+                
+        context = {
+            'searchCourt': search_court,
+            'courts': results  # Trả về kết quả tìm kiếm
+        }
+        return render(request, 'app1/kqTimKiem.html', context)
+
+# Đăng ký tài khoản thanh toán của manager
+class DangKyTaiKhoanThanhToan(View):
+
+    def get(self,request):
+        register_payment_Account=RegisterPaymentAccountForm()
+        search_court = SearchForm()
+        context = {
+            'Register_Payment_Account': register_payment_Account,
+            'searchCourt': search_court
+        }
+        return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+
+    def post(self,request):
+        register_payment_Account=RegisterPaymentAccountForm(request.POST)
+        search_court = SearchForm()
+        context = {
+            'Register_Payment_Account': register_payment_Account,
+            'searchCourt': search_court
+        }
+
+        if not register_payment_Account.is_valid():
+            return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+        
+        # form hợp lệ thì lấy dữ liệu từ form
+        accountHolder = register_payment_Account.cleaned_data['accountHolder']
+        accountNumber = register_payment_Account.cleaned_data['accountNumber']
+        paymentMethod = register_payment_Account.cleaned_data['paymentMethod']
+
+        payment_account = PaymentAccount.objects.create(
+            accountHolder=accountHolder,
+            accountNumber=accountNumber,
+            paymentMethod=paymentMethod
+        )
+        messages.success(request, "Đăng ký tài khoản thanh toán thành công!")
+
+        return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
 
 def lichThiDau(request):
     return render(request, 'app1/LichThiDau.html')
@@ -325,6 +414,17 @@ def manager_taikhoan(request):
 
 def manager_san(request):
     return render(request, 'app1/QuanLyThongTinSan.html')
+
+
+
+
+
+
+
+
+
+
+
 
 # def court_badminton(request):
 #     get_court = CourtBadminton.objects.all()
@@ -384,136 +484,104 @@ def manager_san(request):
 #             handle_send_otp(request, ForgotPassword_Form, context)
 #             return render(request, 'QuanLiUser/Forgot_Password.html', context)
         
-#         if not ForgotPassword_Form.is_valid():
-#             return render(request, 'QuanLiUser/Forgot_Password.html', context )
-        
-#         # Kiểm tra hiệu lực OTP 
-#         if not validate_otp(request):
-#             return render(request, 'QuanLiUser/Forgot_Password.html', context)
 
-#         request.session.pop('otp', None)  # Xóa OTP khỏi session
-#         return redirect('ChangePassWord')
+
+        
     
-# class ChangePassWord(View):
-#     def get(self, request):
-#         Change_password = ChangePassword()
-#         context = {'form': Change_password}
-#         return render(request, 'QuanLiUser/ChangePassword.html', context)
-
-#     def post(self, request):
-#         Change_password = ChangePassword(request.POST)
-#         context = {'form': Change_password}
-
-#         # Kiểm tra form đổi mật khẩu
-#         if not Change_password.is_valid():
-#             return render(request, 'QuanLiUser/ChangePassword.html', context)
-
-#         # Lấy username từ session đã lưu
-#         username = request.session.get('username')  # Lấy username từ session
-#         if not username:
-#             messages.error(request, "Không thể xác định người dùng.")
-#             return redirect('ForgotPassword')
-
-#         # Lấy mật khẩu mới từ form
-#         new_password = Change_password.cleaned_data['new_password']
-
-#         # Cập nhật mật khẩu người dùng
-        
-#         user = User.objects.get(username=username)
-#         user.password = make_password(new_password)
-#         user.save()
-#         messages.success(request, "Đổi mật khẩu thành công!")
-#         return redirect('login')
-      
 
 
 
 
-# class DatSan(LoginRequiredMixin,View):
-#     login_url = 'login'
-#     def get(self, request):
-#         get_court = CourtBadminton.objects.all()
-#         context = {'courts': get_court}
-#         return render(request, 'QuanLiUser/datsan.html', context)
-    
-#     def post(self,request):
-#         court_id = request.POST.get('court')
-#         bookingDate = request.POST.get('booking_date')
-#         startTime = request.POST.get('start_time')
-#         endTime = request.POST.get('end_time')
-
-#         booking = CourtBooking.objects.create(
-#             user = request.user,
-#             court = CourtBadminton.objects.get(id = court_id),
-#             booking_date = bookingDate,
-#             start_time = startTime,
-#             end_time = endTime
-#         )
-
-#         selected_court = CourtBadminton.objects.get(id = court_id)
-#         selected_court.is_available = False
-#         selected_court.save()
-
-#         messages.success(request, "Đặt sân thành công!")
-
-        
-#         return redirect('courtbadminton')  
 
 
-# import qrcode
-# from io import BytesIO
-# from base64 import b64encode
 
-# def index(request):
-#     return render(request, 'QuanLiUser/index.html') 
+def header_guest(request):
+    return render(request, 'app1/Header-guest.html')
 
-# def generate_qr_code(request):
-#     qr_code_img = qrcode.make("https://www.google.com/")
-#     buffer = BytesIO()
-#     qr_code_img.save(buffer)
-#     buffer.seek(0)
-#     encoded_img = b64encode(buffer.read()).decode()
-#     qr_code_data = f'data:image/png;base64,{encoded_img}'
-#     return render(request, 'QuanLiUser/qr_code.html', {'qr_code_data': qr_code_data})
+def header_customer(request):
+    return render(request, 'app1/Header-customer.html')
 
-#đặt lịch
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .models import Booking 
-from django.contrib.auth.decorators import login_required
-@login_required  # Đảm bảo user phải đăng nhập mới đặt sân
-def booking(request):
+def manager_taikhoan(request):
+    return render(request, 'app1/QuanLyTaiKhoan.html')
+
+def manager_san(request):
+    return render(request, 'app1/QuanLyThongTinSan.html')
+
+def ThongTinCaNhan(request):
+    return render(request, 'app1/ThongTinCaNhan.html')
+
+def ChinhSuaThongTin(request):
+    return render(request, 'app1/ChinhSuaThongTin.html')
+
+
+
+
+
+# từ khúc này là con Lan làm có gì thì né né ra nha.
+
+
+# thêm thời gian(khung giờ) và giá,... của từng loại hình đặt lịch
+def manage_time_slots(request):
     if request.method == "POST":
-        customer = Customer.objects.get(user=request.user)
-        court_id = request.POST.get("court_id")
-        slot_id = request.POST.get("slot_id")
-        booking_type = request.POST.get("bookingType")
-        date = request.POST.get("date")
-        start_time = request.POST.get("startTime")
-        end_time = request.POST.get("endTime")
+        form = TimeSlotTemplateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("manage_time_slots")  # Reload lại trang sau khi lưu
+    else:
+        form = TimeSlotTemplateForm()
 
-        if not (court_id and slot_id and booking_type and date and start_time and end_time):
+    time_slots = TimeSlotTemplate.objects.all()
+    return render(request, "app1/manage_time_slots.html", {"form": form, "time_slots": time_slots})
+
+# xóa lịch nếu thấy bất ổn nào đó.
+def delete_time_slot(request, slot_id):
+    slot = get_object_or_404(TimeSlotTemplate, template_id=slot_id)
+    slot.delete()
+    return redirect("manage_time_slots")
+
+# lấy thông tin từ cơ sở dữ liệu của lịch sau đó hiển thị ra giao diện.
+def price_list(request):
+    time_slots = TimeSlotTemplate.objects.all()
+    return render(request, "app1/price_list.html", {"time_slots": time_slots})
+
+
+# thêm dữ liệu của một sân cầu lông mới(thêm một chi nhánh)
+def them_san_moi(request):
+    if request.method == "POST":
+        name = request.POST.get('name')
+        address = request.POST.get('address')
+
+        # Kiểm tra nếu tên hoặc địa chỉ bị bỏ trống
+        if not name or not address:
             messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
-            return redirect("booking")
+            return redirect('them_san_moi')
 
-        try:
-            court = Court.objects.get(id=court_id)
-            slot = Slot.objects.get(id=slot_id)
+        # Lưu dữ liệu nếu hợp lệ
+        BadmintonHall.objects.create(name=name, address=address)
+        messages.success(request, "Thêm sân mới thành công!")
+        return redirect('them_san_moi')
 
-            new_booking = Booking.objects.create(
-                customer_id=customer,
-                court_id=court,
-                slot_id=slot,
-                booking_type=booking_type,
-                date=date,
-                start_time=start_time,
-                end_time=end_time,
-                status=True
-            )
-            messages.success(request, "Đặt sân thành công!")
-            return redirect("payment")
-        except Exception as e:
-            messages.error(request, f"Lỗi khi đặt sân: {e}")
-            return redirect("booking")
+    halls = BadmintonHall.objects.all()
+    return render(request, 'app1/them_san_moi.html', {'halls': halls})
 
-    return render(request, "app1/Book.html")
+
+def them_san(request):
+    if request.method == "POST":
+        badminton_hall_id = request.POST.get('address')
+        name = request.POST.get('name')
+        image = request.FILES.get('image') 
+        status = request.POST.get('status')
+
+        # Kiểm tra nếu tên hoặc địa chỉ bị bỏ trống
+        if not name or not badminton_hall_id or not status:
+            messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
+            return redirect('them_san')
+        badminton_hall = get_object_or_404(BadmintonHall, badminton_hall_id=badminton_hall_id)
+        # Lưu dữ liệu nếu hợp lệ
+        Court.objects.create(badminton_hall=badminton_hall, name=name, image=image, status=status)
+        messages.success(request, "Thêm sân mới thành công!")
+        return redirect('them_san')
+
+    courts = Court.objects.all()
+    badminton_halls = BadmintonHall.objects.all()
+    return render(request, 'app1/them_san.html', {"courts": courts, "badminton_halls": badminton_halls})
