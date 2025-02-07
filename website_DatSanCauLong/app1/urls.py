@@ -5,6 +5,7 @@ from . import views
 from .views import *
 
 urlpatterns = [
+    path('', views.TrangChu, name= 'TrangChu'),
     path('sign_in/', Sign_In.as_view(), name= 'Sign_in'),
     path('Logout/', views.Logout, name='Logout'),
     path('sign_up/', Sign_Up.as_view(), name= 'Sign_up'),
@@ -17,25 +18,26 @@ urlpatterns = [
     # xác thực OTP quên mật khẩu
     path('validate_otp_fogotpassword/', views.validate_otp_of_ForgotPassword, name='validate_otp_of_ForgotPassword'),
     path('new_password/', New_password.as_view(), name= 'New_Password'),
-    path('TrangChu/', views.TrangChu, name= 'TrangChu'),
-   
     # Tìm kiếm sân:
     path('SearchCourt/', SearchCourt.as_view(), name= 'SearchCourt'),
-    
-    
+    path('DangKyTaiKhoanThanhToan/', DangKyTaiKhoanThanhToan.as_view(), name='DangKyTaiKhoanThanhToan'),
     path('header_user/', views.header_user, name='header_user'),
     path('menu/', views.menu, name='menu'),
     path('footer/', views.footer, name='footer'),
     path('History/', views.History, name= 'History'),
     path('price_list/', views.price_list, name='price_list'),
    
+   
     path('San/', views.San, name='San'),
     path('bao_cao/', views.bao_cao, name='bao_cao'),
     path('checkin/', views.checkin, name='checkin'),
-    path('dang_ky/', views.dangky, name='dang_ky'),
+    
     path('lichThiDau/', views.lichThiDau, name='lichThiDau'),
     path('them_san/', views.themSan, name='them_san'),
-  
+    path('payment/', views.payment, name='payment'),
+    path('booking/', views.booking, name='booking'),
+    path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
+    path('manager_san/', views.manager_san, name='manager_san'),
 ]
 # coi url
 

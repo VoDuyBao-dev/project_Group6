@@ -18,6 +18,8 @@ from .models import *
 import json
 
 
+# from .forms import TimeSlotTemplateForm
+
 # Create your views here.   
 
 # HÀM KIỂM TRA MÃ OTP ĐỂ TÁI SỬ DỤNG:
@@ -36,8 +38,6 @@ def TrangChu(request):
     search_court = SearchForm() 
     context = {'searchCourt': search_court}  
     return render(request, 'app1/TrangChu.html', context)
-
-
 def header_user(request):
     search_court = SearchForm() 
     context = {'searchCourt': search_court}  
@@ -46,8 +46,8 @@ def header_user(request):
 def menu(request):
     return render(request, 'app1/Menu.html')
 
-def menu_manager(request):
-    return render(request, 'app1/Menu-manager.html')
+# def menu_manager(request):
+#     return render(request, 'app1/Menu-manager.html')
 
 def footer(request):
     return render(request, 'app1/Footer.html')
@@ -330,17 +330,7 @@ def bao_cao(request):
 def checkin(request):
     return render(request, 'app1/Chek-in.html')
 
-def dangky(request):
-    return render(request, 'app1/DangKiTaiKhoanThanhToan.html')
-
-def lichThiDau(request):
-    return render(request, 'app1/LichThiDau.html')
-
-def themSan(request):
-    return render(request, 'app1/ThemSanMoi.html')
-
-        
-
+# Tìm kiếm sân
 class SearchCourt(View):
     def get(self, request):
         search_court = SearchForm(request.GET)  # Lấy giá trị GET từ người dùng
@@ -362,6 +352,133 @@ class SearchCourt(View):
             'courts': results  # Trả về kết quả tìm kiếm
         }
         return render(request, 'app1/kqTimKiem.html', context)
+
+# Đăng ký tài khoản thanh toán của manager
+class DangKyTaiKhoanThanhToan(View):
+
+    def get(self,request):
+        register_payment_Account=RegisterPaymentAccountForm()
+        search_court = SearchForm()
+        context = {
+            'Register_Payment_Account': register_payment_Account,
+            'searchCourt': search_court
+        }
+        return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+
+    def post(self,request):
+        register_payment_Account=RegisterPaymentAccountForm(request.POST)
+        search_court = SearchForm()
+        context = {
+            'Register_Payment_Account': register_payment_Account,
+            'searchCourt': search_court
+        }
+
+        if not register_payment_Account.is_valid():
+            return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+        
+        # form hợp lệ thì lấy dữ liệu từ form
+        accountHolder = register_payment_Account.cleaned_data['accountHolder']
+        accountNumber = register_payment_Account.cleaned_data['accountNumber']
+        paymentMethod = register_payment_Account.cleaned_data['paymentMethod']
+
+        payment_account = PaymentAccount.objects.create(
+            accountHolder=accountHolder,
+            accountNumber=accountNumber,
+            paymentMethod=paymentMethod
+        )
+        messages.success(request, "Đăng ký tài khoản thanh toán thành công!")
+
+        return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+
+def lichThiDau(request):
+    return render(request, 'app1/LichThiDau.html')
+
+def themSan(request):
+    return render(request, 'app1/ThemSanMoi.html')
+
+def booking(request):
+    return render(request, 'app1/Book.html')
+
+def payment(request):
+    return render(request, 'app1/payment.html')
+
+def manager_taikhoan(request):
+    return render(request, 'app1/QuanLyTaiKhoan.html')
+
+def manager_san(request):
+    return render(request, 'app1/QuanLyThongTinSan.html')
+
+
+
+
+
+
+
+
+
+
+
+
+# def court_badminton(request):
+#     get_court = CourtBadminton.objects.all()
+#     context = {'courts': get_court}
+#     return render(request, 'QuanLiUser/courtbadminton.html', context)
+
+# @decorators.login_required(login_url='login')
+# def history_booking(request):
+   
+#     get_history = CourtBooking.objects.all()
+#     context = {'historys': get_history}
+#     return render(request,'QuanLiUser/historybooking.html', context)
+
+# def search_court(request):
+#     query = request.GET.get('search_court')
+#     results = []
+#     if query:
+#         results = CourtBadminton.objects.filter(court_name__icontains = query)
+#     return render(request, 'QuanLiUser/kq_tim_kiem.html.html', {'query': query, 'results': results})
+
+# def search_court_two(request):
+#     data = CourtBadminton.objects.values_list('court_name','location','price_per_house')
+#     courts, locations, prices = zip(*data)
+#     return render(request, 'QuanLiUser/search_court2.html', {'courts': courts, 'locations': locations, 'prices': prices}) 
+
+# def result_search(request):
+#     court_name = request.GET.get('court_name')
+#     location = request.GET.get('location')
+#     prices = request.GET.get('price_per_house')
+#     is_available = request.GET.get('is_available')
+#     #chuyển sang true false:
+#     is_available = True if is_available == '1' else False
+#     results = []
+#     results = CourtBadminton.objects.filter(
+#         (Q(court_name__icontains = court_name) | Q(location__icontains = location)|Q(price_per_house__icontains = prices)) & Q(is_available = is_available)
+#     )
+#     return render(request, 'QuanLiUser/kq_tim_kiem.html', {'results': results})
+
+
+
+
+
+
+
+# class ForgotPassword(View):
+
+#     def get(self,request):
+#         ForgotPassword_Form = ForgotPasswordForm()
+#         context = {'form': ForgotPassword_Form}
+#         return render(request, 'QuanLiUser/Forgot_Password.html', context)
+
+#     def post(self, request):
+#         ForgotPassword_Form= ForgotPasswordForm(request.POST, initial={'otp': request.session.get('otp')})
+#         context = {'form': ForgotPassword_Form} 
+
+#         if 'send_otp' in request.POST:
+#             handle_send_otp(request, ForgotPassword_Form, context)
+#             return render(request, 'QuanLiUser/Forgot_Password.html', context)
+        
+
+
         
     
 
@@ -373,3 +490,23 @@ class SearchCourt(View):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+# def add_timeslot_template(request):
+#     if request.method == 'POST':
+#         form = TimeSlotTemplateForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('success_url')  # Thay 'success_url' bằng URL bạn muốn chuyển hướng đến sau khi lưu thành công
+#     else:
+#         form = TimeSlotTemplateForm()
+#     return render(request, 'app1/add_timeslot_template.html', {'form': form})

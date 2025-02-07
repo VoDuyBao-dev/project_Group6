@@ -3,32 +3,30 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
 import uuid
 
-# User model
-# class User(AbstractUser):
-#     USER_TYPES = (
-#     ('guest', 'Guest'),
-#     ('customer', 'Customer'),
-#     ('court_manager', 'Court Manager'),
-#     ('court_staff', 'Court Staff'),
-#     ('admin', 'System Admin'),
-#     )
-#     user_type = models.CharField(max_length=20, choices=USER_TYPES, default='guest')
 
-#     groups = models.ManyToManyField(
-#         'auth.Group',
-#         related_name='user_user_set', # Add related_name to avoid clashes
-#         blank=True,
-#         help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
-#         verbose_name='groups',
-#     )
-#     user_permissions = models.ManyToManyField(
-#         'auth.Permission',
-#         related_name='user_user_set', # Add related_name to avoid clashes
-#         blank=True,
-#         help_text='Specific permissions for this user.',
-#         verbose_name='user permissions',
-#     )
+class PaymentAccount(models.Model):
+    PAYMENT_METHOD_CHOICES = [
+        ("bank", "Ngân hàng"),
+        ("momo", "Momo"),
+    ]
 
+    accountHolder = models.CharField(
+        max_length=50,
+    )
+    accountNumber = models.CharField(
+        max_length=20,
+    )
+    paymentMethod = models.CharField(
+        max_length=10,
+        choices=PAYMENT_METHOD_CHOICES,
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật")
+
+    def __str__(self):
+        return f"{self.accountHolder} - {self.accountNumber}"
+
+        
 # Guest and Customer models
 class Customer(models.Model):
     customer_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
@@ -41,7 +39,13 @@ class Customer(models.Model):
 class CourtManager(models.Model):
     courtManager_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
     Thongtintaikhoan = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_manager')
-
+    payment_account = models.OneToOneField(
+        PaymentAccount,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='court_manager'
+    )
     def __str__(self):
         return self.user.username
 
@@ -116,6 +120,13 @@ class Payment(models.Model):
     payment_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
     booking_id = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='payment')
     customer_id = models.OneToOneField(Customer, on_delete=models.CASCADE, default='p1', related_name='payment')
+    payment_account = models.ForeignKey(
+        PaymentAccount,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='payments'
+    )
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_date = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField(default=False) # đã thanh toán hay chưa
@@ -136,7 +147,8 @@ class CourtStaff(models.Model):
 # Revenue Report model
 class RevenueReport(models.Model):
     revenueReport_id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
-    badminton_hall_id = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, related_name='revenue_reports',)
+    badminton_hall_id = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, related_name='revenue_reports',
+    null=True, blank=True)
     generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
     total_revenue = models.DecimalField(max_digits=15, decimal_places=2)
     generated_at = models.DateTimeField(auto_now_add=True)
