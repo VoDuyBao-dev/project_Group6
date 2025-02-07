@@ -2,15 +2,12 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-<<<<<<< HEAD
 
 from .models import TimeSlotTemplate
 from .models import Court
-=======
 import re
 from .models import PaymentAccount
 # from .models import TimeSlotTemplate
->>>>>>> Backend/VoDuyBao
 
 # Kiểm tra định dạng email
 def is_valid_email(email):
