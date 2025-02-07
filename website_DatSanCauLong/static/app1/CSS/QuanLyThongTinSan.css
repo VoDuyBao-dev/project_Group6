@@ -1,0 +1,125 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color:#f7f7f7 ;
+    margin: 0;
+    padding: 0;
+}
+h1 {
+    background-color: #f7f7f7 !important;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    color: black !important;
+}
+main {
+    margin: 20px;
+}
+section {
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    color: black !important;
+}
+h2 {
+    color: #333 ;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #007BFF;
+    padding-bottom: 5px;
+}
+.court-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+.court-card {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    width: 250px;
+    padding: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.2s;
+    color: black !important;
+}
+.court-card:hover {
+    transform: scale(1.05);
+}
+.court-card h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+.court-card .status {
+    font-weight: bold;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+.court-card .status.available {
+    color: green;
+}
+.court-card .status.in-use {
+    color: red;
+}
+.court-card .status.maintenance {
+    color: orange;
+}
+.court-card .schedule-info {
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+.court-card .schedule-info span {
+    display: block;
+}
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+button {
+    background-color:#6ab4c8;
+    color: white;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+    transition: background-color 0.2s;
+}
+button:hover {
+    background-color: #ed5928;
+}
+.form-group {
+    margin-bottom: 15px;
+}
+input[type="text"], input[type="number"], select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+.hidden {
+    display: none;
+}
+.add-court-btn {
+    background-color: #17A2B8;
+    padding: 15px;
+    color: white;
+    font-size: 24px;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    border: none;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s;
+}
+.add-court-btn:hover {
+    background-color: #138496;
+}
