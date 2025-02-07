@@ -11,6 +11,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 class TestUserSignIn(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+        self.driver.maximize_window()  # Mở Chrome full màn hình
         self.driver.implicitly_wait(10)  # Chờ tối đa 10s nếu phần tử chưa xuất hiện
 
     def tearDown(self):
@@ -82,7 +83,7 @@ class TestUserSignIn(unittest.TestCase):
         #  Cần tìm lại phần tử sau khi trang load lại
         inputUserName = self.driver.find_element(By.ID, "username")
         inputUserName.clear()
-        inputUserName.send_keys("voduybao19052005@gmail.com")
+        inputUserName.send_keys("voduybao192005@gmail.com")
         for i in range(5):
             self.enter_credentials("123444")
             self.check_error_message(".alert.alert-danger", i+1)
@@ -91,7 +92,7 @@ class TestUserSignIn(unittest.TestCase):
          
         # test đăng nhập đúng
         # Tìm lại phần tử:
-        self.enter_credentials("123")
+        self.enter_credentials("1234")
         self.check_error_message("alert.alert-danger",6)
             
         # Kiểm tra xem đăng nhập có thành công không
@@ -137,8 +138,8 @@ class TestUserSignIn(unittest.TestCase):
         remember_button.click()
         print("Nhấn nhớ tài khoản thành công")
         time.sleep(2)
-        inputUserName.send_keys("voduybao19052005@gmail.com")
-        password.send_keys("123")
+        inputUserName.send_keys("voduybao192005@gmail.com")
+        password.send_keys("1234")
         # xem password
         eye_button.click()
         time.sleep(1.5) 
@@ -176,10 +177,7 @@ class TestUserSignIn(unittest.TestCase):
         self.assertIn("Đăng nhập", driver.title)  # Kiểm tra xem tiêu đề có đúng là trang đăng nhập không
         # In kết quả ra terminal
         print("Đã nhấn vào nút Đăng nhập và chuyển hướng thành công.")
-        
-
-        
-        
+         
 
 if __name__ == "__main__":
     unittest.main()
