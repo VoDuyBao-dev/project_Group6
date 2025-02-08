@@ -96,7 +96,7 @@ def trangOTP(request):
 def create_user_account(username, full_name, password):
     try:
         # Tạo đối tượng User trong database
-        user = User.objects.create_user(username=username, first_name=full_name, password=password)
+        user = User.objects.create_user(username=username,email=username ,first_name=full_name, password=password)
         user.save()
         return user
     except Exception:
@@ -397,6 +397,66 @@ class DangKyTaiKhoanThanhToan(View):
 
         return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
 
+# Thôg tin cá nhân
+def ThongTinCaNhan(request):
+    user = request.user  # Lấy thông tin người dùng đã đăng nhập
+    customer = user.customer  # Truy cập thông tin trong bảng Customer thông qua khóa ngoại
+
+    # Truyền thông tin vào context để render trong template
+    context = {
+        'user': user,
+        'customer': customer
+    }
+    return render(request, 'app1/ThongTinCaNhan.html', context)
+
+
+# Chỉnh sửa thông tin cá nhân
+class ChinhSuaThongTinCaNhan(View):
+    def get(self, request):
+        ChinhSuaThongTin = FormChinhSuaThongTinCaNhan()
+        context = {"ChinhSuaThongTin" : ChinhSuaThongTin} 
+        return render(request, 'app1/ChinhSuaThongTin.html', context)
+
+    def post(self, request):
+        ChinhSuaThongTin = FormChinhSuaThongTinCaNhan(request.POST)
+        context = {"ChinhSuaThongTin" : ChinhSuaThongTin} 
+
+        if not ChinhSuaThongTin.is_valid():
+            return render(request, 'app1/ChinhSuaThongTin.html', context)
+        
+        user = request.user
+        customer = user.customer # Liên kết OneToOne với Customer
+        #  Nếu dữ liệu hợp lệ:
+        # Lấy dữ liệu
+        full_name = ChinhSuaThongTin.cleaned_data['full_name']
+        date_of_birth = ChinhSuaThongTin.cleaned_data['date_of_birth']
+
+        # cập nhật thông tin:
+        if full_name:
+            user.first_name = full_name
+            user.save()
+            
+        if date_of_birth:
+            customer.date_of_birth = date_of_birth
+            customer.save()
+            
+        messages.success(request, "Chỉnh sửa thông tin thành công!")
+        return redirect('ThongTinCaNhan')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def lichThiDau(request):
     return render(request, 'app1/LichThiDau.html')
 
@@ -507,11 +567,9 @@ def manager_taikhoan(request):
 def manager_san(request):
     return render(request, 'app1/QuanLyThongTinSan.html')
 
-def ThongTinCaNhan(request):
-    return render(request, 'app1/ThongTinCaNhan.html')
 
-def ChinhSuaThongTin(request):
-    return render(request, 'app1/ChinhSuaThongTin.html')
+
+
 
 
 

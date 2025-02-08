@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
 import nanoid
 
@@ -34,6 +33,7 @@ def generate_short_id():
 class Customer(models.Model):
     customer_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
+    date_of_birth = models.DateField(null=True, blank=True)  # Trường ngày sinh
     # stk = models.CharField(max_length=20, null=True, blank=True)
     def __str__(self):
         return self.user.username

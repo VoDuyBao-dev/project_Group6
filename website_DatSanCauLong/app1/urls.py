@@ -53,8 +53,8 @@ urlpatterns = [
     path('manage_time_slots/', views.manage_time_slots, name='manage_time_slots'),
     path('delete_time_slot/<str:slot_id>/', views.delete_time_slot, name='delete_time_slot'),
     path('ThongTinCaNhan/', views.ThongTinCaNhan, name='ThongTinCaNhan'),
-    path('ChinhSuaThongTin', views.ChinhSuaThongTin, name='ChinhSuaThongTin'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('ChinhSuaThongTinCaNhan/', ChinhSuaThongTinCaNhan.as_view(), name='ChinhSuaThongTinCaNhan'),
+] 
 # coi url
 
 

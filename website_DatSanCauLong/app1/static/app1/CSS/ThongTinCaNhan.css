@@ -91,3 +91,14 @@ a.button:hover {
         font-size: 16px;
     }
 }
+
+/* Phần thông báo */
+.message {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+/* Thông báo thành công */
+.message.success {
+    color: green;
+}
