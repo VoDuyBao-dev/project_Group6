@@ -445,8 +445,8 @@ def booking_view(request):
 
         try:
             # Kiểm tra xem Court và Slot có tồn tại không
-            court = Court.objects.get(id=court_id)
-            slot = Slot.objects.get(id=slot_id)
+            court = Court.objects.get(court_id=court_id) 
+            slot = Slot.objects.get(slot_id=slot_id)
 
             # Chuyển đổi thời gian
             start_time = datetime.strptime(time, "%H:%M").time()
