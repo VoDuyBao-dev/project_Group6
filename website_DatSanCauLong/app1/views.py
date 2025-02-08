@@ -18,7 +18,7 @@ from .models import *
 import json
 
 
-import nanoid
+# import nanoid
 from .models import TimeSlotTemplate
 from .forms import TimeSlotTemplateForm  # Sẽ tạo file form ở bước tiếp theo
 from django.shortcuts import get_object_or_404

@@ -5,7 +5,7 @@
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static "admin/css/login.css" %}">
 {{ form.media }}
 {% endblock %}
-
+<img src="{% static "admin/img/anhnen.jpg" %}">
 {% block bodyclass %}{{ block.super }} login{% endblock %}
 
 {% block usertools %}{% endblock %}
@@ -14,7 +14,8 @@
 
 {% block nav-sidebar %}{% endblock %}
 
-{% block content_title %}{% endblock %}
+{% block content_title %}
+{% endblock %}
 
 {% block nav-breadcrumbs %}{% endblock %}
 
@@ -57,7 +58,7 @@
   {% url 'admin_password_reset' as password_reset_url %}
   {% if password_reset_url %}
   <div class="password-reset-link">
-    <a href="{{ password_reset_url }}">{% translate 'Forgotten your login credentials?' %}</a>
+    <a href="{{ password_reset_url }}">{% translate 'Bạn quên mật khẩu ?' %}</a>
   </div>
   {% endif %}
   <div class="submit-row">

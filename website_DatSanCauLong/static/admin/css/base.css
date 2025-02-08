@@ -10,11 +10,7 @@ html[data-theme="light"],
     --accent: #f5dd5d;
     --primary-fg: #fff;
 
-    --body-fg: #333;
-    --body-bg: #fff;
-    --body-quiet-color: #666;
-    --body-medium-color: #444;
-    --body-loud-color: #000;
+    --body-img: url(../img/anhnen.jpg);
 
     --header-color: #ffc;
     --header-branding-color: var(--accent);
@@ -1061,7 +1057,7 @@ a.deletelink:hover {
 #site-name a:link,
 #site-name a:visited {
     color: white;
-    font-style: bold;
+    font-weight: bold;
 }
 
 #branding h2 {
