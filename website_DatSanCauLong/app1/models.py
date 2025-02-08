@@ -77,7 +77,7 @@ class Court(models.Model):
     badminton_hall = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, related_name='courts')
     name = models.CharField(max_length=255, unique=True)
     image = models.ImageField(null=True, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='empty')
     def __str__(self):
         return f"{self.name}"
     @property
@@ -108,7 +108,7 @@ class TimeSlotTemplate(models.Model):
     fixed_price = models.DecimalField(max_digits=6, decimal_places=3)
     daily_price = models.DecimalField(max_digits=6, decimal_places=3)
     flexible_price = models.DecimalField(max_digits=6, decimal_places=3)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
 
     def __str__(self):
         return f"{self.day_of_week} | {self.time_frame}"
