@@ -14,7 +14,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django.http import JsonResponse
 from .models import *
-
+from django.contrib.auth.decorators import login_required
 import json
 
 
@@ -37,7 +37,13 @@ def handle_send_otp(request, form_input):
         request.session['otp_created_at'] = timezone.now().isoformat()  # Lưu thời gian tạo OTP
         send_otp_email(username, otp)
         
+from .models import Court, Slot
 
+@login_required
+def booking_view(request):
+    courts = Court.objects.all()
+    slots = Slot.objects.all()
+    return render(request, 'app1/Book.html', {'courts': courts, 'slots': slots})
 def TrangChu(request):
     search_court = SearchForm() 
     context = {'searchCourt': search_court}  
@@ -314,9 +320,9 @@ def Logout(request):
 def History(request):
     return render(request, 'app1/LichSuDatSan.html')
 
-def payment(request):
-    return render(request, 'app1/payment.html')
 
+def payment_view(request):
+    return render(request, "app1/payment.html")
 # def price_list(request):
 #     search_court = SearchForm() 
 #     context = {'searchCourt': search_court}  
@@ -416,8 +422,58 @@ def manager_san(request):
     return render(request, 'app1/QuanLyThongTinSan.html')
 
 
+#Đặt lịch
+from app1.models import Booking
+from django.shortcuts import get_object_or_404
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from .models import Booking, Court
+from .serializers import BookingSerializer
+class BookingViewSet(viewsets.ModelViewSet):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+@login_required
+def booking_view(request):
+    if request.method == 'POST':
+        customer = Customer.objects.get(user=request.user)  # Lấy customer từ user
+        court_id = request.POST.get('court_id')  # Cần truyền court_id từ form
+        slot_id = request.POST.get('slot_id')  # Cần truyền slot_id từ form
+        booking_type = request.POST.get('scheduleType')  # Trong form đang dùng 'scheduleType'
+        date = request.POST.get('date')
+        time = request.POST.get('time')
 
+        try:
+            # Kiểm tra xem Court và Slot có tồn tại không
+            court = Court.objects.get(id=court_id)
+            slot = Slot.objects.get(id=slot_id)
 
+            # Chuyển đổi thời gian
+            start_time = datetime.strptime(time, "%H:%M").time()
+            end_time = (datetime.strptime(time, "%H:%M") + timedelta(hours=1)).time()  # Giả sử sân đặt trong 1 giờ
+
+            # Tạo Booking mới
+            booking = Booking.objects.create(
+                customer_id=customer,
+                court_id=court,
+                slot_id=slot,
+                booking_type=booking_type,
+                date=date,
+                start_time=start_time,
+                end_time=end_time,
+                status=True  # Mặc định là đã đặt
+            )
+
+            booking.save()
+            messages.success(request, "Đặt sân thành công!")
+            return redirect('payment')  # Chuyển hướng đến trang thanh toán
+
+        except Court.DoesNotExist:
+            messages.error(request, "Sân không tồn tại!")
+        except Slot.DoesNotExist:
+            messages.error(request, "Khung giờ không hợp lệ!")
+
+    return render(request, 'app1/Book.html')
 
 
 
