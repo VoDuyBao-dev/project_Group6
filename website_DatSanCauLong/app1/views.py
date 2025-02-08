@@ -14,11 +14,8 @@ from django.utils import timezone
 from datetime import timedelta
 from django.http import JsonResponse
 from .models import *
-
 import json
-
-
-import nanoid
+# import nanoid
 from .models import TimeSlotTemplate
 from .forms import TimeSlotTemplateForm  # Sẽ tạo file form ở bước tiếp theo
 from django.shortcuts import get_object_or_404
@@ -47,14 +44,7 @@ def header_user(request):
     context = {'searchCourt': search_court}  
     return render(request, 'app1/Header-user.html',context)
 
-def menu(request):
-    return render(request, 'app1/Menu.html')
 
-# def menu_manager(request):
-#     return render(request, 'app1/Menu-manager.html')
-
-def footer(request):
-    return render(request, 'app1/Footer.html')
 
 class Sign_Up(View):
     def get(self, request):
@@ -444,48 +434,6 @@ class ChinhSuaThongTinCaNhan(View):
         return redirect('ThongTinCaNhan')
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-def lichThiDau(request):
-    return render(request, 'app1/LichThiDau.html')
-
-def themSan(request):
-    return render(request, 'app1/ThemSanMoi.html')
-
-def booking(request):
-    return render(request, 'app1/Book.html')
-
-def payment(request):
-    return render(request, 'app1/payment.html')
-
-def manager_taikhoan(request):
-    return render(request, 'app1/QuanLyTaiKhoan.html')
-
-def manager_san(request):
-    return render(request, 'app1/QuanLyThongTinSan.html')
-
-
-
-
-
-
-
-
-
-
-
-
 # def court_badminton(request):
 #     get_court = CourtBadminton.objects.all()
 #     context = {'courts': get_court}
@@ -526,9 +474,6 @@ def manager_san(request):
 
 
 
-
-
-
 # class ForgotPassword(View):
 
 #     def get(self,request):
@@ -543,37 +488,7 @@ def manager_san(request):
 #         if 'send_otp' in request.POST:
 #             handle_send_otp(request, ForgotPassword_Form, context)
 #             return render(request, 'QuanLiUser/Forgot_Password.html', context)
-        
-
-
-        
-    
-
-
-
-
-
-
-
-def header_guest(request):
-    return render(request, 'app1/Header-guest.html')
-
-def header_customer(request):
-    return render(request, 'app1/Header-customer.html')
-
-def manager_taikhoan(request):
-    return render(request, 'app1/QuanLyTaiKhoan.html')
-
-def manager_san(request):
-    return render(request, 'app1/QuanLyThongTinSan.html')
-
-
-
-
-
-
-
-
+ 
 
 # từ khúc này là con Lan làm có gì thì né né ra nha.
 
@@ -645,3 +560,38 @@ def them_san(request):
     return render(request, 'app1/them_san.html', {"courts": courts, "badminton_halls": badminton_halls})
 
 
+def menu(request):
+    return render(request, 'app1/Menu.html')
+
+# def menu_manager(request):
+#     return render(request, 'app1/Menu-manager.html')
+
+# def footer(request):
+#     Badminton_Halls = BadmintonHall.objects.all()
+#     context = {'Badminton_Halls' : Badminton_Halls}
+#     return render(request, 'app1/Footer.html',context)
+
+
+def manager_taikhoan(request):
+    return render(request, 'app1/QuanLyTaiKhoan.html')
+
+def manager_san(request):
+    return render(request, 'app1/QuanLyThongTinSan.html')
+
+def lichThiDau(request):
+    return render(request, 'app1/LichThiDau.html')
+
+def themSan(request):
+    return render(request, 'app1/ThemSanMoi.html')
+
+def booking(request):
+    return render(request, 'app1/Book.html')
+
+def payment(request):
+    return render(request, 'app1/payment.html')
+
+def manager_taikhoan(request):
+    return render(request, 'app1/QuanLyTaiKhoan.html')
+
+def manager_san(request):
+    return render(request, 'app1/QuanLyThongTinSan.html')

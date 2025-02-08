@@ -32,7 +32,9 @@
                 {% if user.is_authenticated %}
                     <div class="user-info" onclick="toggleDropdown()">
                         <span>
+                            <span class="username">{{ user.first_name }}</span>
                             <img src="{% static 'app1/images/avata.jpg' %}" alt="User Avatar">
+                            
                         </span>
                     </div>
                     <div class="dropdown" id="dropdownMenu">

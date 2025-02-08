@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 import nanoid
 
 
+
 class PaymentAccount(models.Model):
     PAYMENT_METHOD_CHOICES = [
         ("bank", "Ngân hàng"),
