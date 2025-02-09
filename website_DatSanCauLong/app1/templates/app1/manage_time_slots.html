@@ -12,7 +12,7 @@
     <h1>Manage Time Slots</h1>
 
     <!-- Form để thêm dữ liệu -->
-    <form method="post">
+    <form method="post" action="{% url 'manage_time_slots' %}">
       {% csrf_token %}
       {{ form.as_p }}
       <button type="submit">Add Time Slot</button>

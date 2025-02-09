@@ -50,8 +50,8 @@ def header_user(request):
 def menu(request):
     return render(request, 'app1/Menu.html')
 
-# def menu_manager(request):
-#     return render(request, 'app1/Menu-manager.html')
+def menu_manager(request):
+    return render(request, 'app1/Menu-manager.html')
 
 def footer(request):
     return render(request, 'app1/Footer.html')
