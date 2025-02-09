@@ -1,7 +1,6 @@
-from django.shortcuts import render
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect
 from django.views import View
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, decorators, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -23,6 +22,7 @@ from .models import TimeSlotTemplate, Court, Slot
 from .forms import TimeSlotTemplateForm  # Sẽ tạo file form ở bước tiếp theo
 from django.shortcuts import get_object_or_404
 from .models import BadmintonHall
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.   
 
@@ -139,6 +139,11 @@ def validate_otp_and_register(request):
                 # Gọi hàm tạo người dùng
                 user = create_user_account(username, full_name, password)
 
+    # Thêm người dùng vào nhóm "Customer ở giao diện admin"
+                group = Group.objects.get(name='Customer')
+                user.groups.add(group)
+
+
                 if user:
                     # Xóa thông tin OTP khỏi session
                     request.session.pop("otp", None)
@@ -175,6 +180,16 @@ def resend_otp(request):
 
     return JsonResponse({'success': False, 'message': 'Yêu cầu không hợp lệ.'})
 
+
+def redirect_user(user):
+    if user.groups.filter(name="Admin").exists():
+        return redirect('admin')
+    elif user.groups.filter(name="Manager").exists():
+        return redirect('San')
+    elif user.groups.filter(name="Customer").exists():
+        return redirect('TrangChu')
+    
+    return redirect('Sign_up')
 
 class Sign_In(View):
     def get(self, request):
@@ -218,7 +233,8 @@ class Sign_In(View):
             request.session['failed_attempts'] = 0  # Reset số lần sai
 
             # Chuyển hướng về trang chủ sau khi đăng nhập thành công
-            response = redirect('TrangChu')
+            # response = redirect('TrangChu')
+            response = redirect_user(user)
 
             # Lưu email vào cookie nếu chọn "Nhớ tài khoản"
             if remember_me:
@@ -521,6 +537,7 @@ def ChinhSuaThongTin(request):
 
 
 # thêm thời gian(khung giờ) và giá,... của từng loại hình đặt lịch
+@login_required(login_url='login')
 def manage_time_slots(request):
     if request.method == "POST":
         form = TimeSlotTemplateForm(request.POST)
@@ -566,7 +583,7 @@ def them_san_moi(request):
 
 
 
-
+@login_required(login_url='login')
 def them_san(request):
     if request.method == "POST":
         badminton_hall_id = request.POST.get('address') 
