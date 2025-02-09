@@ -4,6 +4,11 @@ from django.shortcuts import render
 from . import views
 from .views import *
 
+
+from django.conf import settings
+from django.conf.urls.static import static
+
+
 urlpatterns = [
     path('', views.TrangChu, name= 'TrangChu'),
     path('sign_in/', Sign_In.as_view(), name= 'Sign_in'),
@@ -18,12 +23,12 @@ urlpatterns = [
     # xác thực OTP quên mật khẩu
     path('validate_otp_fogotpassword/', views.validate_otp_of_ForgotPassword, name='validate_otp_of_ForgotPassword'),
     path('new_password/', New_password.as_view(), name= 'New_Password'),
+   
     # Tìm kiếm sân:
     path('SearchCourt/', SearchCourt.as_view(), name= 'SearchCourt'),
     path('DangKyTaiKhoanThanhToan/', DangKyTaiKhoanThanhToan.as_view(), name='DangKyTaiKhoanThanhToan'),
     path('header_user/', views.header_user, name='header_user'),
     path('menu/', views.menu, name='menu'),
-    path('footer/', views.footer, name='footer'),
     path('History/', views.History, name= 'History'),
     path('price_list/', views.price_list, name='price_list'),
    
@@ -33,12 +38,20 @@ urlpatterns = [
     path('checkin/', views.checkin, name='checkin'),
     
     path('lichThiDau/', views.lichThiDau, name='lichThiDau'),
-    path('them_san/', views.themSan, name='them_san'),
+    path('them_san_moi/', views.them_san_moi, name='them_san_moi'),
+    path('them_san/', views.them_san, name='them_san'),
     path('payment/', views.payment, name='payment'),
     path('booking/', views.booking, name='booking'),
     path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
     path('manager_san/', views.manager_san, name='manager_san'),
-]
+
+
+    # path('menu_manager/', views.menu_manager, name='menu_manager'),
+    path('manage_time_slots/', views.manage_time_slots, name='manage_time_slots'),
+    path('delete_time_slot/<str:slot_id>/', views.delete_time_slot, name='delete_time_slot'),
+    path('ThongTinCaNhan/', views.ThongTinCaNhan, name='ThongTinCaNhan'),
+    path('ChinhSuaThongTinCaNhan/', ChinhSuaThongTinCaNhan.as_view(), name='ChinhSuaThongTinCaNhan'),
+] 
 # coi url
 
 
