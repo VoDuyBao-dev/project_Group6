@@ -21,3 +21,10 @@ def send_otp_email(username, otp):
     )
     email.content_subtype = 'html'  # Đặt email ở định dạng HTML
     email.send()
+
+import random
+import string
+
+def generate_short_id(length=5):
+    #Hàm tạo ID ngẫu nhiên gồm chữ và số (5 ký tự)
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
