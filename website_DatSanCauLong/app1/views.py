@@ -433,30 +433,48 @@ from .serializers import BookingSerializer
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from app1.models import Booking, Court, Slot, Customer
+from datetime import datetime, timedelta
+
 @login_required
 def booking_view(request):
     if request.method == 'POST':
-        customer = Customer.objects.get(user=request.user)  # Lấy customer từ user
-        court_id = request.POST.get('court_id')  # Cần truyền court_id từ form
-        slot_id = request.POST.get('slot_id')  # Cần truyền slot_id từ form
-        booking_type = request.POST.get('scheduleType')  # Trong form đang dùng 'scheduleType'
-        date = request.POST.get('date')
-        time = request.POST.get('time')
-
         try:
-            # Kiểm tra xem Court và Slot có tồn tại không
-            court = Court.objects.get(court_id=court_id) 
-            slot = Slot.objects.get(slot_id=slot_id)
+            # Lấy customer từ user đã đăng nhập
+            customer = request.user.customer  
 
-            # Chuyển đổi thời gian
-            start_time = datetime.strptime(time, "%H:%M").time()
-            end_time = (datetime.strptime(time, "%H:%M") + timedelta(hours=1)).time()  # Giả sử sân đặt trong 1 giờ
+            # Lấy dữ liệu từ request
+            court_id = request.POST.get('court_id')
+            slot_id = request.POST.get('slot_id')
+            booking_type = request.POST.get('scheduleType')  # Trong form đang dùng 'scheduleType'
+            date = request.POST.get('date')
+            time = request.POST.get('time')
+
+            # Kiểm tra nếu thiếu thông tin cần thiết
+            if not (court_id and slot_id and booking_type and date and time):
+                messages.error(request, "Vui lòng nhập đầy đủ thông tin đặt sân!")
+                return redirect('booking')  
+
+            # Lấy đối tượng Court và Slot, tự động trả về 404 nếu không tìm thấy
+            court = get_object_or_404(Court, court_id=court_id)
+            slot = get_object_or_404(Slot, slot_id=slot_id)
+
+            # Chuyển đổi thời gian, xử lý lỗi nếu định dạng không đúng
+            try:
+                start_time = datetime.strptime(time, "%H:%M").time()
+                end_time = (datetime.strptime(time, "%H:%M") + timedelta(hours=1)).time()  # Giả sử đặt trong 1 giờ
+            except ValueError:
+                messages.error(request, "Thời gian không hợp lệ! Vui lòng nhập đúng định dạng HH:MM.")
+                return redirect('booking')
 
             # Tạo Booking mới
             booking = Booking.objects.create(
-                customer_id=customer,
-                court_id=court,
-                slot_id=slot,
+                customer=customer,
+                court=court,
+                slot=slot,
                 booking_type=booking_type,
                 date=date,
                 start_time=start_time,
@@ -464,16 +482,16 @@ def booking_view(request):
                 status=True  # Mặc định là đã đặt
             )
 
-            booking.save()
             messages.success(request, "Đặt sân thành công!")
             return redirect('payment')  # Chuyển hướng đến trang thanh toán
 
-        except Court.DoesNotExist:
-            messages.error(request, "Sân không tồn tại!")
-        except Slot.DoesNotExist:
-            messages.error(request, "Khung giờ không hợp lệ!")
+        except AttributeError:
+            messages.error(request, "Bạn chưa có tài khoản khách hàng. Vui lòng liên hệ quản trị viên!")
+        except Exception as e:
+            messages.error(request, f"Có lỗi xảy ra: {str(e)}")
 
     return render(request, 'app1/Book.html')
+
 
 
 
@@ -602,23 +620,26 @@ def price_list(request):
 
 
 # thêm dữ liệu của một sân cầu lông mới(thêm một chi nhánh)
+from .models import BadmintonHall
+
 def them_san_moi(request):
     if request.method == "POST":
-        name = request.POST.get('name')
-        address = request.POST.get('address')
+        name = request.POST.get("name")
+        address = request.POST.get("address")
 
-        # Kiểm tra nếu tên hoặc địa chỉ bị bỏ trống
-        if not name or not address:
-            messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
-            return redirect('them_san_moi')
+        if BadmintonHall.objects.filter(name=name).exists():
+            messages.error(request, "Tên chi nhánh đã tồn tại!")
+            return redirect("them_san_moi")
 
-        # Lưu dữ liệu nếu hợp lệ
+        if BadmintonHall.objects.filter(address=address).exists():
+            messages.error(request, "Địa điểm này đã có chi nhánh khác!")
+            return redirect("them_san_moi")
+
         BadmintonHall.objects.create(name=name, address=address)
-        messages.success(request, "Thêm sân mới thành công!")
-        return redirect('them_san_moi')
+        messages.success(request, "Chi nhánh mới đã được thêm thành công!")
+        return redirect("danh_sach_san")
 
-    halls = BadmintonHall.objects.all()
-    return render(request, 'app1/them_san_moi.html', {'halls': halls})
+    return render(request, "app1/them_san_moi.html")
 
 
 def them_san(request):
@@ -641,3 +662,4 @@ def them_san(request):
     courts = Court.objects.all()
     badminton_halls = BadmintonHall.objects.all()
     return render(request, 'app1/them_san.html', {"courts": courts, "badminton_halls": badminton_halls})
+

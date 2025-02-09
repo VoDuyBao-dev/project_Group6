@@ -286,4 +286,22 @@ class RegisterPaymentAccountForm(forms.Form):
 #     class Meta:
 #         model = TimeSlotTemplate
 #         fields = ['day_of_week', 'time_frame', 'fixed_price', 'daily_price', 'flexible_price', 'status']
-        
+
+#Badmintonhall Form
+from .models import BadmintonHall
+
+class BadmintonHallForm(forms.ModelForm):
+    class Meta:
+        model = BadmintonHall
+        fields = ['name', 'address']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        name = cleaned_data.get("name")
+        address = cleaned_data.get("address")
+
+        if BadmintonHall.objects.filter(name=name).exists():
+            raise forms.ValidationError("Tên chi nhánh đã tồn tại!")
+        if BadmintonHall.objects.filter(address=address).exists():
+            raise forms.ValidationError("Địa điểm này đã có chi nhánh khác!")
+        return cleaned_data

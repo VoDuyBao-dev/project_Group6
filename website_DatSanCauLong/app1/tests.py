@@ -1,44 +1,78 @@
+import uuid
 from django.test import TestCase
-from django.urls import reverse
-from app1.models import Booking
-from datetime import date, time
+from django.utils import timezone
+from django.contrib.auth.models import User
+from app1.models import Booking, Court, Customer
+from datetime import timedelta
 
 class BookingTestCase(TestCase):
     def setUp(self):
-        """Tạo dữ liệu mẫu cho test"""
-        self.booking_data = {
-            "scheduleType": "fixed",
-            "date": "2025-02-10",
-            "time": "14:00",
-        }
+        # Tạo user và customer
+        self.user = User.objects.create_user(username="testuser", password="password123")
+        self.customer = Customer.objects.create(user=self.user)
 
-    def test_booking_page_loads(self):
-        """Kiểm tra trang booking có load thành công không"""
-        response = self.client.get(reverse('booking'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'app1/booking.html')
+        # Tạo sân
+        self.court = Court.objects.create(name="Court 1", status="available")
 
-    def test_successful_booking(self):
-        """Kiểm tra đặt sân thành công"""
-        response = self.client.post(reverse('booking'), self.booking_data, follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(Booking.objects.filter(date="2025-02-10", time="14:00").exists())
-        self.assertContains(response, "Đặt lịch thành công")  # Kiểm tra thông báo
+    def test_booking_valid(self):
+        """ Kiểm tra đặt sân hợp lệ (đặt trước đúng 1 năm) """
+        booking_date = timezone.now().date() + timedelta(days=365)  # Đặt trước đúng 1 năm
+        booking = Booking.objects.create(
+            id=uuid.uuid4(),  # Tạo UUID hợp lệ
+            customer=self.customer,
+            court=self.court,
+            date=booking_date,
+            start_time="14:00",
+            end_time="16:00"
+        )
+        self.assertIsNotNone(booking.id)
 
-    def test_booking_missing_fields(self):
-        """Kiểm tra đặt sân thất bại do thiếu thông tin"""
-        invalid_data = {"scheduleType": "", "date": "", "time": ""}
-        response = self.client.post(reverse('booking'), invalid_data, follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Vui lòng nhập đầy đủ thông tin")
+    def test_booking_exceeds_one_year(self):
+        """ Không cho phép đặt sân quá 1 năm """
+        booking_date = timezone.now().date() + timedelta(days=366)
+        with self.assertRaises(Exception):
+            Booking.objects.create(
+                id=uuid.uuid4(),
+                customer=self.customer,
+                court=self.court,
+                date=booking_date,
+                start_time="10:00",
+                end_time="12:00"
+            )
 
-    def test_booking_redirects_to_payment(self):
-        """Kiểm tra đặt sân xong có chuyển sang trang thanh toán không"""
-        response = self.client.post(reverse('booking'), self.booking_data)
-        self.assertRedirects(response, reverse('payment'))
+    def test_booking_in_the_past(self):
+        """ Không cho phép đặt ngày trong quá khứ """
+        booking_date = timezone.now().date() - timedelta(days=1)
+        with self.assertRaises(Exception):
+            Booking.objects.create(
+                id=uuid.uuid4(),
+                customer=self.customer,
+                court=self.court,
+                date=booking_date,
+                start_time="08:00",
+                end_time="10:00"
+            )
 
-    def test_duplicate_booking(self):
-        """Kiểm tra không thể đặt trùng lịch"""
-        Booking.objects.create(schedule_type="fixed", date=date(2025, 2, 10), time=time(14, 0))
-        response = self.client.post(reverse('booking'), self.booking_data, follow=True)
-        self.assertContains(response, "Lịch đã được đặt trước đó")
+    def test_booking_without_customer(self):
+        """ Kiểm tra không thể đặt sân nếu khách hàng không tồn tại """
+        with self.assertRaises(Exception):
+            Booking.objects.create(
+                id=uuid.uuid4(),
+                customer=None,
+                court=self.court,
+                date=timezone.now().date(),
+                start_time="12:00",
+                end_time="14:00"
+            )
+
+    def test_booking_invalid_time(self):
+        """ Kiểm tra đặt sân với giờ không hợp lệ (giờ bắt đầu sau giờ kết thúc) """
+        with self.assertRaises(Exception):
+            Booking.objects.create(
+                id=uuid.uuid4(),
+                customer=self.customer,
+                court=self.court,
+                date=timezone.now().date() + timedelta(days=2),
+                start_time="18:00",
+                end_time="16:00"  # Giờ kết thúc nhỏ hơn giờ bắt đầu
+            )
