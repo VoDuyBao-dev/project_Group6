@@ -38,6 +38,11 @@ urlpatterns = [
     path('booking/', views.booking, name='booking'),
     path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
     path('manager_san/', views.manager_san, name='manager_san'),
+    
+    path("quan_ly_san/", views.quan_ly_san, name="quan_ly_san"),
+    path("cap_nhat_trang_thai/", views.cap_nhat_trang_thai, name="cap_nhat_trang_thai"),
+    path("xoa_san/", views.xoa_san, name="xoa_san"),
+    
 ]
 # coi url
 

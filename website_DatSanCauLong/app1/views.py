@@ -412,7 +412,66 @@ def manager_san(request):
 
 
 
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .models import Court, BadmintonHall
 
+
+def quan_ly_san(request):
+    """Trang hiển thị danh sách sân"""
+    courts = Court.objects.all()
+    return render(request, "app1/QuanLyThongTinSan.html", {"courts": courts})
+
+
+@csrf_exempt
+def them_san(request):
+    """Thêm sân mới"""
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            name = data.get("name")
+            hall_id = data.get("badminton_hall_id")
+
+            badminton_hall = get_object_or_404(BadmintonHall, badminton_hall_id=hall_id)
+            new_court = Court.objects.create(name=name, badminton_hall_id=badminton_hall)
+            return JsonResponse({"message": "Thêm sân thành công!", "court_id": new_court.court_id}, status=201)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Phương thức không hợp lệ"}, status=405)
+
+
+@csrf_exempt
+def cap_nhat_trang_thai(request):
+    """Cập nhật trạng thái sân"""
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            court_id = data.get("court_id")
+            status = data.get("status")
+
+            court = get_object_or_404(Court, court_id=court_id)
+            court.status = status  # Cần thêm field `status` vào model Court
+            court.save()
+
+            return JsonResponse({"message": "Cập nhật trạng thái thành công!"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Phương thức không hợp lệ"}, status=405)
+
+
+@csrf_exempt
+def xoa_san(request, court_id):
+    """Xóa sân khỏi hệ thống"""
+    if request.method == "DELETE":
+        try:
+            court = get_object_or_404(Court, court_id=court_id)
+            court.delete()
+            return JsonResponse({"message": "Xóa sân thành công!"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Phương thức không hợp lệ"}, status=405)
 
 
 
