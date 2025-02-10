@@ -1,165 +1,181 @@
 from django.db import models
+from django.contrib.auth.models import User
+import nanoid
 
-# Create your models here.
 
-class user(models.Model):
-    name = models.CharField(max_length= 50, blank=False)
-    email = models.EmailField(max_length= 50, blank=False)
-    password = models.CharField(max_length= 50, blank=False)
+
+class PaymentAccount(models.Model):
+    PAYMENT_METHOD_CHOICES = [
+        ("bank", "Ngân hàng"),
+        ("momo", "Momo"),
+    ]
+
+    accountHolder = models.CharField(
+        max_length=50,
+    )
+    accountNumber = models.CharField(
+        max_length=20,
+    )
+    paymentMethod = models.CharField(
+        max_length=10,
+        choices=PAYMENT_METHOD_CHOICES,
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật")
 
     def __str__(self):
-        return self.name
+        return f"{self.accountHolder} - {self.accountNumber}"
 
-class test(models.Model):
-    name = models.CharField(max_length= 50, blank=False)
-   
+def generate_short_id():
+    return nanoid.generate(size=5)
 
-    def __str__(self):
-        return self.name
-
-class Court(models.Model):
-    court_id = models.CharField(max_length=100, primary_key=True) 
-    badminton_hall_id = models.CharField(max_length=100)  
-    location = models.CharField(max_length=255) 
-    operating_hours = models.CharField(max_length=255)  
-    available_slots = models.JSONField()  
-
-    def update_court_status(self):
-        return self.name
-
-class Slot(models.Model):
-    slot_id = models.CharField(max_length=100, primary_key=True)  
-    time_frame = models.CharField(max_length=100) 
-    price_per_frame = models.FloatField()  
-    court = models.ForeignKey(Court, on_delete=models.CASCADE)  
-    def check_availability(self):
-        return self.name
-
-    def book_slot(self):
-        return self.name
-
-class Booking(models.Model):
-    booking_id = models.CharField(max_length=100, primary_key=True) 
-    customer_id = models.CharField(max_length=100) 
-    court = models.ForeignKey(Court, on_delete=models.CASCADE)  
-    slot = models.ForeignKey(Slot, on_delete=models.CASCADE)  
-    start_time = models.DateTimeField() 
-    end_time = models.DateTimeField()  
-    schedule_type = models.CharField(max_length=100)  
-    status = models.BooleanField() 
-
-    def booking_action(self, action):
-        actions = ["create", "cancel", "modify", "confirm", "payment"]
-        if action in actions:
-            return f"{action}_booking: {self.booking_id}"
-        return "Hành động không hợp lệ"
-
-class Revenue(models.Model):
-    revenue_id = models.CharField(max_length=100, primary_key=True)  
-    court = models.ForeignKey(Court, on_delete=models.CASCADE) 
-    total_revenue = models.FloatField()  
-    month = models.IntegerField()  
-    quarter = models.IntegerField()  
-    year = models.IntegerField()  
-
-    def update_revenue(self):
-        return self.name
-
+        
+# Guest and Customer models
 class Customer(models.Model):
-    customer_id = models.CharField(max_length=50, primary_key=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-
+    customer_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
+    date_of_birth = models.DateField(null=True, blank=True)  # Trường ngày sinh
+    # stk = models.CharField(max_length=20, null=True, blank=True)
     def __str__(self):
-        return self.customer_id
+        return self.user.username
 
-
-class Guest(models.Model):
-    guest_id = models.AutoField(primary_key=True)
-
-
-class CourtStaff(models.Model):
-    staff_id = models.CharField(max_length=50, primary_key=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.staff_id
-
+# Court Manager models
 class CourtManager(models.Model):
-    manager_id = models.CharField(max_length=50, primary_key=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-
+    courtManager_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_manager')
+    payment_account = models.OneToOneField(
+        PaymentAccount,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='court_manager'
+    )
     def __str__(self):
-        return self.manager_id
+        return self.user.username
 
-
+# System Admin model
 class SystemAdmin(models.Model):
-    admin_id = models.CharField(max_length=50, primary_key=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.admin_id
+    systemAdmin_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='system_admin')
 
 
 class BadmintonHall(models.Model):
-    badminton_hall_id = models.CharField(max_length=50, primary_key=True)
-    dia_chi = models.TextField()
+    badminton_hall_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
+    name = models.CharField(max_length=255)
+    address = models.TextField()
 
     def __str__(self):
-        return self.badminton_hall_id
+        return self.name
 
-
+# Court model
 class Court(models.Model):
-    court_id = models.CharField(max_length=50, primary_key=True)
-    badminton_hall = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE)
-    vi_tri = models.TextField()
-    gio_hoat_dong = models.CharField(max_length=255)
+    STATUS_CHOICES = (
+        ('under_maintenance', 'Under Maintenance'), # đang bảo trì
+        ('empty', 'Empty'),                         # sân trống 
+        ('booked', 'Booked'),                       # đã đặt lịch
+    )
+    court_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
+    badminton_hall = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, related_name='courts')
+    name = models.CharField(max_length=255, unique=True)
+    image = models.ImageField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+    def __str__(self):
+        return f"{self.name}"
+    @property
+    def ImageURL(self):
+        try:
+            url = self.image.url
+        except:
+            url =''
+        return url
+
+class TimeSlotTemplate(models.Model):
+    STATUS_CHOICES = (
+        ('available', 'Available'),
+        ('unavailable', 'Unavailable'),
+    )
+    DAY_CHOICES = (
+        ('Monday', 'Monday'),
+        ('Tuesday', 'Tuesday'),
+        ('Wednesday', 'Wednesday'),
+        ('Thursday', 'Thursday'),
+        ('Friday', 'Friday'),
+        ('Saturday', 'Saturday'),
+        ('Sunday', 'Sunday'),
+    )
+    template_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
+    day_of_week = models.CharField(max_length=20, choices=DAY_CHOICES)
+    time_frame = models.CharField(max_length=50) 
+    fixed_price = models.DecimalField(max_digits=6, decimal_places=3)
+    daily_price = models.DecimalField(max_digits=6, decimal_places=3)
+    flexible_price = models.DecimalField(max_digits=6, decimal_places=3)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
 
     def __str__(self):
-        return self.court_id
-
+        return f"{self.day_of_week} | {self.time_frame}"
 
 class Slot(models.Model):
-    slot_id = models.CharField(max_length=50, primary_key=True)
-    khung_gio = models.CharField(max_length=50)
-    gia_moi_khung_gio = models.FloatField()
-    court = models.ForeignKey(Court, on_delete=models.CASCADE)
+    slot_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
+    court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='slots') # Gắn với sân
+    template = models.ForeignKey(TimeSlotTemplate, on_delete=models.CASCADE, related_name='slots')
 
-    def __str__(self):
-        return f"{self.slot_id} - {self.khung_gio}"
-
-
+# Booking model
 class Booking(models.Model):
-    booking_id = models.CharField(max_length=50, primary_key=True)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    court = models.ForeignKey(Court, on_delete=models.CASCADE)
-    slot = models.ForeignKey(Slot, on_delete=models.CASCADE)
-    thoi_gian_bat_dau = models.DateTimeField()
-    thoi_gian_ket_thuc = models.DateTimeField()
-    loai_lich = models.CharField(max_length=50, choices=[('Cố định', 'Cố định'), ('Linh hoạt', 'Linh hoạt'), ('Hàng ngày', 'Hàng ngày')])
-    trang_thai = models.BooleanField(default=False)
+    booking_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
+    BOOKING_TYPES = (
+    ('fixed', 'Fixed'),
+    ('daily', 'Daily'),
+    ('flexible', 'Flexible'),
+    )
+    customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='bookings')
+    court_id = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='bookings')
+    slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name='bookings')
+    booking_type = models.CharField(max_length=20, choices=BOOKING_TYPES)
+    date = models.DateField()
+    start_time = models.TimeField(default='00:00:00')
+    end_time = models.TimeField(default='00:00:00')
+    status = models.BooleanField(default=False) # đã đặt hoặc đã hủy
 
     def __str__(self):
-        return self.booking_id
-
+        return f"Booking for {self.customer} on {self.date} at {self.time}"
 
 class Payment(models.Model):
-    payment_id = models.CharField(max_length=50, primary_key=True)
-    booking = models.OneToOneField(Booking, on_delete=models.CASCADE)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    tien = models.FloatField()
-    trang_thai = models.CharField(max_length=50, choices=[('Chưa thanh toán', 'Chưa thanh toán'), ('Đã thanh toán', 'Đã thanh toán'), ('Hủy', 'Hủy')])
+    payment_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
+    booking_id = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='payment')
+    customer_id = models.OneToOneField(Customer, on_delete=models.CASCADE, related_name='payment')
+    payment_account = models.ForeignKey(
+        PaymentAccount,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='payments'
+    )
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_date = models.DateTimeField(auto_now_add=True)
+    status = models.BooleanField(default=False) # đã thanh toán hay chưa
 
-    def __str__(self):
-        return self.payment_id
+# Court Staff model
+class CourtStaff(models.Model):
+    court_staff_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_staff')
+    court = models.OneToOneField(Court, on_delete=models.CASCADE, related_name='court_staff')  # Thêm liên kết với một sân
 
+    # def get_court_status(self):
+    #     return {c.name: c.slots.all() for c in self.courts.all()}
 
-class Revenue(models.Model):
-    revenue_id = models.CharField(max_length=50, primary_key=True)
-    court = models.ForeignKey(Court, on_delete=models.CASCADE)
-    tong_doanh_thu = models.FloatField(default=0)
-    thang = models.IntegerField()
-    quy = models.IntegerField()
-    nam = models.IntegerField()
+    # def __str__(self):
+    #     return f"{self.user.username} - {self.badminton_hall.name}"
 
-    def __str__(self):
-        return f"{self.revenue_id} - {self.tong_doanh_thu}"
+# class CheckIn(models.Model):
+#     checkin_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
+#     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='check_ins')
+#     court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='check_ins')
+#     court_staff = models.ForeignKey(CourtStaff, on_delete=models.SET_NULL, null=True, related_name='check_ins')
+#     check_in_time = models.DateTimeField(auto_now_add=True)
+
+class RevenueReport(models.Model):
+    revenueReport_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
+    badminton_hall = models.ForeignKey(BadmintonHall, on_delete=models.CASCADE, related_name='revenue_reports')
+    payments = models.ManyToManyField(Payment, related_name='revenues')  # Thêm quan hệ với Payment
+    total_revenue = models.DecimalField(max_digits=15, decimal_places=2)
+    generated_at = models.DateTimeField(auto_now_add=True)

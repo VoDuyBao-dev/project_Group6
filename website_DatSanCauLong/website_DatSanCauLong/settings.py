@@ -81,7 +81,7 @@ from decouple import config
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'database',
+        'NAME': 'scl',
         'USER': 'root',
         'PASSWORD': 'truc@2005',
         'HOST': '127.0.0.1',  # hoặc địa chỉ IP máy chủ MySQL
