@@ -25,9 +25,9 @@
         </div>
         <div class="footer-column">
             <h3>Các chi nhánh của sân:</h3>
-            <a href="#">Cơ sở 1: 123 đường số 2, phường 11, quận 7, TP Hồ Chí Minh </a>
-            <a href="#">Cơ sở 2: 84A Nguyễn Đình Chiểu, phường 4, quận 3, TP Hồ Chí Minh</a>
-            <a href="#">Cơ sở 3: Khu Đô thị Vạn Phúc, TP Thủ Đức</a>
+            {% for hall in Badminton_Halls %}
+                <a href="#">Cơ sở {{ forloop.counter }}: {{ hall.address }}</a>
+            {% endfor %}
         </div>
 
         <div class="footer-column">
