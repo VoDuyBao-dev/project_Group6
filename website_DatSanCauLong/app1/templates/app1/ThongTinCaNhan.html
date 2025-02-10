@@ -21,15 +21,25 @@
         <h2>Thông Tin Cá Nhân</h2>
         <!-- View Mode -->
         <div id="info-view" class="info">
+          {% if role == 'customer' %}
           <p>
             <strong>Tên:</strong> <span id="username">{{user.first_name}}</span>
           </p>
           <p>
-            <strong>Ngày sinh:</strong> <span id="dob">{{customer.date_of_birth|date:"d/m/Y"}}</span>
+            <strong>Ngày sinh:</strong> <span id="dob">{{profile.date_of_birth|date:"d/m/Y"}}</span>
           </p>
           <p>
             <strong>Email:</strong> <span id="email">{{user.username}}</span>
           </p>
+          {% elif role == 'manager' %}
+          <p>
+            <strong>Tên:</strong> <span id="username">{{user.first_name}}</span>
+          </p>
+          
+          <p>
+            <strong>Email:</strong> <span id="email">{{user.username}}</span>
+          </p>
+          {% endif %}
           <a href="{% url 'ChinhSuaThongTinCaNhan' %}" class="button edit-button">Cập nhật thông tin</a>
         </div>
       </div>
