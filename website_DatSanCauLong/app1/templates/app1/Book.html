@@ -1,5 +1,4 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="vi">
   <head>
@@ -37,22 +36,30 @@
             <option value="daily">Lịch ngày</option>
           </select>
         </div>
+
         <div class="form-group">
           <label for="date">Ngày</label>
           <input type="date" id="date" name="date" required />
         </div>
+
         <div class="form-group">
           <label for="start-time">Giờ Bắt Đầu</label>
           <input type="time" id="start-time" name="start-time" required />
-      </div>
-      <div class="form-group">
+        </div>
+        <div class="form-group">
           <label for="end-time">Giờ Kết Thúc</label>
           <input type="time" id="end-time" name="end-time" required />
-      </div>
+        </div>
         <button type="submit">Đặt Sân</button>
       </div>
     </form>
-
-    {% endblock content %} {% include 'app1/Footer.html' %}
+    {% if booking_success %}
+    <div class="alert alert-success">
+      Đặt sân thành công! Vui lòng nhấn vào nút bên dưới để tiếp tục thanh toán.
+    </div>
+    <a href="{% url 'payment' %}" class="btn btn-primary"
+      >Tiếp tục thanh toán</a
+    >
+    {% endif %} {% endblock content %} {% include 'app1/Footer.html' %}
   </body>
 </html>
