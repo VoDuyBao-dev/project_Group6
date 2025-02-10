@@ -17,39 +17,55 @@
         <li>
           <a href="#"><i class="fa-solid fa-house"></i> Trang Chủ</a>
         </li>
-        <li>
-          <a href="{% url 'San' %}"><i class="fa-solid fa-list"></i> Sân Cầu Lông</a>
-          <div class="sub-menu">
-            <a href="{% url 'San' %}">Thông tin các sân</a>
-            <a href="{% url 'History' %}">Lịch sử đặt sân</a>
-          </div>
-        </li>
-        <li>
-          <a href="{% url 'price_list' %}"><i class="fa-solid fa-money-check-dollar"></i>Giá vé</a>
-        </li>
-        <li>
-          <a href="{% url 'manage_time_slots' %}"><i class="fa-solid fa-money-check-dollar"></i>Quản lí giá vé</a>
-        </li>
-        <li>
-          <a href="#"><i class="fa-solid fa-check-to-slot"></i>Check-in</a>
-        </li>
-        <li>
-          <a href="{% url 'manager_san' %}"><i class="fa-solid fa-list-check"></i>Quản lý sân</a>
-          <div class="sub-menu">
-            <a href="{% url 'DangKyTaiKhoanThanhToan' %}">Thêm tài khoản thanh toán</a>
-            <a href="{% url 'manager_san' %}">Quản lý thông tin sân</a>
-            <a href="{% url 'them_san_moi' %}">Thêm sân mới</a>
-          </div>
-        </li>
-        <li>
-          <a href="{% url 'lichThiDau' %}"><i class="fa-solid fa-calendar"></i>Quản lý lịch thi đấu</a>
-        </li>
-        <li>
-          <a href="{% url 'manager_taikhoan' %}"><i class="fa-solid fa-user"></i>Quản lý tài khoản</a>
-        </li>
-        <li>
-          <a href="{% url 'bao_cao' %}"><i class="fa-solid fa-clipboard"></i>Báo cáo doanh thu</a>
-        </li>
+        {% if request.user.groups.all.0.name == 'Manager' %}
+          <li>
+            <a href="{% url 'San' %}"><i class="fa-solid fa-list"></i> Sân Cầu Lông</a>
+            <div class="sub-menu">
+              <a href="{% url 'San' %}">Thông tin các sân</a>
+              <a href="{% url 'History' %}">Lịch sử đặt sân</a>
+            </div>
+          </li>
+        {% endif %}
+        {% if request.user.groups.all.0.name == 'Court_staff' %}
+          <li>
+            <a href="#"><i class="fa-solid fa-check-to-slot"></i>Check-in</a>
+          </li>
+        {% endif %}
+        {% if request.user.groups.all.0.name == 'Manager' or request.user.groups.all.0.name == 'Admin' %}
+          <li>
+            <a href="{% url 'manager_san' %}"><i class="fa-solid fa-list-check"></i>Quản lý sân</a>
+            <div class="sub-menu">
+              {% if request.user.groups.all.0.name == 'Admin' %}
+                <a href="{% url 'manager_san' %}">Quản lý thông tin sân</a>
+                <a href="{% url 'them_san_moi' %}">Thêm sân mới</a>
+              {% endif %}
+              {% if request.user.groups.all.0.name == 'Manager' %}
+                <a href="{% url 'DangKyTaiKhoanThanhToan' %}">Thêm tài khoản thanh toán</a>
+              {% endif %}
+            </div>
+          </li>
+        {% endif %}
+        {% if request.user.groups.all.0.name == 'Manager' %}
+          <li>
+            <a href="{% url 'price_list' %}"><i class="fa-solid fa-money-check-dollar"></i>Giá vé</a>
+          </li>
+          <li>
+            <a href="{% url 'manage_time_slots' %}"><i class="fa-solid fa-money-check-dollar"></i>Quản lí giá vé</a>
+          </li>
+          <li>
+            <a href="{% url 'lichThiDau' %}"><i class="fa-solid fa-calendar"></i>Quản lý lịch thi đấu</a>
+          </li>
+        {% endif %}
+        {% if request.user.groups.all.0.name == 'Admin' %}
+          <li>
+            <a href="{% url 'manager_taikhoan' %}"><i class="fa-solid fa-user"></i>Quản lý tài khoản</a>
+          </li>
+        {% endif %}
+        {% if request.user.groups.all.0.name == 'Manager' or request.user.groups.all.0.name == 'Admin' %}
+          <li>
+            <a href="{% url 'bao_cao' %}"><i class="fa-solid fa-clipboard"></i>Báo cáo doanh thu</a>
+          </li>
+        {% endif %}
       </ul>
     </div>
   </body>

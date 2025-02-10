@@ -23,8 +23,11 @@ from .forms import TimeSlotTemplateForm  # Sẽ tạo file form ở bước ti�
 from django.shortcuts import get_object_or_404
 from .models import BadmintonHall
 from django.contrib.auth.decorators import login_required
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # Create your views here.   
+
 
 # HÀM KIỂM TRA MÃ OTP ĐỂ TÁI SỬ DỤNG:
 # GỬI OTP KHI NGƯỜI DÙNG YÊU CẦU
@@ -183,8 +186,10 @@ def resend_otp(request):
 
 def redirect_user(user):
     if user.groups.filter(name="Admin").exists():
-        return redirect('admin')
+        return redirect('/admin')
     elif user.groups.filter(name="Manager").exists():
+        return redirect('QuanLyThongTinSan')
+    elif user.groups.filter(name="Court_staff").exists():
         return redirect('San')
     elif user.groups.filter(name="Customer").exists():
         return redirect('TrangChu')
@@ -206,7 +211,7 @@ class Sign_In(View):
     def post(self, request):
         # Nếu user đã đăng nhập, không cần đăng nhập lại
         if request.user.is_authenticated:
-            return redirect('TrangChu')
+            return redirect_user(request.user)
 
         # Khởi tạo form với dữ liệu từ request.POST
         sign_in_form = SignInForm(request.POST)
@@ -573,6 +578,10 @@ def them_san_moi(request):
             messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
             return redirect('them_san_moi')
 
+        if BadmintonHall.objects.filter(address=address).exists():
+            messages.error(request, "Địa điểm này đã có chi nhánh khác!")
+            return redirect("them_san_moi")
+
         # Lưu dữ liệu nếu hợp lệ
         BadmintonHall.objects.create(name=name, address=address)
         messages.success(request, "Thêm sân mới thành công!")
@@ -583,7 +592,6 @@ def them_san_moi(request):
 
 
 
-@login_required(login_url='login')
 def them_san(request):
     if request.method == "POST":
         badminton_hall_id = request.POST.get('address') 
@@ -595,6 +603,10 @@ def them_san(request):
         if not name or not badminton_hall_id or not status:
             messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
             return redirect('them_san')
+
+        if Court.objects.filter(name=name).exists():
+            messages.error(request, "Sân này đã tồn tại!")
+            return redirect("them_san")
 
         # Lấy thông tin nhà thi đấu
         badminton_hall = get_object_or_404(BadmintonHall, badminton_hall_id=badminton_hall_id)
