@@ -215,4 +215,3 @@ class RevenueReport(models.Model):
     generated_at = models.DateTimeField(auto_now_add=True)
 
 
-

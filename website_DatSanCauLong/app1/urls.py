@@ -45,6 +45,7 @@ urlpatterns = [
    
     path('San/', views.San, name='San'),
     path('bao_cao/', views.bao_cao, name='bao_cao'),
+
     path('checkin/', views.checkin, name='checkin'),
     
     path('lichThiDau/', views.lichThiDau, name='lichThiDau'),
@@ -64,7 +65,7 @@ urlpatterns = [
     path('ThongTinCaNhan/', views.ThongTinCaNhan, name='ThongTinCaNhan'),
     path('ChinhSuaThongTin', views.ChinhSuaThongTin, name='ChinhSuaThongTin'),
 
-    #thêm Api
-     path('api/', include(router.urls)),
+    path("select_court/", views.select_court, name="court_selection"),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # coi url

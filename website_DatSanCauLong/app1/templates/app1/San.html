@@ -13,7 +13,7 @@
 
     <div id="menu-container"></div>
     <div class="container">
-      <!-- Full sân -->
+      <!-- Danh sách sân -->
       {% for court in courts %}
       <div class="court">
         <img
@@ -22,15 +22,18 @@
           class="court-image"
         />
         <h3>{{ court.name }}</h3>
-        <p>Địa chỉ: {{ court.badminton_hall_id.address }}</p>
+        <p>Địa chỉ: {{ court.badminton_hall.address }}</p>
         <p>Giờ hoạt động: 8:00 - 22:00</p>
         <p>Ngày: Thứ 2 - Chủ Nhật</p>
-        <button class="book-btn">
-          <a href="{% url 'booking' %}?court_id={{ court.id }}">Đặt sân</a>
-        </button>
+        <form method="POST" action="{% url 'court_selection' %}">
+          {% csrf_token %}
+          <input type="hidden" name="court_id" value="{{ court.pk }}" />
+          <button type="submit" class="book-btn">Đặt sân</button>
+        </form>
       </div>
       {% endfor %}
     </div>
+
     {% include 'app1/Footer.html' %}
   </body>
 </html>

@@ -327,6 +327,23 @@ def payment_view(request):
 #     search_court = SearchForm() 
 #     context = {'searchCourt': search_court}  
 #     return render(request, 'app1/price_list.html',context)
+@login_required
+def select_court(request):
+    if request.method == "POST":
+        court_id = request.POST.get("court_id")
+        print("DEBUG: Nhận yêu cầu chọn sân, court_id =", court_id)  # Kiểm tra dữ liệu nhận được
+
+        if court_id:
+            request.session["selected_court_id"] = court_id
+            print("DEBUG: Đã lưu selected_court_id vào session:", request.session["selected_court_id"])  # Kiểm tra lưu session
+            return redirect("booking")  # Chuyển đến trang đặt sân
+        else:
+            messages.error(request, "Không tìm thấy sân! Vui lòng chọn lại.")
+            print("DEBUG: Không tìm thấy court_id, quay lại trang San")  # Debug lỗi
+            return redirect("San")
+
+    return redirect("San")
+
 
 def San(request):
     courts = Court.objects.all()
@@ -662,4 +679,3 @@ def them_san(request):
     courts = Court.objects.all()
     badminton_halls = BadmintonHall.objects.all()
     return render(request, 'app1/them_san.html', {"courts": courts, "badminton_halls": badminton_halls})
-
