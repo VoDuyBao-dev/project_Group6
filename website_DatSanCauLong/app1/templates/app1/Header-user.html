@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Header</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'app1/CSS/Header-customer.css' %}">
+</head>
+<body>
+    <div class="header-container">
+        <div class="logo-section">
+            <a href="{% url 'TrangChu'%}">
+                <img src="{% static 'app1/images/logo.png' %}" alt="logo" class="logo-img">
+            </a>
+        </div>
+        <header>
+            <div class="search-container">
+                <nav class="nav">
+                    
+                        <form class="search-form" method="get" action="{% url 'SearchCourt' %}">
+                            {% csrf_token %}
+                            {{ searchCourt.query }}
+                            <button type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+                </nav>
+
+                {% if user.is_authenticated %}
+                    <div class="user-info" onclick="toggleDropdown()">
+                        <span>
+                            <span class="username">{{ user.first_name }}</span>
+                            <img src="{% static 'app1/images/avata.jpg' %}" alt="User Avatar">
+                            
+                        </span>
+                    </div>
+                    <div class="dropdown" id="dropdownMenu">
+                        <a href="{% url 'ThongTinCaNhan' %}">Thông tin cá nhân</a>
+                        <a href="{% url 'Logout' %}" id="logout">Đăng xuất</a>
+                    </div>
+                {% else %}
+                    <div>
+                        <a href="{% url 'Sign_in' %}" class="btn login-btn">Đăng nhập</a>
+                        <a href="{% url 'Sign_up' %}" class="btn signup-btn">Đăng ký</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    {% if user.is_authenticated %}
+        <script src="{% static 'app1/js/Header-customer.js' %}"></script>
+    {% endif %}
+</body>
+
+
+</html>

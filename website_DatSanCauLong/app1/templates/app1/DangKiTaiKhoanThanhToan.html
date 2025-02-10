@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký tài khoản thanh toán</title>
+    <link rel="stylesheet" href="{% static 'app1/CSS/DangKiTaiKhoanThanhToan.css' %}"/>
+    <script src="{% static 'app1/js/layout-customer.js' %}"></script>
+</head>
+
+<body>
+    {% include 'app1/Header-user.html' %}
+    {% include 'app1/Menu-manager.html' %}
+    {% block content %}
+    {% comment %} Thông báo đăng ký tài khoản thanh toán thành công {% endcomment %}
+    {% if messages %}
+    <div id="message-box" class="message success show">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+    <div id="menu-container"></div>
+    <div class="registration-container">
+    <h2>Đăng ký tài khoản thanh toán</h2>
+    <form id="registrationForm" action="{% url 'DangKyTaiKhoanThanhToan' %}" method="post">
+        {% csrf_token %}
+       
+        {{Register_Payment_Account.accountHolder}}
+        {% if Register_Payment_Account.accountHolder.errors %}
+            <ul class="error-list">
+              {% for error in Register_Payment_Account.accountHolder.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {{Register_Payment_Account.accountNumber}}
+        {% if Register_Payment_Account.accountNumber.errors %}
+            <ul class="error-list">
+              {% for error in Register_Payment_Account.accountNumber.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {{Register_Payment_Account.paymentMethod}}
+        
+        <button type="submit">Xác nhận lưu</button>
+    </form>
+
+    <div id="message" class="message"></div>
+    
+</div>
+{% endblock %}
+{% include 'app1/Footer.html' %}
+<script src="{% static 'app1/js/Register_Payment_Account.js' %}"></script>
+</body>
+</html>

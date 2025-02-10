@@ -1,0 +1,79 @@
+body {
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    background-color: #f3f4f6;
+}
+
+.invoice {
+    background: white;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    width: 350px;
+    text-align: space-between;
+    margin: 20px auto;
+
+}
+
+.invoice h2 {
+    text-align: center;
+}
+
+.invoice-details {
+    margin-bottom: 20px;
+
+}
+
+.invoice-details p {
+    margin: 5px 0;
+    text-align: space-between;
+}
+
+.total {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.payment-method {
+    margin-top: 20px;
+}
+
+.bank-details {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #ff5f8a;
+}
+
+.btn {
+    width: 48%;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 10px 1%;
+}
+
+.btn-confirm {
+    background: #2630a3;
+    color: white;
+}
+
+.btn-confirm:hover {
+    background: #3491e7;
+}
+
+.btn-cancel {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background: #a71d2a;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+}

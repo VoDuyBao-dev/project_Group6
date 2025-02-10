@@ -49,3 +49,11 @@ local_settings.py
 build/
 dist/
 tmp/
+
+# docker
+*.yml
+Dockerfile
+.dockerignore
+
+# images
+images/

@@ -1,0 +1,105 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 750px 5px 0;
+    background-image: url(../images/anhnen.jpg);
+    background-size: cover;
+    background-position: center;
+}
+
+.Signup-btn {
+    width: 50%;
+    padding: 10px 20px;
+    margin: 5px 0;
+    background: #2f9cf4;
+    border: none;
+    border-radius: 99px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.Signup-btn:hover {
+    background: #0b87ec;
+}
+
+.otp-modal {
+    display: block;
+    position: fixed;
+    align-items: center;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    padding: 65px 650px 5px 0;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 20px;
+}
+
+.otp-modal-content {
+    background-color: #bdbbbb;
+    margin: 13% auto;
+    padding: 25px;
+    border: 1px solid #888;
+    width: 400px;
+    text-align: center;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    flex-direction: column;
+}
+
+.otp-modal-title {
+    font-size: 35px;
+    margin-bottom: 20px;
+}
+
+.otp-modal-content p {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.otp-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.otp-inputs input {
+    width: 65px;
+    height: 65px;
+    text-align: center;
+    font-size: 35px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+}
+
+.otp-inputs input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}

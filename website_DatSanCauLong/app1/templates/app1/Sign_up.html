@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng kí</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" href="{% static 'app1/css/Styles-Signup.css' %}" />
+  </head>
+
+  <body>
+    <div class="Signup-form">
+      <h1 class="Signup-title">Đăng kí</h1>
+      <form id="input-box" action="{% url 'Sign_up' %}" method="post">
+        {% csrf_token %}
+
+        <div class="input-box">
+          <i class="bx bxs-user"></i>
+          <label for="email">Tên đăng nhập</label>
+
+          {{ SignUp.username }}
+          {% if SignUp.username.errors %}
+            <ul class="error-list">
+              {% for error in SignUp.username.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+        <div class="input-box">
+          <i class="bx bxs-user"></i>
+          <label for="fullname">Họ và Tên</label>
+          {{ SignUp.full_name }}
+          {% if SignUp.full_name.errors %}
+            <ul class="error-list">
+              {% for error in SignUp.full_name.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+
+        <div class="input-box">
+          <i class="bx bxs-lock-alt"></i>
+          <label for="password">Nhập mật khẩu</label>
+
+          {{ SignUp.password }}
+
+          <span class="toggle-password" onclick="togglePasswordVisibility('id_password')"><i class="fas fa-eye" id="password-icon"></i></span>
+        </div>
+
+        <div class="input-box">
+          <i class="bx bxs-lock-alt"></i>
+          <label for="confirm-password">Nhập lại mật khẩu</label>
+
+          {{ SignUp.confirm_password }}
+          {% if SignUp.confirm_password.errors %}
+            <ul class="error-list">
+              {% for error in SignUp.confirm_password.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          <span class="toggle-password" onclick="togglePasswordVisibility('id_confirm_password')"><i class="fas fa-eye" id="confirm-password-icon"></i></span>
+        </div>
+
+        <button class="Signup-btn" type="submit" id="show-otp-modal">Đăng kí</button>
+      </form>
+
+      <div class="register">
+        <p>
+          Bạn đã có tài khoản? <a href="{% url 'Sign_in' %}">Đăng nhập tại đây</a>.
+        </p>
+      </div>
+    </div>
+
+    <script src="{% static 'app1/js/Script-icon.js' %}"></script>
+  </body>
+</html>
