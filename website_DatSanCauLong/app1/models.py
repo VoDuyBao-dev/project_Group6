@@ -67,7 +67,7 @@ class BadmintonHall(models.Model):
     def __str__(self):
         return self.name
 
-# Court model
+# Court model 
 class Court(models.Model):
     STATUS_CHOICES = (
         ('under_maintenance', 'Under Maintenance'), # đang bảo trì

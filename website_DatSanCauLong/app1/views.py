@@ -327,7 +327,7 @@ def bao_cao(request):
 def checkin(request):
     return render(request, 'app1/Chek-in.html')
 
-# Tìm kiếm sân
+# Tìm kiếm sân 
 class SearchCourt(View):
     def get(self, request):
         search_court = SearchForm(request.GET)  # Lấy giá trị GET từ người dùng
