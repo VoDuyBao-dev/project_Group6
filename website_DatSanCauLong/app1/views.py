@@ -35,10 +35,9 @@ def handle_send_otp(request, form_input):
         send_otp_email(username, otp)
         
 
-def TrangChu(request):
-    search_court = SearchForm() 
-    context = {'searchCourt': search_court}  
-    return render(request, 'app1/TrangChu.html', context)
+
+
+
 def header_user(request):
     search_court = SearchForm() 
     context = {'searchCourt': search_court}  
@@ -207,6 +206,16 @@ class Sign_In(View):
             login(request, user)
             request.session['failed_attempts'] = 0  # Reset số lần sai
 
+            # Xác định loại tài khoản (Customer hoặc CourtManager)
+            user_role = None
+            if hasattr(user, 'customer'):
+                user_role = 'customer'
+            elif hasattr(user, 'court_manager'):
+                user_role = 'manage'
+
+            # Lưu loại tài khoản vào session
+            request.session['user_role'] = user_role
+
             # Chuyển hướng về trang chủ sau khi đăng nhập thành công
             response = redirect('TrangChu')
 
@@ -226,6 +235,26 @@ class Sign_In(View):
                 context['error_message'] = "Email hoặc mật khẩu không đúng."
 
             return render(request, 'app1/Sign_in.html', context)
+        
+def TrangChu(request):
+    search_court = SearchForm() 
+    # Lấy thông tin user_role từ session
+    user_role = request.session.get('user_role')
+
+    # Xác định menu dựa trên loại tài khoản
+    if user_role == 'customer':
+        menu = 'app1/Menu.html'
+    elif user_role == 'manage':
+        menu = 'app1/Menu-manager.html'
+    else:
+        menu = 'app1/Menu.html'  # Dành cho người chưa đăng nhập hoặc không rõ role
+    print(menu)
+    context = {
+        'searchCourt': search_court,
+        'menu': menu
+    }  
+    return render(request, 'app1/TrangChu.html', context)
+
 # Quên mật khẩu
 class ForgotPassword(View):
     def get(self,request):
@@ -390,12 +419,23 @@ class DangKyTaiKhoanThanhToan(View):
 # Thôg tin cá nhân
 def ThongTinCaNhan(request):
     user = request.user  # Lấy thông tin người dùng đã đăng nhập
-    customer = user.customer  # Truy cập thông tin trong bảng Customer thông qua khóa ngoại
 
-    # Truyền thông tin vào context để render trong template
+    # Kiểm tra loại tài khoản
+    if hasattr(user, 'customer'):  # Nếu user là Customer
+        role = 'customer'
+        profile = user.customer  # Lấy thông tin từ bảng Customer
+    elif hasattr(user, 'court_manager'):  # Nếu user là Court Manager
+        role = 'manager'
+        profile = user.court_manager  # Lấy thông tin từ bảng Court Manager
+    else:
+        role = None  # User không có role cụ thể
+        profile = None
+
+    # Truyền thông tin vào context
     context = {
         'user': user,
-        'customer': customer
+        'role': role,  # Truyền loại tài khoản vào template
+        'profile': profile,  # Truyền thông tin profile cụ thể
     }
     return render(request, 'app1/ThongTinCaNhan.html', context)
 
@@ -566,10 +606,7 @@ def menu(request):
 # def menu_manager(request):
 #     return render(request, 'app1/Menu-manager.html')
 
-# def footer(request):
-#     Badminton_Halls = BadmintonHall.objects.all()
-#     context = {'Badminton_Halls' : Badminton_Halls}
-#     return render(request, 'app1/Footer.html',context)
+
 
 
 def manager_taikhoan(request):
