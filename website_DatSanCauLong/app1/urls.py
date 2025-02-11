@@ -42,7 +42,13 @@ urlpatterns = [
     path('them_san/', views.them_san, name='them_san'),
     path('payment/', views.payment, name='payment'),
     path('booking/', views.booking, name='booking'),
+    # quản lí tài khoản:
+    # 1. thêm tài khoảnkhoản
     path('AddAccount_Manage/', AddAccount_Manage.as_view(), name='AddAccount_Manage'),
+    # 2. xóa tài khoản
+    path('delete-user/<int:user_id>/', views.delete_user, name='delete_user'),
+
+
     path('manager_san/', views.manager_san, name='manager_san'),
 
     # path('menu_manager/', views.menu_manager, name='menu_manager'),

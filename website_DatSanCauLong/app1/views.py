@@ -426,16 +426,19 @@ def ThongTinCaNhan(request):
     if hasattr(user, 'customer'):  # Nếu user là Customer
         role = 'customer'
         profile = user.customer  # Lấy thông tin từ bảng Customer
-    elif hasattr(user, 'court_manager'):  # Nếu user là Court Manager
-        role = 'manager'
-        profile = user.court_manager  # Lấy thông tin từ bảng Court Manager
+    # elif hasattr(user, 'court_manager'):  # Nếu user là Court Manager
+    #     role = 'manager'
+    #     profile = user.court_manager  # Lấy thông tin từ bảng Court Manager
+    # elif hasattr(user, 'system_admin'):  # Nếu user là system_admin
+    #     role = 'admin'
+    #     profile = user.system_admin  # Lấy thông tin từ bảng system_admin
     else:
-        role = None  # User không có role cụ thể
-        profile = None
+        role = 'other'  # User không có role cụ thể
+        profile = 'none'
 
     # Truyền thông tin vào context
     context = {
-        'user': user,
+        'user': user,  
         'role': role,  # Truyền loại tài khoản vào template
         'profile': profile,  # Truyền thông tin profile cụ thể
     }
@@ -444,9 +447,22 @@ def ThongTinCaNhan(request):
 
 # Chỉnh sửa thông tin cá nhân
 class ChinhSuaThongTinCaNhan(View):
+    
     def get(self, request):
+        user = request.user  # Lấy thông tin người dùng đã đăng nhập
+        # Kiểm tra loại tài khoản
+        if hasattr(user, 'customer'):  # Nếu user là Customer
+            role = 'customer'
+            profile = user.customer 
+        else:
+            role = 'other'  # User không có role cụ thể
+            profile = 'none'
         ChinhSuaThongTin = FormChinhSuaThongTinCaNhan()
-        context = {"ChinhSuaThongTin" : ChinhSuaThongTin} 
+        context = {
+            "ChinhSuaThongTin" : ChinhSuaThongTin,
+            'role': role,  # Truyền loại tài khoản vào template
+            'profile': profile,
+        } 
         return render(request, 'app1/ChinhSuaThongTin.html', context)
 
     def post(self, request):
@@ -457,21 +473,24 @@ class ChinhSuaThongTinCaNhan(View):
             return render(request, 'app1/ChinhSuaThongTin.html', context)
         
         user = request.user
-        customer = user.customer # Liên kết OneToOne với Customer
+        
         #  Nếu dữ liệu hợp lệ:
         # Lấy dữ liệu
         full_name = ChinhSuaThongTin.cleaned_data['full_name']
         date_of_birth = ChinhSuaThongTin.cleaned_data['date_of_birth']
-
-        # cập nhật thông tin:
         if full_name:
             user.first_name = full_name
             user.save()
-            
+        # cập nhật ngày sinh cho customer
         if date_of_birth:
-            customer.date_of_birth = date_of_birth
-            customer.save()
-            
+            try:
+                customer = user.customer # Liên kết OneToOne với Customer
+                customer.date_of_birth = date_of_birth
+                customer.save()        
+            except Exception as e:
+                messages.error(request, f"Lỗi khi cập nhật ngày sinh: {str(e)}")
+                return render(request, 'app1/ChinhSuaThongTin.html', context)
+       
         messages.success(request, "Chỉnh sửa thông tin thành công!")
         return redirect('ThongTinCaNhan')
 
@@ -617,6 +636,7 @@ def getAll_role_User():
 
         if role != "Admin":
             users_with_roles.append({
+                "id": user.id,
                 "username": user.username,
                 "first_name": user.first_name,
                 "role": role
@@ -673,7 +693,16 @@ class AddAccount_Manage(View):
         # Redirect để tránh form bị gửi lại khi refresh trang
         return redirect('AddAccount_Manage')
         
-
+# Xóa tài khoản
+def delete_user(request, user_id):
+    if request.method == "POST":
+        try:
+            user = User.objects.get(pk=user_id)
+            user.delete()
+            return JsonResponse({"message": "Tài khoản đã được xóa!"}, status=200)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "Tài khoản không tồn tại!"}, status=404)
+    return JsonResponse({"error": "Yêu cầu không hợp lệ!"}, status=400)
 
 
 
