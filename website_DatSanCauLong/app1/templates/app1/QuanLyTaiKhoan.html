@@ -10,24 +10,37 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
   </head>
   <body>
-    {% include 'app1/Header-customer.html' %}
+    {% include 'app1/Header-user.html' %}
     {% include 'app1/Menu-manager.html' %}
     {% block content %}
       <div id="menu-container"></div>
       <h1>Quản lý tài khoản</h1>
+       <!-- Hiển thị thông báo -->
+      {% if messages %}
+  <div class="messages">
+    {% for message in messages %}
+    <div class="message {{ message.tags }} show">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
       <div class="container">
         <!-- Form Thêm tài khoản -->
         <div class="form-container">
           <h2>Thêm tài khoản mới</h2>
-          <form id="addAccountForm">
-            <input type="text" id="username" placeholder="Tên đăng nhập" required />
-            <input type="email" id="email" placeholder="Email" required />
-            <input type="password" id="password" placeholder="Mật khẩu" required />
-            <select id="role" required>
-              <option value="" disabled selected>Chọn vai trò</option>
-              <option value="admin">Quản trị viên</option>
-              <option value="user">Người dùng</option>
-            </select>
+          <form id="addAccountForm" action="#" method="post">
+            {% csrf_token %}
+            {{Add_Account_Form.username}}
+            {% if Add_Account_Form.username.errors %}
+        <ul class="error-list">
+          {% for error in Add_Account_Form.username.errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+            {{Add_Account_Form.password}}
+            {{Add_Account_Form.role}}
             <button type="submit" class="btn"><i class="fas fa-plus"></i> Thêm tài khoản</button>
           </form>
         </div>
@@ -37,14 +50,22 @@
         <table id="accountList">
           <thead>
             <tr>
-              <th>Tên đăng nhập</th>
               <th>Email</th>
+              <th>Họ và tên</th>
               <th>Vai trò</th>
               <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
             <!-- Các tài khoản sẽ được thêm vào đây -->
+            {% for user in users_with_roles %}
+    <tr>
+      <td>{{ user.username }}</td> 
+      <td>{{ user.first_name }}</td>
+      <td>{{ user.role }}</td>
+
+            {% endfor%}
+
           </tbody>
         </table>
 
@@ -56,7 +77,7 @@
             <input type="email" id="editEmail" placeholder="Email" required />
             <input type="text" id="editPassword" placeholder="Mật khẩu" required />
             <select id="editRole" required>
-              <option value="admin">Quản trị viên</option>
+              <option value="manage">Quản trị viên</option>
               <option value="user">Người dùng</option>
             </select>
             <div class="actions">

@@ -42,9 +42,8 @@ urlpatterns = [
     path('them_san/', views.them_san, name='them_san'),
     path('payment/', views.payment, name='payment'),
     path('booking/', views.booking, name='booking'),
-    path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
+    path('AddAccount_Manage/', AddAccount_Manage.as_view(), name='AddAccount_Manage'),
     path('manager_san/', views.manager_san, name='manager_san'),
-
 
     # path('menu_manager/', views.menu_manager, name='menu_manager'),
     path('manage_time_slots/', views.manage_time_slots, name='manage_time_slots'),
