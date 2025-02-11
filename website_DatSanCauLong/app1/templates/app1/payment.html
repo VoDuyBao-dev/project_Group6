@@ -1,51 +1,73 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="vi">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hóa đơn Thanh toán</title>
-    <link rel="stylesheet" href="{% static 'app1/CSS/payment.css' %}">
+    <link rel="stylesheet" href="{% static 'app1/CSS/payment.css' %}" />
     <script src="{% static 'app1/js/payment.js' %}"></script>
     <script src="{% static 'app1/js/layout-customer.js' %}"></script>
-</head>
+  </head>
 
-<body>
-    {% include 'app1/Header-customer.html' %}
+  <body>
+    {% include 'app1/Header-user.html' %}
     {% block content %}
-    <div class="invoice">
+      <div class="invoice">
         <h2>Hóa đơn Thanh toán</h2>
         <div class="invoice-details">
-            <p><strong>Khách hàng:</strong> Nguyễn Văn A</p>
-            <p><strong>Tên sân:</strong> Sân 1</p>
-            <p><strong>Loại lịch:</strong> Lịch cố định</p>
-            <p><strong>Giờ:</strong> 01:30 CH</p>
-            <p><strong>Địa điểm:</strong> Đường XYZ, Quận ABC</p>
-            <p><strong>Mã đặt lịch:</strong> Sân 1</p>
-            <p><strong>Giá:</strong> Lịch cố định</p>
+          <p>
+            <strong>Khách hàng:</strong> Nguyễn Văn A
+          </p>
+          <p>
+            <strong>Tên sân:</strong> Sân 1
+          </p>
+          <p>
+            <strong>Loại lịch:</strong> Lịch cố định
+          </p>
+          <p>
+            <strong>Giờ:</strong> 01:30 CH
+          </p>
+          <p>
+            <strong>Địa điểm:</strong> Đường XYZ, Quận ABC
+          </p>
+          <p>
+            <strong>Mã đặt lịch:</strong> Sân 1
+          </p>
+          <p>
+            <strong>Giá:</strong> Lịch cố định
+          </p>
 
-            <p class="total">Tổng cộng: 35,000,000 VND</p>
+          <p class="total">Tổng cộng: 35,000,000 VND</p>
         </div>
         <div class="payment-method">
-            <h3>Thông tin thanh toán</h3>
-            <div class="bank-details">
-                <p><strong>Ví điện tử:</strong> Momo</p>
-                <p><strong>Số điện thoại:</strong> 0909 123 456</p>
-            </div>
-            <div class="bank-details">
-                <p><strong>Ngân hàng:</strong> Vietcombank</p>
-                <p><strong>Chủ tài khoản:</strong> Nguyễn Văn A</p>
-                <p><strong>Số tài khoản:</strong> 1234 5678 9101 1121</p>
-            </div>
+          <h3>Thông tin thanh toán</h3>
+          <div class="bank-details">
+            <p>
+              <strong>Ví điện tử:</strong> Momo
+            </p>
+            <p>
+              <strong>Số điện thoại:</strong> 0909 123 456
+            </p>
+          </div>
+          <div class="bank-details">
+            <p>
+              <strong>Ngân hàng:</strong> Vietcombank
+            </p>
+            <p>
+              <strong>Chủ tài khoản:</strong> Nguyễn Văn A
+            </p>
+            <p>
+              <strong>Số tài khoản:</strong> 1234 5678 9101 1121
+            </p>
+          </div>
         </div>
         <div class="button-container">
-            <button class="btn btn-cancel" onclick="cancelPayment()">Hủy</button>
-            <button class="btn btn-confirm" onclick="confirmPayment()">Xác nhận thanh toán</button>
+          <button class="btn btn-cancel" onclick="cancelPayment()">Hủy</button>
+          <button class="btn btn-confirm" onclick="confirmPayment()">Xác nhận thanh toán</button>
         </div>
-    </div>
-    {% endblock content %}
+      </div>
+    {% endblock %}
     {% include 'app1/Footer.html' %}
-</body>
-
+  </body>
 </html>

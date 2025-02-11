@@ -5,31 +5,64 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Manage Time Slots</title>
+    <title>Quản lí lịch và giá</title>
     <link rel="stylesheet" href="{% static 'app1/css/style_time_slots.css' %}" />
   </head>
   <body>
-    <h1>Manage Time Slots</h1>
+    {% include 'app1/Header-user.html' %}
+    {% include 'app1/Menu-manager.html' %}
+
+    <h1>Quản lí lịch và giá</h1>
 
     <!-- Form để thêm dữ liệu -->
     <form method="post" action="{% url 'manage_time_slots' %}">
       {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit">Add Time Slot</button>
+      <label for="day_of_week">Ngày trong tuần:</label>
+      <select id="day_of_week" name="day_of_week">
+        <option>---------</option>
+        <option>Thứ 2</option>
+        <option>Thứ 3</option>
+        <option>Thứ 4</option>
+        <option>Thứ 5</option>
+        <option>Thứ 6</option>
+        <option>Thứ 7</option>
+        <option>Chủ Nhật</option>
+      </select>
+
+      <label for="time_frame">Khung thời gian:</label>
+      <input type="text" name="time_frame" id="time_frame" required placeholder="00h - 00h" />
+
+      <label for="fixed_price">Lịch cố định:</label>
+      <input type="text" name="fixed_price" id="fixed_price" required placeholder="000.000" />
+
+      <label for="daily_price">Lịch ngày:</label>
+      <input type="text" name="daily_price" id="daily_price" required placeholder="000.000" />
+
+      <label for="flexible_price">Lịch linh hoạt:</label>
+      <input type="text" name="flexible_price" id="flexible_price" required placeholder="000.000" />
+
+      <label for="status">Trạng thái:</label>
+      <select id="status" name="status">
+        <option>---------</option>
+        <option>Hoạt động</option>
+        <option>Tạm ngưng</option>
+      </select>
+
+      <button type="submit">Lưu</button>
     </form>
     <br />
     <br />
     <hr />
-
+    <br />
     <!-- Danh sách Time Slots hiện có -->
     <h2>Time Slots</h2>
-    <table border="1">
+    <table border="10">
       <tr>
-        <th>Day</th>
-        <th>Time Frame</th>
-        <th>Fixed Price</th>
-        <th>Daily Price</th>
-        <th>Flexible Price</th>
+        <th>Ngày trong tuần</th>
+        <th>Khung thời gian</th>
+        <th>Lịch cố định</th>
+        <th>Lịch ngày</th>
+        <th>Lịch linh hoạt</th>
         <th>Status</th>
         <th>Action</th>
       </tr>
@@ -37,15 +70,15 @@
         <tr>
           <td>{{ slot.day_of_week }}</td>
           <td>{{ slot.time_frame }}</td>
-          <td>{{ slot.fixed_price }}</td>
-          <td>{{ slot.daily_price }}</td>
-          <td>{{ slot.flexible_price }}</td>
+          <td>{{ slot.fixed_price|floatformat:3 }} VND</td>
+          <td>{{ slot.daily_price|floatformat:3 }}VND</td>
+          <td>{{ slot.flexible_price|floatformat:3 }}VND</td>
           <td>{{ slot.status }}</td>
           <td>
             {% if slot.template_id %}
-              <a href="{% url 'delete_time_slot' slot.template_id %}">Delete</a>
+              <a href="{% url 'delete_time_slot' slot.template_id %}">Xóa</a>
             {% else %}
-              <span>No ID</span>
+              <span>Không xóa được</span>
             {% endif %}
           </td>
         </tr>

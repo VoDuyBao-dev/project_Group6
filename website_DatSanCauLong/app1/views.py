@@ -142,8 +142,8 @@ def validate_otp_and_register(request):
                 # Gọi hàm tạo người dùng
                 user = create_user_account(username, full_name, password)
 
-    # Thêm người dùng vào nhóm "Customer ở giao diện admin"
-                group = Group.objects.get(name='Customer')
+            # Thêm người dùng vào nhóm "Customer" ở giao diện admin
+                group, created = Group.objects.get_or_create(name='Customer')
                 user.groups.add(group)
 
 
@@ -185,16 +185,12 @@ def resend_otp(request):
 
 
 def redirect_user(user):
+    # with open("debug.log", "a") as f:  
+    #     f.write(f"User: {user.username}, Nhóm: {[group.name for group in user.groups.all()]}\n")
+
     if user.groups.filter(name="Admin").exists():
         return redirect('/admin')
-    elif user.groups.filter(name="Manager").exists():
-        return redirect('QuanLyThongTinSan')
-    elif user.groups.filter(name="Court_staff").exists():
-        return redirect('San')
-    elif user.groups.filter(name="Customer").exists():
-        return redirect('TrangChu')
-    
-    return redirect('Sign_up')
+    return redirect('TrangChu')
 
 class Sign_In(View):
     def get(self, request):
@@ -542,18 +538,32 @@ def ChinhSuaThongTin(request):
 
 
 # thêm thời gian(khung giờ) và giá,... của từng loại hình đặt lịch
-@login_required(login_url='login')
 def manage_time_slots(request):
     if request.method == "POST":
-        form = TimeSlotTemplateForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("manage_time_slots")  # Reload lại trang sau khi lưu
-    else:
-        form = TimeSlotTemplateForm()
+        day_of_week = request.POST.get('day_of_week')
+        time_frame = request.POST.get('time_frame')
+        fixed_price = request.POST.get('fixed_price')
+        daily_price = request.POST.get('daily_price')
+        flexible_price = request.POST.get('flexible_price')
+        status = request.POST.get('status')
+
+        # Kiểm tra xem có điền đầy đủ thông tin hay không
+        if not day_of_week or not time_frame or not fixed_price or not daily_price or not flexible_price or not status:
+            messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
+            return redirect('manage_time_slots')
+        # Kiểm tra xem có trung ngày và giờ không.
+        if TimeSlotTemplate.objects.filter(day_of_week=day_of_week).exists() and TimeSlotTemplate.objects.filter(time_frame=time_frame).exists():
+            messages.error(request, "Trùng ngày và khung giờ")
+            return redirect("manage_time_slots")
+
+        # Lưu dữ liệu nếu hợp lệ
+        TimeSlotTemplate.objects.create(day_of_week=day_of_week, time_frame=time_frame, fixed_price=fixed_price, daily_price=daily_price, flexible_price=flexible_price, status=status,)
+        messages.success(request, "Thêm lịch và giá thành công.")
+        return redirect('manage_time_slots')
 
     time_slots = TimeSlotTemplate.objects.all()
-    return render(request, "app1/manage_time_slots.html", {"form": form, "time_slots": time_slots})
+    return render(request, "app1/manage_time_slots.html", {"time_slots": time_slots})
+        
 
 # xóa lịch nếu thấy bất ổn nào đó.
 def delete_time_slot(request, slot_id):
@@ -587,9 +597,7 @@ def them_san_moi(request):
         messages.success(request, "Thêm sân mới thành công!")
         return redirect('them_san_moi')
 
-    halls = BadmintonHall.objects.all()
-    return render(request, 'app1/them_san_moi.html', {'halls': halls})
-
+    return render(request, 'app1/them_san_moi.html')
 
 
 def them_san(request):
@@ -597,10 +605,9 @@ def them_san(request):
         badminton_hall_id = request.POST.get('address') 
         name = request.POST.get('name')
         image = request.FILES.get('image') 
-        status = request.POST.get('status')
 
         # Kiểm tra nếu có trường bị bỏ trống
-        if not name or not badminton_hall_id or not status:
+        if not name or not badminton_hall_id:
             messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
             return redirect('them_san')
 
@@ -616,7 +623,6 @@ def them_san(request):
             badminton_hall=badminton_hall,
             name=name,
             image=image,
-            status=status
         )
         messages.success(request, "Thêm sân mới thành công!")
 

@@ -126,8 +126,14 @@ class SignInForm(forms.Form):
         username = cleaned_data.get("username")
         errors = {}
 
-        if not is_valid_email(username):
-            errors['username'] = "Email không hợp lệ."
+        # if not is_valid_email(username):
+        #     errors['username'] = "Email không hợp lệ."
+
+        # Nếu người đăng nhập không thuộc group customer thì thông báo lỗi
+        user = User.objects.filter(username=username).first()
+        if user and user.groups.filter(name='Customer').exists():
+            if not is_valid_email(username):
+                errors['username'] = "Email không hợp lệ."
 
 
         for field, error in errors.items():
@@ -152,8 +158,15 @@ class ForgotPasswordForm(forms.Form):
         username = cleaned_data.get("username")
         errors = {}
 
-        if not is_valid_email(username):
-            errors['username'] = "Email không hợp lệ."
+        # if not is_valid_email(username):
+        #     errors['username'] = "Email không hợp lệ."
+
+# Nếu người đăng nhập không thuộc group customer thì thông báo lỗi
+        user = User.objects.filter(username=username).first()
+        if user and user.groups.filter(name='Customer').exists():
+            if not is_valid_email(username):
+                errors['username'] = "Email không hợp lệ."
+
 
         if not User.objects.filter(username = username).exists():
             errors['username'] = "Người dùng không tồn tại."
