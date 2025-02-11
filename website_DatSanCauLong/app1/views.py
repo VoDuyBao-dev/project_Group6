@@ -625,10 +625,49 @@ def booking(request):
 def payment(request):
     return render(request, 'app1/payment.html')
 
-def manager_taikhoan(request):
-    return render(request, 'app1/QuanLyTaiKhoan.html')
+# def manager_san(request): 
+#     courts = Court.objects.all()
+#     context = {'courts': courts}
+#     return render(request, 'app1/QuanLyThongTinSan.html', context)
+
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from .models import Court, BadmintonHall
 
 def manager_san(request):
     courts = Court.objects.all()
-    context = {'courts': courts}
-    return render(request, 'app1/QuanLyThongTinSan.html', context)
+    badminton_halls = BadmintonHall.objects.all()  # Lấy danh sách tất cả chi nhánh
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'update_status':
+            court_id = request.POST.get('court_id')
+            new_status = request.POST.get('court_status')
+            court = get_object_or_404(Court, court_id=court_id)
+            court.status = new_status
+            court.save()
+            return JsonResponse({'success': True, 'new_status': new_status})
+
+        elif action == 'edit_court':
+            court_id = request.POST.get('court_id')
+            new_name = request.POST.get('court_name')
+            new_branch_id = request.POST.get('badminton_hall_id')
+
+            court = get_object_or_404(Court, court_id=court_id)
+            court.name = new_name
+            court.badminton_hall = get_object_or_404(BadmintonHall, badminton_hall_id=new_branch_id)
+
+            if 'court_image' in request.FILES:
+                court.image = request.FILES['court_image']
+
+            court.save()
+            return JsonResponse({'success': True, 'new_name': new_name, 'new_branch': court.badminton_hall.name, 'image_url': court.image.url if court.image else ''})
+
+        elif action == 'delete_court':
+            court_id = request.POST.get('court_id')
+            court = get_object_or_404(Court, court_id=court_id)
+            court.delete()
+            return JsonResponse({'success': True})
+
+    return render(request, 'app1/QuanLyThongTinSan.html', {'courts': courts, 'badminton_halls': badminton_halls})

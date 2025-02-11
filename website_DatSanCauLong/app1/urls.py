@@ -43,7 +43,6 @@ urlpatterns = [
     path('payment/', views.payment, name='payment'),
     path('booking/', views.booking, name='booking'),
     path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
-    path('manager_san/', views.manager_san, name='manager_san'),
 
 
     # path('menu_manager/', views.menu_manager, name='menu_manager'),
@@ -51,6 +50,9 @@ urlpatterns = [
     path('delete_time_slot/<str:slot_id>/', views.delete_time_slot, name='delete_time_slot'),
     path('ThongTinCaNhan/', views.ThongTinCaNhan, name='ThongTinCaNhan'),
     path('ChinhSuaThongTinCaNhan/', ChinhSuaThongTinCaNhan.as_view(), name='ChinhSuaThongTinCaNhan'),
+    
+    path('manager_san/', views.manager_san, name='manager_san'),
+    # path('manager_san/<str:court_id>/', court_settings, name='court_settings'),
 ] 
 # coi url
 

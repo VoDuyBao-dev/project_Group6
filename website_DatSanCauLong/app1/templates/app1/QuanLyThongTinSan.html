@@ -1,4 +1,4 @@
-{% load static%}
+{% comment %} {% load static%}
 <!DOCTYPE html>
 <html lang="vi">
   <head>
@@ -61,6 +61,7 @@
         </form>
       </section>
 
+
       <!-- Cập Nhật Trạng Thái Sân -->
       <section id="update-status-section" class="hidden">
         <h2>Cập Nhật Trạng Thái Sân <span id="update-court-name"></span></h2>
@@ -85,4 +86,129 @@
     {% endblock %}
     {% include 'app1/Footer.html' %}
   </body>
-</html>
+</html> {% endcomment %}
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Sân</title>
+    <link rel="stylesheet" href="{% static 'app1/CSS/QuanLyThongTinSan.css' %}">
+    <script>
+      function updateCourtStatus(courtId) {
+        let newStatus = document.getElementById(`status-${courtId}`).value;
+
+        fetch("", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({
+                action: "update_status",
+                court_id: courtId,
+                court_status: newStatus
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`status-text-${courtId}`).innerText = data.new_status;
+            }
+        });
+    }
+
+    function editCourt(courtId) {
+        let newName = document.getElementById(`name-${courtId}`).value;
+        let newBranch = document.getElementById(`branch-${courtId}`).value;
+        let imageInput = document.getElementById(`image-${courtId}`);
+        let formData = new FormData();
+        
+        formData.append("action", "edit_court");
+        formData.append("court_id", courtId);
+        formData.append("court_name", newName);
+        formData.append("badminton_hall_id", newBranch);
+        
+        if (imageInput.files.length > 0) {
+            formData.append("court_image", imageInput.files[0]);
+        }
+
+        fetch("", {
+            method: "POST",
+            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`court-name-${courtId}`).innerText = data.new_name;
+                document.getElementById(`branch-text-${courtId}`).innerText = data.new_branch;
+                if (data.image_url) {
+                    document.getElementById(`court-image-${courtId}`).src = data.image_url;
+                }
+                alert("Chỉnh sửa sân thành công!");
+            }
+        });
+    }
+
+    function deleteCourt(courtId) {
+        if (confirm("Bạn có chắc muốn xóa sân này không?")) {
+            fetch("", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: new URLSearchParams({
+                    action: "delete_court",
+                    court_id: courtId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById(`court-card-${courtId}`).remove();
+                    alert("Xóa sân thành công!");
+                }
+            });
+        }
+    }
+</script>
+    <div class="court-container">
+      {% for court in courts %}
+      <div class="court-card" id="court-card-{{ court.court_id }}">
+          <h3 id="court-name-{{ court.court_id }}">{{ court.name }}</h3>
+          <p class="court-status" id="status-text-{{ court.court_id }}">
+              <span class="status-text {% if court.status == 'empty' %}status-available{% elif court.status == 'booked' %}status-booked{% else %}status-maintenance{% endif %}">
+                  {{ court.status }}
+              </span>
+          </p>
+          <select id="status-{{ court.court_id }}">
+              <option value="empty" {% if court.status == "empty" %}selected{% endif %}>Trống</option>
+              <option value="booked" {% if court.status == "booked" %}selected{% endif %}>Đã đặt</option>
+              <option value="maintenance" {% if court.status == "maintenance" %}selected{% endif %}>Bảo trì</option>
+          </select>
+          <button class="btn" onclick="updateCourtStatus('{{ court.court_id }}')">Cập Nhật Trạng Thái</button>
+  
+          <p>Chỉnh Sửa Thông Tin Sân:</p>
+          <input type="text" id="name-{{ court.court_id }}" value="{{ court.name }}" placeholder="Tên sân">
+          <select id="branch-{{ court.court_id }}">
+              {% for hall in badminton_halls %}
+              <option value="{{ hall.badminton_hall_id }}" {% if court.badminton_hall.badminton_hall_id == hall.badminton_hall_id %}selected{% endif %}>
+                  {{ hall.name }}
+              </option>
+              {% endfor %}
+          </select>
+          <input type="file" id="image-{{ court.court_id }}">
+          <img id="court-image-{{ court.court_id }}" src="{{ court.image.url }}" alt="Hình sân" style="width:100px;height:auto;">
+  
+          <button class="btn" onclick="editCourt('{{ court.court_id }}')">Lưu Chỉnh Sửa</button>
+          <button class="btn btn-danger" onclick="deleteCourt('{{ court.court_id }}')">Xóa Sân</button>
+      </div>
+      {% empty %}
+      <p>Không có sân nào.</p>
+      {% endfor %}
+  </div>
+  
