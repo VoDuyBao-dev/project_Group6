@@ -20,6 +20,14 @@
         <h2>Danh Sách Các Sân</h2>
         <div class="court-container" id="court-list">
           <!-- Các sân sẽ được thêm vào đây -->
+          {% for court in courts %}
+          <div class="court-card">
+            <h3>{{ court.name }}</h3>
+            <p>Trạng thái: {{ court.status }}</p>
+          </div>
+        {% empty %}
+          <p>Không có sân nào.</p>
+        {% endfor %}
         </div>
       </section>
 

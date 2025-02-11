@@ -32,6 +32,13 @@
           <i class="bx bxs-user"></i>
           <label for="fullname">Họ và Tên</label>
           {{ SignUp.full_name }}
+          {% if SignUp.full_name.errors %}
+            <ul class="error-list">
+              {% for error in SignUp.full_name.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
         </div>
 
         <div class="input-box">
