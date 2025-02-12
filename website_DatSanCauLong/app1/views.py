@@ -625,49 +625,68 @@ def booking(request):
 def payment(request):
     return render(request, 'app1/payment.html')
 
-# def manager_san(request): 
-#     courts = Court.objects.all()
-#     context = {'courts': courts}
-#     return render(request, 'app1/QuanLyThongTinSan.html', context)
 
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
-from .models import Court, BadmintonHall
-
+# quản lý thông tin sân cầu lông
 def manager_san(request):
     courts = Court.objects.all()
-    badminton_halls = BadmintonHall.objects.all()  # Lấy danh sách tất cả chi nhánh
-    
-    if request.method == 'POST':
-        action = request.POST.get('action')
+    return render(request, 'app1/QuanLyThongTinSan.html', {'courts': courts})
 
-        if action == 'update_status':
-            court_id = request.POST.get('court_id')
-            new_status = request.POST.get('court_status')
-            court = get_object_or_404(Court, court_id=court_id)
-            court.status = new_status
-            court.save()
-            return JsonResponse({'success': True, 'new_status': new_status})
+def edit_court(request, court_id):
+    """
+    Xử lý cập nhật thông tin sân khi nhận POST từ modal chỉnh sửa.
+    Các thông tin cập nhật:
+      - Tên sân
+      - Trạng thái
+      - Tên chi nhánh (cập nhật tên cho BadmintonHall liên quan)
+      - Ảnh: Nếu có upload ảnh mới hoặc yêu cầu xóa ảnh hiện tại
+    """
+    court = get_object_or_404(Court, court_id=court_id)
+    if request.method == "POST":
+        new_name = request.POST.get("name")
+        new_status = request.POST.get("status")
+        new_branch_name = request.POST.get("badminton_hall")
+        delete_image_flag = request.POST.get("delete_image")  # "yes" nếu người dùng muốn xóa ảnh hiện tại
 
-        elif action == 'edit_court':
-            court_id = request.POST.get('court_id')
-            new_name = request.POST.get('court_name')
-            new_branch_id = request.POST.get('badminton_hall_id')
-
-            court = get_object_or_404(Court, court_id=court_id)
+        if new_name:
             court.name = new_name
-            court.badminton_hall = get_object_or_404(BadmintonHall, badminton_hall_id=new_branch_id)
 
-            if 'court_image' in request.FILES:
-                court.image = request.FILES['court_image']
+        if new_status:
+            court.status = new_status
 
-            court.save()
-            return JsonResponse({'success': True, 'new_name': new_name, 'new_branch': court.badminton_hall.name, 'image_url': court.image.url if court.image else ''})
+        # Cập nhật tên chi nhánh (BadmintonHall)
+        if new_branch_name:
+            badminton_hall = court.badminton_hall
+            badminton_hall.name = new_branch_name
+            badminton_hall.save()
 
-        elif action == 'delete_court':
-            court_id = request.POST.get('court_id')
-            court = get_object_or_404(Court, court_id=court_id)
-            court.delete()
-            return JsonResponse({'success': True})
+        # Xử lý ảnh:
+        # Nếu có yêu cầu xóa ảnh, xóa file ảnh (nếu tồn tại) và gán None
+        if delete_image_flag == "yes":
+            if court.image:
+                court.image.delete(save=False)
+            court.image = None
+        else:
+            # Nếu người dùng upload ảnh mới, thay thế ảnh cũ (nếu có)
+            if "image" in request.FILES:
+                if court.image:
+                    court.image.delete(save=False)
+                court.image = request.FILES["image"]
 
-    return render(request, 'app1/QuanLyThongTinSan.html', {'courts': courts, 'badminton_halls': badminton_halls})
+        court.save()
+        messages.success(request, "Thông tin sân đã được cập nhật thành công!")
+        return redirect("manager_san")
+
+    return redirect("manager_san")
+
+def delete_court(request, court_id):
+    """
+    Xử lý xóa sân.
+    Khi nhận POST từ modal xác nhận, xóa sân và chuyển hướng về trang danh sách.
+    Nếu không phải POST, chuyển hướng về danh sách.
+    """
+    court = get_object_or_404(Court, court_id=court_id)
+    if request.method == "POST":
+        court.delete()
+        messages.success(request, "Sân đã được xóa thành công!")
+        return redirect("manager_san")
+    return redirect("manager_san")

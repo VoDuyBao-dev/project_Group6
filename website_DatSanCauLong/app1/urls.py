@@ -52,7 +52,8 @@ urlpatterns = [
     path('ChinhSuaThongTinCaNhan/', ChinhSuaThongTinCaNhan.as_view(), name='ChinhSuaThongTinCaNhan'),
     
     path('manager_san/', views.manager_san, name='manager_san'),
-    # path('manager_san/<str:court_id>/', court_settings, name='court_settings'),
+    path('court/edit/<str:court_id>/', views.edit_court, name='edit_court'),
+    path('court/delete/<str:court_id>/', views.delete_court, name='delete_court'),
 ] 
 # coi url
 
