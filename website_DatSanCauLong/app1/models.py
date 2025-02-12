@@ -122,7 +122,7 @@ class Booking(models.Model):
         ('daily', 'Daily'),
         ('flexible', 'Flexible'),
     )
-    customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='bookings')
+    customer_id = models.CharField(blank=False, null=False, max_length=5)
     court_id = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='bookings')
     booking_type = models.CharField(max_length=20, choices=BOOKING_TYPES)
     date = models.DateField()
@@ -132,13 +132,9 @@ class Booking(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
 
 
-    def __str__(self):
-        return f"Booking for {self.customer} on {self.date} at {self.time}"
-
 class Payment(models.Model):
     payment_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     booking_id = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='payment')
-    customer_id = models.OneToOneField(Customer, on_delete=models.CASCADE, related_name='payment')
     payment_account = models.ForeignKey(
         PaymentAccount,
         on_delete=models.SET_NULL,

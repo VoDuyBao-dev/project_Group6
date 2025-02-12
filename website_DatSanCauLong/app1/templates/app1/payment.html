@@ -16,28 +16,15 @@
       <div class="invoice">
         <h2>Hóa đơn Thanh toán</h2>
         <div class="invoice-details">
-          <p>
-            <strong>Khách hàng:</strong> Nguyễn Văn A
-          </p>
-          <p>
-            <strong>Tên sân:</strong> Sân 1
-          </p>
-          <p>
-            <strong>Loại lịch:</strong> Lịch cố định
-          </p>
-          <p>
-            <strong>Giờ:</strong> 01:30 CH
-          </p>
-          <p>
-            <strong>Địa điểm:</strong> Đường XYZ, Quận ABC
-          </p>
-          <p>
-            <strong>Mã đặt lịch:</strong> Sân 1
-          </p>
-          <p>
-            <strong>Giá:</strong> Lịch cố định
-          </p>
-
+          {% if user.is_authenticated %}
+            <p><strong>Khách hàng:</strong> {{ user.username }}</p>
+          {%endif%}
+          <p><strong>Tên sân:</strong> Sân 1</p>
+          <p><strong>Loại lịch:</strong> Lịch cố định</p>
+          <p><strong>Giờ:</strong> 01:30 CH</p>
+          <p><strong>Địa điểm:</strong> Đường XYZ, Quận ABC</p>
+          <p><strong>Mã đặt lịch:</strong> Sân 1</p>
+          <p><strong>Giá:</strong> Lịch cố định</p>
           <p class="total">Tổng cộng: 35,000,000 VND</p>
         </div>
         <div class="payment-method">

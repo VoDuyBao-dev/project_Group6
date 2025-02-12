@@ -19,8 +19,8 @@
           <div class="form-group">
             <h1>Đặt Sân Cầu Lông</h1>
             <h2 style="color:blue">{{court.name}}</h2>
-            <label for="scheduleType">Chọn loại lịch</label>
-            <select id="scheduleType" required>
+            <label for="booking_type">Chọn loại lịch</label>
+            <select id="booking_type" name="booking_type" required>
               <option value="fixed">Lịch cố định</option>
               <option value="flexible">Lịch linh hoạt</option>
               <option value="daily">Lịch ngày</option>
@@ -39,11 +39,11 @@
             <input type="time" name="end_time" id="end_time" required />
           </div>
           {%if booking_id and court_id%}
-          <button type="submit" href="{% url 'payment' booking_id=booking_id court_id=court_id %}">Đặt Sân</button>
+          <button type="submit" href="{% url 'payment' booking_id court_id %}">Đặt Sân</button>
           {% else %}
           <button type="submit" href="{% url 'Payment' %}">Đặt Sân</button>
           {%endif%}
-                <br>
+      <br>
       <br>
       {% if messages %}
       <ul class="messages" style="color:black">

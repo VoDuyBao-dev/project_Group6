@@ -25,7 +25,7 @@ from .models import BadmintonHall
 from django.contrib.auth.decorators import login_required
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
+from decimal import Decimal
 
 # Create your views here.   
 
@@ -709,17 +709,17 @@ def booking(request, court_id):
         # Xử lý dữ liệu đặt sân (như ví dụ trước)
         booking_type = request.POST.get("booking_type")
         date_str = request.POST.get("date")           
-        start_time_str = request.POST.get("start_time") # định dạng HH:MM
-        end_time_str = request.POST.get("end_time")     # định dạng HH:MM
+        start_time = request.POST.get("start_time") # định dạng HH:MM
+        end_time = request.POST.get("end_time")     # định dạng HH:MM
         # with open("debug.log", "a") as f:
         #     f.write(f"Date received: {date_str}\n")
-        #     f.write(f"Start time received: {start_time_str}\n")
-        #     f.write(f"End time received: {end_time_str}\n")
+        #     f.write(f"Start time received: {start_time}\n")
+        #     f.write(f"End time received: {end_time}\n")
 
         try:
             booking_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-            time_obj = datetime.strptime(start_time_str, "%H:%M").time()
-            end_time = datetime.strptime(end_time_str, "%H:%M").time()
+            start_time = datetime.strptime(start_time, "%H:%M").time()
+            end_time = datetime.strptime(end_time, "%H:%M").time()
             
         except Exception as e:
             messages.error(request, "Sai định dạng ngày hoặc thời gian.")
@@ -730,8 +730,8 @@ def booking(request, court_id):
         templates = TimeSlotTemplate.objects.filter(day_of_week=day_of_week, status='available')
         for template in templates:
             # Giả sử trường time_frame có định dạng "05h - 17h"
-            with open("debug.log", "a") as f:
-                f.write(f"Day: {template.time_frame}\n")
+            # with open("debug.log", "a") as f:
+            #     f.write(f"Day: {template.time_frame}\n")
             parts = template.time_frame.split("-")
             if len(parts) == 2:
                 # Loại bỏ khoảng trắng và thay "h" thành ":00" để có định dạng HH:MM
@@ -742,20 +742,19 @@ def booking(request, court_id):
                     template_end = datetime.strptime(template_end_str, "%H:%M").time()
                 except Exception as e:
                     continue  # Nếu không parse được, bỏ qua template này
-                with open("debug.log", "a") as f:
-                    f.write(f"Start time : {template_start_str}\n")
-                    f.write(f"End time : {template_end_str}\n")
-                    f.write(f"End time :\n")
 
                 # Kiểm tra xem khoảng thời gian người dùng chọn có nằm trong khoảng của template không
-                if start_time_str >= template_start and end_time_str <= template_end:
+                if start_time >= template_start and end_time <= template_end:
                     template = template
                     break
-
 
         booking_start = datetime.combine(booking_date, start_time)
         booking_end = datetime.combine(booking_date, end_time)
         duration_hours = (booking_end - booking_start).total_seconds() / 3600.0
+        # with open("debug.log", "a") as f:
+        #     f.write(f"Time : {duration_hours}\n")
+        #     f.write(f"booking_start : {booking_start}\n")
+        #     f.write(f"booking_end : {booking_end}\n")
 # Tính giá dựa vào loại booking và khoảng thời gian đặt
         if booking_type == "fixed":
             price = template.fixed_price * Decimal(duration_hours)
@@ -766,22 +765,24 @@ def booking(request, court_id):
         else:
             price = Decimal('0.00')
 
+        with open("debug.log", "a") as f:
+            f.write(f"price : {price}\n")
+            f.write(f" \n")
+
         # Tạo Booking và cập nhật trạng thái sân
         booking = Booking.objects.create(
-            customer_id=request.user.customer,  # Hoạt động đúng vì request.user.customer là một object
-            court_id=court.court_id,  # Lấy ID của court
+            customer_id=request.user.id,  # Hoạt động đúng vì request.user.customer là một object
+            court_id=court,  # Lấy ID của court
             booking_type=booking_type,
             date=booking_date,
             start_time=start_time,
             end_time=end_time,
-            status=False
+            status=False,
+            amount=price,
         )
         
         messages.success(request, "Vui lòng thanh toán để hoàn tất đặt sân.")
-        return render(request, 'app1/payment.html', {
-            'booking_id': booking.booking_id,
-            'court_id': court.court_id,
-        })
+        return redirect('payment',booking_id=booking.booking_id,court_id=court.court_id)
     else:
         return render(request, "app1/Book.html", {"court": court})
 
@@ -791,25 +792,14 @@ def payment(request, booking_id, court_id):
     # Lấy đối tượng Booking dựa vào booking_id
     booking = get_object_or_404(Booking, booking_id=booking_id)
     court = get_object_or_404(Court, court_id=court_id)
-    # Kiểm tra booking có thuộc về khách hàng đang đăng nhập không
-    if booking.customer_id != request.user.customer:
-        messages.error(request, "Bạn không có quyền truy cập đơn đặt này.")
-        return redirect("TrangChu")
 
-    # # Kiểm tra xem Payment đã tồn tại cho booking này chưa (OneToOne)
-    # try:
-    #     payment = booking.payment
-    # except Payment.DoesNotExist:
-
-        payment = Payment.objects.create(
-            booking_id=booking,
-            customer_id=request.user.customer,
-            status=False  # Chưa thanh toán
-        )
-
+    payment = Payment.objects.create(
+        booking_id=booking,
+        status=False  # Chưa thanh toán
+    )
     if request.method == "POST":
         # Lấy thông tin tài khoản thanh toán được chọn từ form
-        payment_account_id = request.POST.get("payment_account")
+        payment_account_id = request.POST.get("id")
         if payment_account_id:
             payment_account = get_object_or_404(PaymentAccount, pk=payment_account_id)
             payment.payment_account = payment_account
@@ -823,17 +813,17 @@ def payment(request, booking_id, court_id):
         booking.save()
         messages.success(request, "Thanh toán thành công!")
         # Chuyển hướng sang trang chi tiết booking hoặc trang thông báo thanh toán thành công
-        return redirect('San')
+        return redirect('booking', booking_id=booking.booking_id)
     else:
         # GET: Hiển thị form thanh toán
         # Lấy danh sách tài khoản thanh toán của khách hàng (giả sử PaymentAccount có trường customer)
-        payment_accounts = PaymentAccount.objects.filter(customer=request.user.customer)
         context = {
             "booking": booking,
-            "payment": payment,
-            "payment_accounts": payment_accounts,
+            "court": court,
         }
         return render(request, "app1/payment.html", context)
 
-def Payment(request):
-    return render(request, 'app1/payment.html')
+def thanhToan(request):
+    template = TimeSlotTemplate.object.all()
+    courts = Court.object.all()
+    return render(request, 'app1/payment.html', {"template": template, "courts": courts})
