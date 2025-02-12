@@ -66,6 +66,15 @@
         <th>Status</th>
         <th>Action</th>
       </tr>
+      <br>
+      <br>
+      {% if messages %}
+      <ul class="messages" style="color:black">
+        {% for message in messages %}
+          <li style="text-align:center">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
       {% for slot in time_slots %}
         <tr>
           <td>{{ slot.day_of_week }}</td>

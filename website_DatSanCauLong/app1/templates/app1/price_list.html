@@ -34,10 +34,12 @@
           <tbody>
             {% for price in time_slots %}
               {% if forloop.counter0 == 0 %}
-                <th rowspan="4">Monday-Friday</th>
+                <th rowspan="4">Thứ 2 - thứ 6</th>
               {% endif %}
-              {% if forloop.counter0 == 15 or forloop.counter0 == 18 %}
-                <th rowspan="4">{{ price.day_of_week }}</th>
+              {% if forloop.counter0 == 15 %}
+                <th rowspan="4">Thứ 7</th>
+              {%elif forloop.counter0 == 18%}
+                <th rowspan="4">Chủ nhật</th>
               {% endif %}
               {% if forloop.counter0 < 18 and forloop.counter0 > 14 %}
                 <tr class="row-highlight">

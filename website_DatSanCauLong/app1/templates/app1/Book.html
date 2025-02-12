@@ -18,6 +18,7 @@
         <div class="container">
           <div class="form-group">
             <h1>Đặt Sân Cầu Lông</h1>
+            <h2 style="color:blue">{{court.name}}</h2>
             <label for="scheduleType">Chọn loại lịch</label>
             <select id="scheduleType" required>
               <option value="fixed">Lịch cố định</option>
@@ -26,13 +27,9 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="date">Ngày</label>
-            <input type="date" id="date" required />
+            <label for="date">Chọn ngày:</label>
+            <input type="date" id="date" name="date" required>
           </div>
-          {% comment %} <div class="form-group">
-            <label for="time">Giờ</label>
-            <input type="time" id="time" required />
-          </div> {% endcomment %}
           <div class="form-group">
             <label for="start_time">Giờ bắt đầu:</label>
             <input type="time" name="start_time" id="start_time" required />
@@ -41,11 +38,24 @@
             <label for="end_time">Giờ kết thúc:</label>
             <input type="time" name="end_time" id="end_time" required />
           </div>
-          <button type="submit">Đặt Sân</button>
-
-          {% comment %} <script src="{% static 'app1/js/Script-Book.js' %} "></script> {% endcomment %}
+          {%if booking_id and court_id%}
+          <button type="submit" href="{% url 'payment' booking_id=booking_id court_id=court_id %}">Đặt Sân</button>
+          {% else %}
+          <button type="submit" href="{% url 'Payment' %}">Đặt Sân</button>
+          {%endif%}
+                <br>
+      <br>
+      {% if messages %}
+      <ul class="messages" style="color:black">
+        {% for message in messages %}
+          <li style="text-align:center">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+          <script src="{% static 'app1/js/Script-Book.js' %} "></script>
         </div>
       </form>
+
     {% endblock %}
     {% include 'app1/Footer.html' %}
   </body>

@@ -38,8 +38,9 @@ urlpatterns = [
     path('lichThiDau/', views.lichThiDau, name='lichThiDau'),
     path('them_san_moi/', views.them_san_moi, name='them_san_moi'),
     path('them_san/', views.them_san, name='them_san'),
-    path('payment/', views.payment, name='payment'),
-    path('booking/', views.booking, name='booking'),
+    path('payment/<str:booking_id>/<str:court_id>/', views.payment, name='payment'),
+    path('payment/', views.Payment, name='Payment'),
+    path('booking/<str:court_id>/', views.booking, name='booking'),
     path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
     path('manager_san/', views.manager_san, name='manager_san'),
 

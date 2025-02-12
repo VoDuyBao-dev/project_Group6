@@ -113,10 +113,6 @@ class TimeSlotTemplate(models.Model):
     def __str__(self):
         return f"{self.day_of_week} | {self.time_frame}"
 
-class Slot(models.Model):
-    slot_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
-    court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='slots') # Gắn với sân
-    template = models.ForeignKey(TimeSlotTemplate, on_delete=models.CASCADE, related_name='slots')
 
 # Booking model
 class Booking(models.Model):
@@ -128,12 +124,13 @@ class Booking(models.Model):
     )
     customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='bookings')
     court_id = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='bookings')
-    slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name='bookings')
     booking_type = models.CharField(max_length=20, choices=BOOKING_TYPES)
     date = models.DateField()
     start_time = models.TimeField(default='00:00:00')
     end_time = models.TimeField(default='00:00:00')
     status = models.BooleanField(default=False) # đã đặt hoặc đã hủy
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+
 
     def __str__(self):
         return f"Booking for {self.customer} on {self.date} at {self.time}"
@@ -149,7 +146,6 @@ class Payment(models.Model):
         blank=True,
         related_name='payments'
     )
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_date = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField(default=False) # đã thanh toán hay chưa
 
@@ -158,9 +154,6 @@ class CourtStaff(models.Model):
     court_staff_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_staff')
     court = models.OneToOneField(Court, on_delete=models.CASCADE, related_name='court_staff')  # Thêm liên kết với một sân
-
-    # def get_court_status(self):
-    #     return {c.name: c.slots.all() for c in self.courts.all()}
 
     # def __str__(self):
     #     return f"{self.user.username} - {self.badminton_hall.name}"
