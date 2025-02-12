@@ -644,28 +644,25 @@ def getAll_role_User():
 
     return users_with_roles
 
-class AddAccount_Manage(View):
-    def get(self, request):
-        Add_Account_Form = AddAccountForm()
-        # Danh sách người dùng kèm vai trò
-        users_with_roles = getAll_role_User()
+def Account_Management(request):
+    Add_Account_Form = AddAccountForm()
+    # Danh sách người dùng kèm vai trò
+    users_with_roles = getAll_role_User()
 
-        context = {
-            "Add_Account_Form": Add_Account_Form,
-            "users_with_roles": users_with_roles
-        }
-        return render(request, 'app1/QuanLyTaiKhoan.html', context)
+    context = {
+        "Add_Account_Form": Add_Account_Form,
+        "users_with_roles": users_with_roles
+    }
+    return render(request, 'app1/QuanLyTaiKhoan.html', context)
 
-    def post(self, request):
+def AddAccount_Manage(request):
+    if request.method == "POST":
         Add_Account_Form = AddAccountForm(request.POST)
         users_with_roles = getAll_role_User()
 
         if not Add_Account_Form.is_valid():
-            context = {
-                "Add_Account_Form": Add_Account_Form,
-                "users_with_roles": users_with_roles,
-            }
-            return render(request, 'app1/QuanLyTaiKhoan.html', context)
+            messages.error(request, "Form không hợp lệ. Vui lòng kiểm tra lại.")
+            return redirect('Account_Management')
 
         # Lấy thông tin từ form
         username = Add_Account_Form.cleaned_data['username']
@@ -690,8 +687,12 @@ class AddAccount_Manage(View):
         except Exception as e:
             messages.error(request, f"Lỗi khi thêm tài khoản: {str(e)}")
 
-        # Redirect để tránh form bị gửi lại khi refresh trang
-        return redirect('AddAccount_Manage')
+        # Redirect về trang quản lý tài khoản
+        return redirect('Account_Management')
+    
+    # Nếu không phải POST, trả về lỗi
+    messages.error(request, "Lỗi phương thức.")
+    return redirect('Account_Management')
         
 # Xóa tài khoản
 def delete_user(request, user_id):
@@ -705,8 +706,41 @@ def delete_user(request, user_id):
     return JsonResponse({"error": "Yêu cầu không hợp lệ!"}, status=400)
 
 
+def Update_account(request, user_id):
+    if request.method == "POST":
+        # Lấy thông tin user cần cập nhật
+        user = get_object_or_404(User, id=user_id)
 
+        # Lấy dữ liệu từ form
+        new_password = request.POST.get("password", "").strip()
+        new_role = request.POST.get("role", "").strip()
 
+        # Cập nhật password nếu có
+        if new_password:
+            user.set_password(new_password)
+
+        # Xóa tất cả vai trò cũ trước khi thêm vai trò mới
+        CourtManager.objects.filter(user=user).delete()
+        CourtStaff.objects.filter(user=user).delete()
+        Customer.objects.filter(user=user).delete()
+
+        if new_role:
+            if new_role == "manage":
+                CourtManager.objects.get_or_create(user=user)
+                
+            elif new_role == "staff":
+                CourtStaff.objects.get_or_create(user=user)
+                
+            elif new_role == "customer":
+                Customer.objects.get_or_create(user=user)
+                
+            
+        # Lưu thay đổi
+        user.save()
+
+        return JsonResponse({"status": "success", "message": "Tài khoản đã được cập nhật."})
+
+    return JsonResponse({"status": "error", "message": "Yêu cầu không hợp lệ."}, status=400)
 
 
 

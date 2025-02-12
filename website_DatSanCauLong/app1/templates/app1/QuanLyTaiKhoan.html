@@ -29,7 +29,7 @@
         <!-- Form Thêm tài khoản -->
         <div class="form-container">
           <h2>Thêm tài khoản mới</h2>
-          <form id="addAccountForm" action="#" method="post">
+          <form id="addAccountForm" action="{% url 'AddAccount_Manage'%}" method="post">
             {% csrf_token %}
             {{Add_Account_Form.username}}
             {% if Add_Account_Form.username.errors %}
@@ -64,10 +64,28 @@
       <td>{{ user.first_name }}</td>
       <td>{{ user.role }}</td>
       <td>
-        <button class="btn edit-btn"><i class="fas fa-edit"></i> Chỉnh sửa</button>
+        <button class="btn edit-btn" onclick="showEditForm({{ user.id }})"><i class="fas fa-edit"></i> Chỉnh sửa</button>
         <button class="btn delete-btn" onclick="showDeleteModal({{ user.id }})">
           <i class="fas fa-trash"></i> Xóa
         </button>
+      </td>
+    </tr>
+    <!-- Hàng ẩn chứa form chỉnh sửa -->
+    <tr id="editRow-{{ user.id }}" class="edit-row hidden">
+      <td colspan="4">
+        <form id="editAccountForm-{{ user.id }}">
+          {% csrf_token %}
+          <input type="text" name="password" placeholder="Mật khẩu mới" />
+          <select name="role" required>
+            <option value="manage" {% if user.role == 'manage' %}selected{% endif %}>Quản trị viên</option>
+            <option value="staff" {% if user.role == 'staff' %}selected{% endif %}>Staff</option>
+            <option value="customer" {% if user.role == 'customer' %}selected{% endif %}>Người dùng</option>
+          </select>
+          <div class="actions">
+            <button type="button" class="btn" onclick="updateAccount({{ user.id }})">Cập nhật</button>
+            <button type="button" class="btn" onclick="hideEditForm({{ user.id }})">Hủy</button>
+          </div>
+        </form>
       </td>
     </tr>
             {% endfor%}
@@ -77,24 +95,7 @@
         </tbody>
         </table>
 
-        {% comment %} <!-- Chỉnh sửa tài khoản -->
-        <div class="account-detail hidden">
-          <h2>Chỉnh sửa tài khoản</h2>
-          <form id="editAccountForm">
-            <input type="text" id="editUsername" placeholder="Tên đăng nhập" required />
-            <input type="email" id="editEmail" placeholder="Email" required />
-            <input type="text" id="editPassword" placeholder="Mật khẩu" required />
-            <select id="editRole" required>
-              <option value="manage">Quản trị viên</option>
-              <option value="user">Người dùng</option>
-            </select>
-            <div class="actions">
-              <button type="submit" class="btn">Cập nhật tài khoản</button>
-              <button type="button" class="btn" onclick="deleteAccount()">Xóa tài khoản</button>
-              <button type="button" class="btn" onclick="cancelEdit()">Hủy</button>
-            </div>
-          </form>
-        </div> {% endcomment %}
+        
       </div>
       <!-- Modal xác nhận xóa -->
 <div id="deleteConfirmModal" class="modal hidden">
@@ -109,52 +110,7 @@
 </div>
     {% endblock %}
     {% include 'app1/Footer.html' %}
+    <script src="{% static 'app1/js/QuanLyTaiKhoan.js' %}"></script>
   </body>
-  <script>
-    // Lưu trữ userId hiện tại để xóa
-    let userIdToDelete = null;
-  
-    // Hàm hiển thị modal xác nhận xóa
-    function showDeleteModal(userId) {
-      userIdToDelete = userId; // Lưu userId cần xóa
-      const modal = document.getElementById("deleteConfirmModal");
-      modal.classList.remove("hidden");
-    }
-  
-    // Hàm đóng modal xác nhận xóa
-    function closeDeleteModal() {
-      userIdToDelete = null; // Reset userId khi đóng modal
-      const modal = document.getElementById("deleteConfirmModal");
-      modal.classList.add("hidden");
-    }
-  
-    // Hàm xác nhận xóa
-    function confirmDelete() {
-      if (userIdToDelete) {
-        // Gửi yêu cầu xóa đến server (thay thế URL bằng endpoint của bạn)
-        fetch(`/delete-user/${userIdToDelete}/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-                "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value, // Dành cho Django
-          },
-        })
-          .then((response) => {
-            if (response.ok) {
-              // Xóa thành công, reload trang hoặc cập nhật danh sách
-              alert("Tài khoản đã được xóa!");
-              window.location.reload();
-            } else {
-              alert("Có lỗi xảy ra, không thể xóa tài khoản.");
-            }
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            alert("Có lỗi xảy ra, không thể xóa tài khoản.");
-          });
-      }
-  
-      closeDeleteModal();
-    }
-  </script>
+    
 </html>

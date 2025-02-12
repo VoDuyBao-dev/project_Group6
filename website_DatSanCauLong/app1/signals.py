@@ -5,24 +5,7 @@ from .models import Customer, CourtManager, SystemAdmin, CourtStaff
 
 # Signal quản lý User
 @receiver(post_save, sender=User)
-# def manage_user_roles(sender, instance, created, **kwargs):
-#     if created:
-#         if instance.is_superuser:
-#             # Thêm vào bảng SystemAdmin nếu là admin
-#             SystemAdmin.objects.get_or_create(user=instance)
-#         else:
-#             # Nếu không phải admin, tạo Customer (tạm thời)
-#             Customer.objects.get_or_create(user=instance)
 
-#     else:
-#         if instance.is_superuser:
-#             # Nếu là admin, thêm vào bảng SystemAdmin
-#             SystemAdmin.objects.get_or_create(user=instance)
-#             # Xóa Customer nếu tồn tại
-#             Customer.objects.filter(user=instance).delete()
-#         else:
-#             # Nếu không phải admin, đảm bảo vẫn là Customer
-#             Customer.objects.get_or_create(user=instance)
 def manage_user_roles(sender, instance, created, **kwargs):
     if created:
         if instance.is_superuser:

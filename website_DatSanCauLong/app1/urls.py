@@ -43,11 +43,13 @@ urlpatterns = [
     path('payment/', views.payment, name='payment'),
     path('booking/', views.booking, name='booking'),
     # quản lí tài khoản:
-    # 1. thêm tài khoảnkhoản
-    path('AddAccount_Manage/', AddAccount_Manage.as_view(), name='AddAccount_Manage'),
+    path('Account_Management/', views.Account_Management, name='Account_Management'),
+    # 1. thêm tài khoản
+    path('AddAccount_Manage/', views.AddAccount_Manage, name='AddAccount_Manage'),
     # 2. xóa tài khoản
     path('delete-user/<int:user_id>/', views.delete_user, name='delete_user'),
-
+    # 3. Cập nhật tài khoản
+    path('Update_account/<int:user_id>/', views.Update_account, name='Update_account'),
 
     path('manager_san/', views.manager_san, name='manager_san'),
 
