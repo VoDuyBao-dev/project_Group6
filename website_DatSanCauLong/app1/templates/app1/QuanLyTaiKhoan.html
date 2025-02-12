@@ -49,7 +49,7 @@
                 <td>user@example.com</td>
                 <td>Người dùng</td>
                 <td>
-                    <button class="btn edit-btn"><i class="fas fa-edit"></i> Chỉnh sửa</button>
+                  <button class="btn edit-btn" onclick="editAccount()"><i class="fas fa-edit"></i> Chỉnh sửa</button>
                     <button class="btn delete-btn" ><i class="fas fa-trash"></i> Xóa</button>
                 </td>
             </tr>
@@ -78,5 +78,11 @@
       </div>
     {% endblock %}
     {% include 'app1/Footer.html' %}
+    <script>
+      function editAccount(username, email, role) {
+          // Hiển thị phần chỉnh sửa tài khoản
+          document.querySelector(".account-detail").classList.remove("hidden");
+      }
+  </script>
   </body>
 </html>
