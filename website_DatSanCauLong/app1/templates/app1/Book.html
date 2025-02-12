@@ -41,7 +41,7 @@
           {%if booking_id and court_id%}
           <button type="submit" href="{% url 'payment' booking_id court_id %}">Đặt Sân</button>
           {% else %}
-          <button type="submit" href="{% url 'Payment' %}">Đặt Sân</button>
+          <button type="submit" href="{% url 'thanhToan' %}">Đặt Sân</button>
           {%endif%}
       <br>
       <br>
