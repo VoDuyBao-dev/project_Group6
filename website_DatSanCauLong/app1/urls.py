@@ -51,6 +51,9 @@ urlpatterns = [
     path('delete_time_slot/<str:slot_id>/', views.delete_time_slot, name='delete_time_slot'),
     path('ThongTinCaNhan/', views.ThongTinCaNhan, name='ThongTinCaNhan'),
     path('ChinhSuaThongTin', views.ChinhSuaThongTin, name='ChinhSuaThongTin'),
+
+    path('court/edit/<str:court_id>/', edit_court, name='edit_court'),
+    path('court/delete/<str:court_id>/', delete_court, name='delete_court'),
 ] 
 # coi url
 

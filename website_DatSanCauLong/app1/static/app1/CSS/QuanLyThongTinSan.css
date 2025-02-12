@@ -1,9 +1,10 @@
 body {
     font-family: 'Arial', sans-serif;
-    background-color:#f7f7f7 ;
+    background-color: #f7f7f7;
     margin: 0;
     padding: 0;
 }
+
 h1 {
     background-color: #f7f7f7 !important;
     padding: 20px;
@@ -11,9 +12,11 @@ h1 {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     color: black !important;
 }
+
 main {
     margin: 20px;
 }
+
 section {
     background-color: #fff;
     padding: 20px;
@@ -22,18 +25,21 @@ section {
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
     color: black !important;
 }
+
 h2 {
-    color: #333 ;
+    color: #333;
     margin-bottom: 15px;
     border-bottom: 2px solid #007BFF;
     padding-bottom: 5px;
 }
+
 .court-container {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
     justify-content: center;
 }
+
 .court-card {
     background-color: #f8f9fa;
     border: 1px solid #ddd;
@@ -45,42 +51,52 @@ h2 {
     transition: transform 0.2s;
     color: black !important;
 }
+
 .court-card:hover {
     transform: scale(1.05);
 }
+
 .court-card h3 {
     font-size: 1.5em;
     margin-bottom: 10px;
 }
+
 .court-card .status {
     font-weight: bold;
     margin-bottom: 15px;
     font-size: 1.1em;
 }
+
 .court-card .status.available {
     color: green;
 }
+
 .court-card .status.in-use {
     color: red;
 }
+
 .court-card .status.maintenance {
     color: orange;
 }
+
 .court-card .schedule-info {
     margin-top: 10px;
     font-weight: bold;
     font-size: 0.9em;
 }
+
 .court-card .schedule-info span {
     display: block;
 }
+
 .button-container {
     display: flex;
     justify-content: space-between;
     margin-top: 15px;
 }
+
 button {
-    background-color:#6ab4c8;
+    background-color: #6ab4c8;
     color: white;
     padding: 10px 15px;
     cursor: pointer;
@@ -88,22 +104,29 @@ button {
     border: none;
     transition: background-color 0.2s;
 }
+
 button:hover {
     background-color: #ed5928;
 }
+
 .form-group {
     margin-bottom: 15px;
 }
-input[type="text"], input[type="number"], select {
+
+input[type="text"],
+input[type="number"],
+select {
     width: 100%;
     padding: 10px;
     margin-top: 5px;
     border-radius: 5px;
     border: 1px solid #ccc;
 }
+
 .hidden {
     display: none;
 }
+
 .add-court-btn {
     background-color: #17A2B8;
     padding: 15px;
@@ -120,6 +143,51 @@ input[type="text"], input[type="number"], select {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     transition: background-color 0.2s;
 }
+
 .add-court-btn:hover {
     background-color: #138496;
+}
+
+
+.court-image {
+    width: 10%;
+    height: 20%;
+    object-fit: cover;
+    border-radius: 12px;
+    /* Bo tròn các góc của hình ảnh */
+    margin-bottom: 15px;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    /* Thêm hiệu ứng cho zoom và hiệu ứng mờ */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    /* Thêm bóng đổ nhẹ cho hình ảnh */
+}
+
+.modal {
+    display: none;
+    /* Ẩn mặc định */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Làm mờ nền */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
 }

@@ -429,8 +429,7 @@ def payment(request):
 def manager_taikhoan(request):
     return render(request, 'app1/QuanLyTaiKhoan.html')
 
-def manager_san(request):
-    return render(request, 'app1/QuanLyThongTinSan.html')
+
 
 
 
@@ -640,3 +639,68 @@ def them_san(request):
     badminton_halls = BadmintonHall.objects.all()
     return render(request, 'app1/them_san.html', {"courts": courts, "badminton_halls": badminton_halls})
 
+
+# quản lý thông tin sân cầu lông
+def manager_san(request):
+    courts = Court.objects.all()
+    return render(request, 'app1/QuanLyThongTinSan.html', {'courts': courts})
+
+def edit_court(request, court_id):
+    """
+    Xử lý cập nhật thông tin sân khi nhận POST từ modal chỉnh sửa.
+    Các thông tin cập nhật:
+      - Tên sân
+      - Trạng thái
+      - Tên chi nhánh (cập nhật tên cho BadmintonHall liên quan)
+      - Ảnh: Nếu có upload ảnh mới hoặc yêu cầu xóa ảnh hiện tại
+    """
+    court = get_object_or_404(Court, court_id=court_id)
+    if request.method == "POST":
+        new_name = request.POST.get("name")
+        new_status = request.POST.get("status")
+        new_branch_name = request.POST.get("badminton_hall")
+        delete_image_flag = request.POST.get("delete_image")  # "yes" nếu người dùng muốn xóa ảnh hiện tại
+
+        if new_name:
+            court.name = new_name
+
+        if new_status:
+            court.status = new_status
+
+        # Cập nhật tên chi nhánh (BadmintonHall)
+        if new_branch_name:
+            badminton_hall = court.badminton_hall
+            badminton_hall.name = new_branch_name
+            badminton_hall.save()
+
+        # Xử lý ảnh:
+        # Nếu có yêu cầu xóa ảnh, xóa file ảnh (nếu tồn tại) và gán None
+        if delete_image_flag == "yes":
+            if court.image:
+                court.image.delete(save=False)
+            court.image = None
+        else:
+            # Nếu người dùng upload ảnh mới, thay thế ảnh cũ (nếu có)
+            if "image" in request.FILES:
+                if court.image:
+                    court.image.delete(save=False)
+                court.image = request.FILES["image"]
+
+        court.save()
+        messages.success(request, "Thông tin sân đã được cập nhật thành công!")
+        return redirect("manager_san")
+
+    return redirect("manager_san")
+
+def delete_court(request, court_id):
+    """
+    Xử lý xóa sân.
+    Khi nhận POST từ modal xác nhận, xóa sân và chuyển hướng về trang danh sách.
+    Nếu không phải POST, chuyển hướng về danh sách.
+    """
+    court = get_object_or_404(Court, court_id=court_id)
+    if request.method == "POST":
+        court.delete()
+        messages.success(request, "Sân đã được xóa thành công!")
+        return redirect("manager_san")
+    return redirect("manager_san")
