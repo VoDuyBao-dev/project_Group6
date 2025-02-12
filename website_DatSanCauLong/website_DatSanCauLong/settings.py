@@ -66,6 +66,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 # Thêm context processor của bạn vào đây
                 'app1.context_processors.badminton_halls_context',
+                'app1.context_processors.search_form_processor',
             ],
         },
     },

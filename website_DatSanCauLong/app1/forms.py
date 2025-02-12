@@ -334,8 +334,59 @@ class FormChinhSuaThongTinCaNhan(forms.Form):
 
         return cleaned_data  # Trả về dữ liệu đã làm sạch
 
+# form thêm tài khoản của manage _ Quan lý tài khoản
+class AddAccountForm(forms.Form):
+    username = forms.CharField(
+        max_length=150,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Email',
+            'id': 'username_add_account'
+        })
+    )
+    
+    password = forms.CharField(
+        max_length=128,
+        required=True,
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Mật khẩu',
+            'id': 'password_add_account'
+        })
+    )
 
+    role = forms.ChoiceField(
+        choices=[
+            ('', 'Chọn vai trò'),
+            ('manage', 'Quản trị viên'),
+            ('staff', 'staff'),
+            ('user', 'Người dùng')
+        ],
+        required=True,
+        widget=forms.Select(attrs={
+            'id': 'role'
+        })
+    )
 
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get("username")
+        
+
+        #  Biến để lưu lỗi
+        errors = {}
+
+        if not is_valid_email(username):
+            errors['username'] = "Email không hợp lệ."
+        
+        # Kiểm tra tên người dùng
+        if  User.objects.filter(username=username).exists():
+            errors['username'] = "Người dùng đã tồn tại."
+            
+        # Nếu có lỗi, thêm vào biểu mẫu
+        for field, error in errors.items():
+            self.add_error(field, error)
+
+        return cleaned_data  # Trả về dữ liệu đã làm sạch
 
 
 

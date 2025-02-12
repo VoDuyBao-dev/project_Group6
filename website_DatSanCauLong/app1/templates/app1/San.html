@@ -13,7 +13,12 @@
 
   <body>
     {% include 'app1/Header-user.html' %}
+    {% if menu %}
+    {% include menu %}
+{% else %}
+    <!-- Hiển thị menu mặc định -->
     {% include 'app1/Menu.html' %}
+{% endif %}
    
 
     <div id="menu-container"></div>
