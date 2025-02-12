@@ -179,3 +179,5 @@ class RevenueReport(models.Model):
     total_revenue = models.DecimalField(max_digits=15, decimal_places=2)
     generated_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.generated_at} - {self.total_revenue}"

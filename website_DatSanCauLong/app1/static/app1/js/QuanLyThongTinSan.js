@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // Reset input xóa ảnh
             deleteImageInput.value = "";
             // Hiển thị modal
-            editModal.style.display = "block";
+            editModal.style.display = "flex";
         });
     });
 
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             deleteMessage.innerHTML = `Bạn có chắc chắn muốn xóa sân "<strong>${courtName}</strong>" không?`;
             deleteForm.action = `/court/delete/${courtId}/`;
-            deleteModal.style.display = "block";
+            deleteModal.style.display = "flex";
         });
     });
 
