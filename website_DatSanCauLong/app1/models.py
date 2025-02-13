@@ -127,8 +127,8 @@ class Booking(models.Model):
         ('daily', 'Daily'),
         ('flexible', 'Flexible'),
     )
-    customer_id = models.CharField(blank=False, null=False, max_length=5)
-    court_id = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='bookings')
+    customer = models.CharField(blank=False, null=False, max_length=5)
+    court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='bookings')
     booking_type = models.CharField(max_length=20, choices=BOOKING_TYPES)
     date = models.DateField()
     start_time = models.TimeField(default='00:00:00')

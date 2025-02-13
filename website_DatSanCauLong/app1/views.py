@@ -13,7 +13,7 @@ from django.utils import timezone
 from datetime import timedelta, datetime
 from django.http import JsonResponse
 from .models import *
-from django.contrib.auth.decorators import login_required
+
 import json
 
 
@@ -54,8 +54,8 @@ def header_user(request):
 def menu(request):
     return render(request, 'app1/Menu.html')
 
-# def menu_manager(request):
-#     return render(request, 'app1/Menu-manager.html')
+def menu_manager(request):
+    return render(request, 'app1/Menu-manager.html')
 
 def footer(request):
     return render(request, 'app1/Footer.html')
@@ -333,29 +333,10 @@ def History(request):
     return render(request, 'app1/LichSuDatSan.html')
 
 
-def payment_view(request):
-    return render(request, "app1/payment.html")
 # def price_list(request):
 #     search_court = SearchForm() 
 #     context = {'searchCourt': search_court}  
 #     return render(request, 'app1/price_list.html',context)
-@login_required
-def select_court(request):
-    if request.method == "POST":
-        court_id = request.POST.get("court_id")
-        print("DEBUG: Nhận yêu cầu chọn sân, court_id =", court_id)  # Kiểm tra dữ liệu nhận được
-
-        if court_id:
-            request.session["selected_court_id"] = court_id
-            print("DEBUG: Đã lưu selected_court_id vào session:", request.session["selected_court_id"])  # Kiểm tra lưu session
-            return redirect("booking")  # Chuyển đến trang đặt sân
-        else:
-            messages.error(request, "Không tìm thấy sân! Vui lòng chọn lại.")
-            print("DEBUG: Không tìm thấy court_id, quay lại trang San")  # Debug lỗi
-            return redirect("San")
-
-    return redirect("San")
-
 
 def San(request):
     courts = Court.objects.all()
@@ -595,20 +576,15 @@ def price_list(request):
 
 
 # thêm dữ liệu của một sân cầu lông mới(thêm một chi nhánh)
-from .models import BadmintonHall
-
 def them_san_moi(request):
     if request.method == "POST":
-        name = request.POST.get("name")
-        address = request.POST.get("address")
+        name = request.POST.get('name')
+        address = request.POST.get('address')
 
-        if BadmintonHall.objects.filter(name=name).exists():
-            messages.error(request, "Tên chi nhánh đã tồn tại!")
-            return redirect("them_san_moi")
-
-        if BadmintonHall.objects.filter(address=address).exists():
-            messages.error(request, "Địa điểm này đã có chi nhánh khác!")
-            return redirect("them_san_moi")
+        # Kiểm tra nếu tên hoặc địa chỉ bị bỏ trống
+        if not name or not address:
+            messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
+            return redirect('them_san_moi')
 
         if BadmintonHall.objects.filter(address=address).exists():
             messages.error(request, "Địa điểm này đã có chi nhánh khác!")
@@ -616,8 +592,8 @@ def them_san_moi(request):
 
         # Lưu dữ liệu nếu hợp lệ
         BadmintonHall.objects.create(name=name, address=address)
-        messages.success(request, "Chi nhánh mới đã được thêm thành công!")
-        return redirect("danh_sach_san")
+        messages.success(request, "Thêm sân mới thành công!")
+        return redirect('them_san_moi')
 
     return render(request, 'app1/them_san_moi.html')
 
@@ -795,14 +771,14 @@ def booking(request, court_id):
 
         # Tạo Booking và cập nhật trạng thái sân
         booking = Booking.objects.create(
-            customer_id=request.user.id,  # Hoạt động đúng vì request.user.customer là một object
-            court_id=court,  # Lấy ID của court
+            customer=customer,
+            court=court,
+            slot=slot,
             booking_type=booking_type,
-            date=booking_date,
+            date=date,
             start_time=start_time,
             end_time=end_time,
-            status=False,
-            amount=price,
+            status=True 
         )
         
         messages.success(request, "Vui lòng thanh toán để hoàn tất đặt sân.")

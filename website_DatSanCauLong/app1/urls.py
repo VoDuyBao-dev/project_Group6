@@ -5,15 +5,6 @@ from . import views
 from .views import *
 
 
-from rest_framework.routers import DefaultRouter
-from .views import BookingViewSet
-
-router = DefaultRouter()
-router.register(r'booking', BookingViewSet, basename='booking')  
-
-urlpatterns = [
-    path('api/', include(router.urls)),
-]
 
 urlpatterns = [
     path('', views.TrangChu, name= 'TrangChu'),
@@ -42,7 +33,6 @@ urlpatterns = [
    
     path('San/', views.San, name='San'),
     path('bao_cao/', views.bao_cao, name='bao_cao'),
-
     path('checkin/', views.checkin, name='checkin'),
     
     path('lichThiDau/', views.lichThiDau, name='lichThiDau'),
@@ -66,3 +56,4 @@ urlpatterns = [
     path('court/delete/<str:court_id>/', delete_court, name='delete_court'),
 ] 
 # coi url
+
