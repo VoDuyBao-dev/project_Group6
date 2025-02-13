@@ -463,7 +463,7 @@ from datetime import datetime
 from .models import Court, Booking, TimeSlotTemplate
 from decimal import Decimal
 import logging
-
+from decimal import Decimal, ROUND_HALF_UP
 logger = logging.getLogger(__name__)
 @login_required
 def booking_view(request, court_id=None):
@@ -539,6 +539,8 @@ def booking_view(request, court_id=None):
             else:
                 price = Decimal('0.00')
 
+                # Làm tròn đến 3 chữ số thập phân
+            price = price.quantize(Decimal('0.001'), rounding=ROUND_HALF_UP)
             logger.info(f"Tổng tiền: {price}")
 
             # Lưu booking
