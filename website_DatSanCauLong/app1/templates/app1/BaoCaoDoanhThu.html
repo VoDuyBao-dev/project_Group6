@@ -1,4 +1,4 @@
-{% comment %} {% load static %}
+ {% load static %}
 <!DOCTYPE html>
 <html lang="vi">
   <head>
@@ -33,88 +33,4 @@
     {% endblock %}
     {% include 'app1/Footer.html' %}
   </body>
-</html> {% endcomment %}
-
-{% load static %}
-<!DOCTYPE html>
-<html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Báo Cáo Doanh Thu</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="{% static 'app1/CSS/BaoCaoDoanhThu.css' %}" />
-    <script src="{% static 'app1/JS/layout-customer.js' %}"></script>
-  </head>
-  <body>
-    {% include 'app1/Header-customer.html' %}
-    {% include 'app1/Menu-manager.html' %}
-    {% block content %}
-
-    <div class="container">
-      <h1>Báo Cáo Doanh Thu</h1>
-
-      <!-- Chọn loại báo cáo -->
-      <div class="select-container">
-        <label for="report-type">Chọn loại báo cáo:</label>
-        <select id="report-type">
-          <option value="month" {% if report_type == 'month' %}selected{% endif %}>Theo Tháng</option>
-          <option value="quarter" {% if report_type == 'quarter' %}selected{% endif %}>Theo Quý</option>
-          <option value="year" {% if report_type == 'year' %}selected{% endif %}>Theo Năm</option>
-        </select>
-      </div>
-
-      <!-- Biểu đồ doanh thu -->
-      <canvas id="revenueChart" width="400" height="200"></canvas>
-    </div>
-
-    {% endblock %}
-    {% include 'app1/Footer.html' %}
-
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-          const ctx = document.getElementById("revenueChart").getContext("2d");
-          let revenueChart;
-
-          // Lấy dữ liệu từ Django truyền xuống
-          const labels = JSON.parse('{{ labels|safe }}');
-          const data = JSON.parse('{{ data|safe }}');
-
-          function renderChart() {
-              if (revenueChart) {
-                  revenueChart.destroy(); // Xóa biểu đồ cũ trước khi vẽ mới
-              }
-
-              revenueChart = new Chart(ctx, {
-                  type: "bar",
-                  data: {
-                      labels: labels,
-                      datasets: [{
-                          label: "Doanh Thu (VND)",
-                          data: data,
-                          backgroundColor: "green",
-                          borderColor: "black",
-                          borderWidth: 1,
-                      }]
-                  },
-                  options: {
-                      responsive: true,
-                      scales: {
-                          y: { beginAtZero: true }
-                      }
-                  }
-              });
-          }
-
-          renderChart();
-
-          // Xử lý thay đổi loại báo cáo
-          document.getElementById("report-type").addEventListener("change", function () {
-              const selectedType = this.value;
-              window.location.href = `/bao_cao/?type=${selectedType}`;
-          });
-      });
-    </script>
-
-  </body>
-</html>
+</html> 
