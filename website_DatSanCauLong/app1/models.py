@@ -1,7 +1,7 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
 import nanoid
-
 
 
 class PaymentAccount(models.Model):
@@ -34,7 +34,7 @@ def generate_short_id():
 class Customer(models.Model):
     customer_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
-    date_of_birth = models.DateField(null=True, blank=True)  # Trường ngày sinh
+    # stk = models.CharField(max_length=20, null=True, blank=True)
     def __str__(self):
         return self.user.username
 
@@ -65,7 +65,6 @@ class BadmintonHall(models.Model):
 
     def __str__(self):
         return self.name
-
 
 # Court model
 class Court(models.Model):
@@ -116,18 +115,14 @@ class TimeSlotTemplate(models.Model):
 
 
 # Booking model
-from django.db import models
-from django.utils import timezone
-
 class Booking(models.Model):
     booking_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
-    
     BOOKING_TYPES = (
         ('fixed', 'Fixed'),
         ('daily', 'Daily'),
         ('flexible', 'Flexible'),
     )
-    customer = models.CharField(blank=False, null=False, max_length=5)
+    customer_id = models.CharField(blank=False, null=False, max_length=5)
     court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='bookings')
     booking_type = models.CharField(max_length=20, choices=BOOKING_TYPES)
     date = models.DateField()
@@ -139,7 +134,7 @@ class Booking(models.Model):
 
 class Payment(models.Model):
     payment_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
-    booking_id = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='payment')
+    booking = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='payment')
     payment_account = models.ForeignKey(
         PaymentAccount,
         on_delete=models.SET_NULL,
@@ -153,8 +148,8 @@ class Payment(models.Model):
 # Court Staff model
 class CourtStaff(models.Model):
     court_staff_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_staff')
-    court = models.OneToOneField(Court, on_delete=models.CASCADE, related_name='court_staff', null=True)  # Thêm liên kết với một sân
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='court_staff')
+    court = models.OneToOneField(Court, on_delete=models.CASCADE, related_name='court_staff')  # Thêm liên kết với một sân
 
     # def __str__(self):
     #     return f"{self.user.username} - {self.badminton_hall.name}"
@@ -172,7 +167,6 @@ class RevenueReport(models.Model):
     payments = models.ManyToManyField(Payment, related_name='revenues')  # Thêm quan hệ với Payment
     total_revenue = models.DecimalField(max_digits=15, decimal_places=2)
     generated_at = models.DateTimeField(auto_now_add=True)
-
 
 
 

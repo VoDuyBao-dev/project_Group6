@@ -5,61 +5,75 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Đặt Sân Cầu Lông</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="{% static 'app1/CSS/Styles-Book.css' %}" />
     <script src="{% static 'app1/js/layout-customer.js' %} "></script>
   </head>
 
   <body>
-    {% include 'app1/Header-user.html' %} {% block content %}
-    <form action="#" method="post" id="form-group">
-      {% csrf_token %}
-      <div class="container">
-        <div class="form-group">
-          <h1>Đặt Sân Cầu Lông</h1>
-          <h2 style="color: blue">{{court.name}}</h2>
-          <label for="booking_type">Chọn loại lịch</label>
-          <select id="booking_type" name="booking_type" required>
-            <option value="fixed">Lịch cố định</option>
-            <option value="flexible">Lịch linh hoạt</option>
-            <option value="daily">Lịch ngày</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="date">Chọn ngày:</label>
-          <input type="date" id="date" name="date" required />
-        </div>
-        <div class="form-group">
-          <label for="start_time">Giờ bắt đầu:</label>
-          <input type="time" name="start_time" id="start_time" required />
-        </div>
-        <div class="form-group">
-          <label for="end_time">Giờ kết thúc:</label>
-          <input type="time" name="end_time" id="end_time" required />
-        </div>
-        {%if booking_id and court_id%}
-        <button type="submit" href="{% url 'payment' booking_id court_id %}">
-          Đặt Sân
-        </button>
-        {% else %}
-        <button type="submit" href="{% url 'thanhToan' %}">Đặt Sân</button>
-        {%endif%}
-        <br />
-        <br />
-        {% if messages %}
-        <ul class="messages" style="color: black">
-          {% for message in messages %}
-          <li style="text-align: center">{{ message }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-        <script src="{% static 'app1/js/Script-Book.js' %} "></script>
-      </div>
-    </form>
+    {% include 'app1/Header-user.html' %}
+    {% if request.user.groups.all.0.name == 'Customer' %}
+    {% include 'app1/Menu.html' %}
+    {% elif request.user.groups.all.0.name == 'Manager'%}
+      {% include 'app1/Menu-manager.html' %}
+    {% endif %}
+    {% block content %}
+      <form action="#" method="post" id="form-group">
+        {% csrf_token %}
+        <div class="container">
+          <div class="form-group">
+            <h1>Đặt Sân Cầu Lông</h1>
+            <h2 style="color:blue">{{court.name}}</h2>
+            <label for="booking_type">Chọn loại lịch</label>
+            <select id="booking_type" name="booking_type" required>
+              <option value="fixed">Lịch cố định</option>
+              <option value="flexible">Lịch linh hoạt</option>
+              <option value="daily">Lịch ngày</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="date">Chọn ngày:</label>
+            <input type="date" id="date" name="date" required>
+          </div>
+          <div class="form-group">
+            <label for="start_time">Giờ bắt đầu:</label>
+            <input type="time" name="start_time" id="start_time" required />
+          </div>
+          <div class="form-group">
+            <label for="end_time">Giờ kết thúc:</label>
+            <input type="time" name="end_time" id="end_time" required />
+            <button type="submit">Xem giá</button>
+</form>
 
-    {% endblock %} {% include 'app1/Footer.html' %}
+{% if price_info %}
+    <script>
+        document.getElementById("fixed_price").value = "{{ price_info.fixed_price }}";
+        document.getElementById("daily_price").value = "{{ price_info.daily_price }}";
+        document.getElementById("flexible_price").value = "{{ price_info.flexible_price }}";
+    </script>
+{% endif %}
+
+
+          </div>
+          {%if booking_id and court_id%}
+          <button type="submit" href="{% url 'payment' booking_id court_id %}">Đặt Sân</button>
+          {% else %}
+          <button type="submit" href="{% url 'booking' court_id=court.court_id %}">Đặt Sân</button>
+          {%endif%}
+      <br>
+      <br>
+      {% if messages %}
+      <ul class="messages" style="color:black">
+        {% for message in messages %}
+          <li style="text-align:center">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+          <script src="{% static 'app1/js/Script-Book.js' %} "></script>
+        </div>
+      </form>
+
+    {% endblock %}
+    {% include 'app1/Footer.html' %}
   </body>
 </html>

@@ -26,6 +26,7 @@ urlpatterns = [
     path('DangKyTaiKhoanThanhToan/', DangKyTaiKhoanThanhToan.as_view(), name='DangKyTaiKhoanThanhToan'),
     path('header_user/', views.header_user, name='header_user'),
     path('menu/', views.menu, name='menu'),
+    path('footer/', views.footer, name='footer'),
     path('History/', views.History, name= 'History'),
     path('price_list/', views.price_list, name='price_list'),
    
@@ -38,8 +39,9 @@ urlpatterns = [
     path('them_san_moi/', views.them_san_moi, name='them_san_moi'),
     path('them_san/', views.them_san, name='them_san'),
     path('payment/<str:booking_id>/<str:court_id>/', views.payment, name='payment'),
-    path('payment/', views.thanhToan, name='thanhToan'),
-    path('booking/<str:court_id>/', views.booking, name='booking'),
+    path('payment/', views.payment, name='payment'),
+    path('booking/<str:court_id>/', views.booking_view, name='booking'),
+
     path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
     path('manager_san/', views.manager_san, name='manager_san'),
 

@@ -15,7 +15,6 @@
   <body>
     {% include 'app1/Header-user.html' %}
 
-<<<<<<< HEAD
     {% if request.user.groups.all.0.name == 'Customer' %}
       {% include 'app1/Menu.html' %}
     {% elif request.user.groups.all.0.name == 'Manager' or request.user.groups.all.0.name == 'Court_staff' %}
@@ -36,33 +35,6 @@
           {% if request.user.groups.all.0.name == 'Court_staff' %}
             <button class="btn btn-primary"><a href="{% url 'checkin' %}">check-in</a></button>
           {% endif %}
-=======
-    {% if menu %}
-    {% include menu %}
-{% else %}
-    <!-- Hiển thị menu mặc định -->
-    {% include 'app1/Menu.html' %}
-{% endif %}
-    
-    {% block content %}
-    <section id="main">
-      <div class="main-container">
-        <h1 class="intro-heading">Chào Mừng Đến Với Sân Cầu Lông</h1>
-        <p>
-          Với thiết kế hiện đại và trang thiết bị đầy đủ, là không gian lý tưởng
-          cho mọi người yêu thể thao. Chúng tôi cung cấp sân tiêu chuẩn quốc tế,
-          tạo điều kiện tốt nhất cho cả vận động viên chuyên nghiệp và người
-          chơi yêu thích.
-        </p>
-        <button class="btn btn-primary" id="DatSan_button"><a href="{% url 'San'%}">Đặt sân</a></button>
-      </div>
-    </section>
-    <section class="services">
-      <div class="container">
-        <div class="section-title">
-          <h2>Sân Cầu Lông</h2>
-          <div class="line"></div>
->>>>>>> a8f7f91389f9d766cdb52e8b9d44784cd8f4d769
         </div>
       </section>
       <section class="services">
