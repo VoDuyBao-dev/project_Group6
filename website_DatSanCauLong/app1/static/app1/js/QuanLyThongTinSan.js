@@ -77,3 +77,12 @@ document.addEventListener("DOMContentLoaded", function () {
         deleteImageInput.value = "yes";
     });
 });
+
+    document.addEventListener("DOMContentLoaded", function () {
+    const messageBox = document.getElementById("message-box");
+    if (messageBox) {
+        setTimeout(() => {
+            messageBox.style.display = "none";
+        }, 3000); // Ẩn sau 3 giây
+    }
+});

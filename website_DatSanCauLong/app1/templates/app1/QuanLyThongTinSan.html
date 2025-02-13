@@ -34,6 +34,14 @@
         </section>
       </main>
 
+      {% if messages %}
+        <div id="message-box" class="message success show">
+          {% for message in messages %}
+            <p>{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
       <!-- Modal Chỉnh sửa -->
       <div id="editModal" class="modal">
         <div class="modal-content">
@@ -68,7 +76,7 @@
               <button type="button" id="deleteImageButton">Xóa ảnh</button>
             </div>
             <div>
-<label for="editImage">Chọn ảnh mới:</label>
+              <label for="editImage">Chọn ảnh mới:</label>
               <input type="file" id="editImage" name="image" />
             </div>
             <!-- Input ẩn để đánh dấu xóa ảnh nếu cần -->
@@ -95,7 +103,10 @@
         </div>
       </div>
 
-      <button class="add-court-btn" title="Thêm sân"><a href="{% url 'them_san' %}" style="color:white;">+</a></button>
+      <button class="add-court-btn" title="Thêm sân">
+        <a href="{% url 'them_san' %}" style="color:white;">+</a>
+      </button>
+
       <script src="{% static 'app1/js/QuanLyThongTinSan.js' %}"></script>
     {% endblock %}
     {% include 'app1/Footer.html' %}

@@ -695,40 +695,4 @@ def delete_court(request, court_id):
     return redirect("manager_san")
 
 def bao_cao(request):
-    report_type = request.GET.get('type', 'month')  # Lấy loại báo cáo (mặc định theo tháng)
-
-    # Báo cáo theo tháng
-    if report_type == "month":
-        data = (
-            RevenueReport.objects.values("generated_at__month")
-            .annotate(total=Sum("total_revenue"))
-            .order_by("generated_at__month")
-        )
-        labels = [f"Tháng {item['generated_at__month']}" for item in data]
-
-    # Báo cáo theo quý
-    elif report_type == "quarter":
-        data = (
-            RevenueReport.objects.values("generated_at__quarter")
-            .annotate(total=Sum("total_revenue"))
-            .order_by("generated_at__quarter")
-        )
-        labels = [f"Quý {item['generated_at__quarter']}" for item in data]
-
-    # Báo cáo theo năm
-    else:
-        data = (
-            RevenueReport.objects.values("generated_at__year")
-            .annotate(total=Sum("total_revenue"))
-            .order_by("generated_at__year")
-        )
-        labels = [f"Năm {item['generated_at__year']}" for item in data]
-
-    total_revenue = [item["total"] for item in data]
-
-    # Trả về giao diện HTML cùng dữ liệu
-    return render(request, "app1/BaoCaoDoanhThu.html", {
-        "labels": labels,
-        "data": total_revenue,
-        "report_type": report_type
-    })
+    return render(request, "app1/BaoCaoDoanhThu.html")
