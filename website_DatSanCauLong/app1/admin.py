@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from .models import *
+# Register your models here.
+
+    
 
 # Hàm tự động gán nhóm
 def add_user_to_group(user, group_name):

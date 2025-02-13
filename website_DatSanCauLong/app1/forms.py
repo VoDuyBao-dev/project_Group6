@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-
+from datetime import date
 from .models import TimeSlotTemplate
 from .models import Court
 import re
@@ -78,6 +78,7 @@ class SignUpForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
         username = cleaned_data.get("username")
+        full_name = cleaned_data.get("full_name")
         password = cleaned_data.get("password")
         confirm_password = cleaned_data.get("confirm_password")
         
@@ -91,6 +92,9 @@ class SignUpForm(forms.Form):
         # Kiểm tra tên người dùng
         if  User.objects.filter(username=username).exists():
             errors['username'] = "Người dùng đã tồn tại."
+
+        if not re.match(r'^[A-Za-zÀ-ỹ\s]+$', full_name):
+                errors['full_name'] = "Họ và tên chỉ được chứa chữ cái in hoa, in thường, dấu và khoảng trắng."
 
         if  password != confirm_password:
             errors['confirm_password'] = "Mật khẩu không khớp."
@@ -158,19 +162,11 @@ class ForgotPasswordForm(forms.Form):
         username = cleaned_data.get("username")
         errors = {}
 
-        # if not is_valid_email(username):
-        #     errors['username'] = "Email không hợp lệ."
-
-# Nếu người đăng nhập không thuộc group customer thì thông báo lỗi
-        user = User.objects.filter(username=username).first()
-        if user and user.groups.filter(name='Customer').exists():
-            if not is_valid_email(username):
-                errors['username'] = "Email không hợp lệ."
-
-
         if not User.objects.filter(username = username).exists():
             errors['username'] = "Người dùng không tồn tại."
 
+        if not is_valid_email(username):
+            errors['username'] = "Email không hợp lệ."
 
         for field, error in errors.items():
             self.add_error(field, error)
@@ -235,7 +231,9 @@ class RegisterPaymentAccountForm(forms.Form):
         max_length=100,
         widget=forms.TextInput(attrs={
             'placeholder': 'Nhập tên chủ tài khoản', 
-            'required': True
+            'required': True,
+            'id': 'accountHolder' 
+
         })
     )
     accountNumber = forms.CharField(
@@ -243,7 +241,8 @@ class RegisterPaymentAccountForm(forms.Form):
         max_length=50,
         widget=forms.TextInput(attrs={
             'placeholder': 'Nhập số tài khoản', 
-            'required': True
+            'required': True,
+            'id': 'accountNumber'
         })
     )
     paymentMethod = forms.ChoiceField(
@@ -291,6 +290,113 @@ class RegisterPaymentAccountForm(forms.Form):
             self.add_error(field, error)
 
         return cleaned_data  # Trả về dữ liệu đã làm sạch
+
+
+class FormChinhSuaThongTinCaNhan(forms.Form):
+    full_name = forms.CharField(
+        max_length=255,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Họ và tên',
+            'id': 'full_name_UpdateForm'
+        })
+    )
+    date_of_birth = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'placeholder': 'Ngày sinh',
+            'id': 'dob_UpdateForm'
+        })
+    )
+
+    # def __init__(self, *args, **kwargs):
+    #     # Lấy user và customer từ kwargs để điền dữ liệu vào form
+    #     self.user = kwargs.pop('user', None)
+    #     self.customer = kwargs.pop('customer', None)
+    #     super().__init__(*args, **kwargs)
+
+    #     # Nếu user và customer tồn tại, prepopulate dữ liệu vào form
+    #     if self.user:
+    #         self.fields['full_name'].initial = self.user.first_name
+    #     if self.customer:
+    #         self.fields['date_of_birth'].initial = self.customer.date_of_birth
+
+    def clean(self):
+        cleaned_data = super().clean()
+        full_name = cleaned_data.get("full_name")
+        date_of_birth = cleaned_data.get("date_of_birth")
+        
+        errors = {}
+
+        if not re.match(r'^[A-Za-zÀ-ỹ\s]+$', full_name):
+            errors['full_name'] = "Họ và tên chỉ được chứa chữ cái in hoa, in thường, dấu và khoảng trắng."
+
+        if date_of_birth and date_of_birth > date.today():
+            errors['date_of_birth'] = "Ngày sinh không được lớn hơn ngày hiện tại."
+            
+        for field, error in errors.items():
+            self.add_error(field, error)
+
+        return cleaned_data  # Trả về dữ liệu đã làm sạch
+
+# form thêm tài khoản của manage _ Quan lý tài khoản
+class AddAccountForm(forms.Form):
+    username = forms.CharField(
+        max_length=150,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Email',
+            'id': 'username_add_account'
+        })
+    )
+    
+    password = forms.CharField(
+        max_length=128,
+        required=True,
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Mật khẩu',
+            'id': 'password_add_account'
+        })
+    )
+
+    role = forms.ChoiceField(
+        choices=[
+            ('', 'Chọn vai trò'),
+            ('manage', 'Quản trị viên'),
+            ('staff', 'staff'),
+            ('user', 'Người dùng')
+        ],
+        required=True,
+        widget=forms.Select(attrs={
+            'id': 'role'
+        })
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get("username")
+        
+
+        #  Biến để lưu lỗi
+        errors = {}
+
+        if not is_valid_email(username):
+            errors['username'] = "Email không hợp lệ."
+        
+        # Kiểm tra tên người dùng
+        if  User.objects.filter(username=username).exists():
+            errors['username'] = "Người dùng đã tồn tại."
+            
+        # Nếu có lỗi, thêm vào biểu mẫu
+        for field, error in errors.items():
+            self.add_error(field, error)
+
+        return cleaned_data  # Trả về dữ liệu đã làm sạch
+
+
+
+
 
 
 

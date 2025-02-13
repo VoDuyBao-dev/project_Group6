@@ -15,11 +15,18 @@
     <div class="side-bar">
       <ul>
         <li>
+<<<<<<< HEAD
           <a href="{% url 'TrangChu' %}"><i class="fa-solid fa-house"></i> Trang Chủ</a>
+=======
+          <a href="{% url 'TrangChu'%}"
+            ><i class="fa-solid fa-house"></i> Trang Chủ</a
+          >
+>>>>>>> a8f7f91389f9d766cdb52e8b9d44784cd8f4d769
         </li>
         <li>
           <a href="{% url 'San' %}"><i class="fa-solid fa-list"></i> Sân Cầu Lông</a>
           <div class="sub-menu">
+<<<<<<< HEAD
             <a href="{% url 'San' %}">Thông tin các sân</a>
             {% if request.user.groups.all.0.name == 'Manager' %}
               <a href="{% url 'History' %}">Lịch sử đặt sân</a>
@@ -58,6 +65,37 @@
             <a href="{% url 'bao_cao' %}"><i class="fa-solid fa-clipboard"></i>Báo cáo doanh thu</a>
           </li>
         {% endif %}
+=======
+            <a href="{% url 'San'%}">Thông tin các sân</a>
+            <a href="#">Lịch sử đặt sân</a>
+          </div>
+        </li>
+        <li>
+          <a href="{% url 'price_list'%}"><i class="fa-solid fa-money-check-dollar"></i>Giá vé</a>
+        </li>
+        <li>
+          <a href="#"><i class="fa-solid fa-check-to-slot"></i>Check-in</a>
+        </li>
+        <li>
+          <a href="#"><i class="fa-solid fa-list-check"></i>Quản lý sân</a>
+          <div class="sub-menu">
+            <a href="{% url 'DangKyTaiKhoanThanhToan' %}">Thêm tài khoản thanh toán</a>
+            <a href="#">Quản lý thông tin sân</a>
+            <a href="#">Thêm sân mới</a>
+          </div>
+        </li>
+        <li>
+          <a href="#"
+            ><i class="fa-solid fa-calendar"></i>Quản lý lịch thi đấu</a
+          >
+        </li>
+        <li>
+          <a href="{% url 'AddAccount_Manage'%}"><i class="fa-solid fa-user"></i>Quản lý tài khoản</a>
+        </li>
+        <li>
+          <a href="#"><i class="fa-solid fa-clipboard"></i>Báo cáo doanh thu</a>
+        </li>
+>>>>>>> a8f7f91389f9d766cdb52e8b9d44784cd8f4d769
       </ul>
     </div>
   </body>

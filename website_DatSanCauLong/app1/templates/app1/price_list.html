@@ -11,6 +11,7 @@
 
   <body>
     {% include 'app1/Header-user.html' %}
+<<<<<<< HEAD
 
     {% if request.user.groups.all.0.name == 'Customer' %}
       {% include 'app1/Menu.html' %}
@@ -18,6 +19,9 @@
       {% include 'app1/Menu-manager.html' %}
     {% endif %}
 
+=======
+    {% include menu %}
+>>>>>>> a8f7f91389f9d766cdb52e8b9d44784cd8f4d769
     {% block content %}
       <div class="container">
         <h1 class="title">BẢNG GIÁ THUÊ SÂN</h1>

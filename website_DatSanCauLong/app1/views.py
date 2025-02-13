@@ -13,8 +13,9 @@ from django.utils import timezone
 from datetime import timedelta, datetime
 from django.http import JsonResponse
 from .models import *
-
 import json
+# import nanoid
+from .models import TimeSlotTemplate
 
 
 import nanoid
@@ -22,6 +23,7 @@ from .models import TimeSlotTemplate, Court, Booking, Payment, PaymentAccount
 from .forms import TimeSlotTemplateForm  # Sẽ tạo file form ở bước tiếp theo
 from django.shortcuts import get_object_or_404
 from .models import BadmintonHall
+from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -42,23 +44,16 @@ def handle_send_otp(request, form_input):
         send_otp_email(username, otp)
         
 
-def TrangChu(request):
-    search_court = SearchForm() 
-    context = {'searchCourt': search_court}  
-    return render(request, 'app1/TrangChu.html', context)
-def header_user(request):
-    search_court = SearchForm() 
-    context = {'searchCourt': search_court}  
-    return render(request, 'app1/Header-user.html',context)
 
-def menu(request):
-    return render(request, 'app1/Menu.html')
+
+
+def header_user(request):
+
+    return render(request, 'app1/Header-user.html')
 
 def menu_manager(request):
     return render(request, 'app1/Menu-manager.html')
 
-def footer(request):
-    return render(request, 'app1/Footer.html')
 
 class Sign_Up(View):
     def get(self, request):
@@ -100,7 +95,7 @@ def trangOTP(request):
 def create_user_account(username, full_name, password):
     try:
         # Tạo đối tượng User trong database
-        user = User.objects.create_user(username=username, first_name=full_name, password=password)
+        user = User.objects.create_user(username=username,email=username ,first_name=full_name, password=password)
         user.save()
         return user
     except Exception:
@@ -234,6 +229,20 @@ class Sign_In(View):
             login(request, user)
             request.session['failed_attempts'] = 0  # Reset số lần sai
 
+            # Xác định loại tài khoản (Customer hoặc CourtManager)
+            user_role = None
+            if hasattr(user, 'customer'):
+                user_role = 'customer'
+            elif hasattr(user, 'court_manager'):
+                user_role = 'manage'
+            elif hasattr(user, 'system_admin'):
+                user_role = 'admin'
+            else:
+                user_role = 'staff'
+
+            # Lưu loại tài khoản vào session
+            request.session['user_role'] = user_role
+
             # Chuyển hướng về trang chủ sau khi đăng nhập thành công
             # response = redirect('TrangChu')
             response = redirect_user(user)
@@ -254,6 +263,29 @@ class Sign_In(View):
                 context['error_message'] = "Email hoặc mật khẩu không đúng."
 
             return render(request, 'app1/Sign_in.html', context)
+
+def get_user_role(request):
+    return request.session.get('user_role', None) 
+
+def get_menu_by_role(user_role):
+    if user_role == 'manage' or user_role == 'admin' or user_role == 'staff':
+        return 'app1/Menu-manager.html'
+    elif user_role == 'customer':
+        return 'app1/Menu.html'
+
+    
+def TrangChu(request):
+     
+    # Lấy thông tin user_role từ session
+    user_role = get_user_role(request)
+
+    menu = get_menu_by_role(user_role)
+    
+    context = {
+        'menu': menu
+    }  
+    return render(request, 'app1/TrangChu.html', context)
+
 # Quên mật khẩu
 class ForgotPassword(View):
     def get(self,request):
@@ -334,16 +366,17 @@ def History(request):
 
 
 # def price_list(request):
-#     search_court = SearchForm() 
-#     context = {'searchCourt': search_court}  
-#     return render(request, 'app1/price_list.html',context)
+#     
+#     return render(request, 'app1/price_list.html')
 
 def San(request):
     courts = Court.objects.all()
-    search_court = SearchForm()
+    user_role = get_user_role(request)
+    menu = get_menu_by_role(user_role)
+
     context = {
         'courts': courts,
-        'searchCourt': search_court
+        'menu': menu
     }
     return render(request, 'app1/San.html', context)
 
@@ -371,7 +404,6 @@ class SearchCourt(View):
                 results = Court.objects.filter(filters).order_by('name')  # Thực hiện tìm kiếm với bộ lọc
                 
         context = {
-            'searchCourt': search_court,
             'courts': results  # Trả về kết quả tìm kiếm
         }
         return render(request, 'app1/kqTimKiem.html', context)
@@ -381,19 +413,17 @@ class DangKyTaiKhoanThanhToan(View):
 
     def get(self,request):
         register_payment_Account=RegisterPaymentAccountForm()
-        search_court = SearchForm()
+
         context = {
             'Register_Payment_Account': register_payment_Account,
-            'searchCourt': search_court
         }
         return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
 
     def post(self,request):
         register_payment_Account=RegisterPaymentAccountForm(request.POST)
-        search_court = SearchForm()
+        
         context = {
             'Register_Payment_Account': register_payment_Account,
-            'searchCourt': search_court
         }
 
         if not register_payment_Account.is_valid():
@@ -413,6 +443,81 @@ class DangKyTaiKhoanThanhToan(View):
 
         return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
 
+# Thôg tin cá nhân
+def ThongTinCaNhan(request):
+    user = request.user  # Lấy thông tin người dùng đã đăng nhập
+
+    # Kiểm tra loại tài khoản
+    if hasattr(user, 'customer'):  # Nếu user là Customer
+        role = 'customer'
+        profile = user.customer  # Lấy thông tin từ bảng Customer
+    # elif hasattr(user, 'court_manager'):  # Nếu user là Court Manager
+    #     role = 'manager'
+    #     profile = user.court_manager  # Lấy thông tin từ bảng Court Manager
+    # elif hasattr(user, 'system_admin'):  # Nếu user là system_admin
+    #     role = 'admin'
+    #     profile = user.system_admin  # Lấy thông tin từ bảng system_admin
+    else:
+        role = 'other'  # User không có role cụ thể
+        profile = 'none'
+
+    # Truyền thông tin vào context
+    context = {
+        'user': user,  
+        'role': role,  # Truyền loại tài khoản vào template
+        'profile': profile,  # Truyền thông tin profile cụ thể
+    }
+    return render(request, 'app1/ThongTinCaNhan.html', context)
+
+
+# Chỉnh sửa thông tin cá nhân
+class ChinhSuaThongTinCaNhan(View):
+    
+    def get(self, request):
+        user = request.user  # Lấy thông tin người dùng đã đăng nhập
+        # Kiểm tra loại tài khoản
+        if hasattr(user, 'customer'):  # Nếu user là Customer
+            role = 'customer'
+            profile = user.customer 
+        else:
+            role = 'other'  # User không có role cụ thể
+            profile = 'none'
+        ChinhSuaThongTin = FormChinhSuaThongTinCaNhan()
+        context = {
+            "ChinhSuaThongTin" : ChinhSuaThongTin,
+            'role': role,  # Truyền loại tài khoản vào template
+            'profile': profile,
+        } 
+        return render(request, 'app1/ChinhSuaThongTin.html', context)
+
+    def post(self, request):
+        ChinhSuaThongTin = FormChinhSuaThongTinCaNhan(request.POST)
+        context = {"ChinhSuaThongTin" : ChinhSuaThongTin} 
+
+        if not ChinhSuaThongTin.is_valid():
+            return render(request, 'app1/ChinhSuaThongTin.html', context)
+        
+        user = request.user
+        
+        #  Nếu dữ liệu hợp lệ:
+        # Lấy dữ liệu
+        full_name = ChinhSuaThongTin.cleaned_data['full_name']
+        date_of_birth = ChinhSuaThongTin.cleaned_data['date_of_birth']
+        if full_name:
+            user.first_name = full_name
+            user.save()
+        # cập nhật ngày sinh cho customer
+        if date_of_birth:
+            try:
+                customer = user.customer # Liên kết OneToOne với Customer
+                customer.date_of_birth = date_of_birth
+                customer.save()        
+            except Exception as e:
+                messages.error(request, f"Lỗi khi cập nhật ngày sinh: {str(e)}")
+                return render(request, 'app1/ChinhSuaThongTin.html', context)
+       
+        messages.success(request, "Chỉnh sửa thông tin thành công!")
+        return redirect('ThongTinCaNhan')
 def lichThiDau(request):
     return render(request, 'app1/LichThiDau.html')
 
@@ -481,9 +586,6 @@ def manager_taikhoan(request):
 
 
 
-
-
-
 # class ForgotPassword(View):
 
 #     def get(self,request):
@@ -498,39 +600,7 @@ def manager_taikhoan(request):
 #         if 'send_otp' in request.POST:
 #             handle_send_otp(request, ForgotPassword_Form, context)
 #             return render(request, 'QuanLiUser/Forgot_Password.html', context)
-        
-
-
-        
-    
-
-
-
-
-
-
-
-def header_guest(request):
-    return render(request, 'app1/Header-guest.html')
-
-def header_customer(request):
-    return render(request, 'app1/Header-customer.html')
-
-def manager_taikhoan(request):
-    return render(request, 'app1/QuanLyTaiKhoan.html')
-
-def manager_san(request):
-    return render(request, 'app1/QuanLyThongTinSan.html')
-
-def ThongTinCaNhan(request):
-    return render(request, 'app1/ThongTinCaNhan.html')
-
-def ChinhSuaThongTin(request):
-    return render(request, 'app1/ChinhSuaThongTin.html')
-
-
-
-
+ 
 
 # từ khúc này là con Lan làm có gì thì né né ra nha.
 
@@ -572,7 +642,15 @@ def delete_time_slot(request, slot_id):
 # lấy thông tin từ cơ sở dữ liệu của lịch sau đó hiển thị ra giao diện.
 def price_list(request):
     time_slots = TimeSlotTemplate.objects.all()
-    return render(request, "app1/price_list.html", {"time_slots": time_slots})
+    user_role = get_user_role(request)
+    menu = get_menu_by_role(user_role)
+    
+    context = {
+        'menu': menu,
+        "time_slots": time_slots
+    }  
+    
+    return render(request, "app1/price_list.html", context)
 
 
 # thêm dữ liệu của một sân cầu lông mới(thêm một chi nhánh)
@@ -632,6 +710,165 @@ def them_san(request):
     return render(request, 'app1/them_san.html', {"courts": courts, "badminton_halls": badminton_halls})
 
 
+def getAll_role_User():
+    users_with_roles = []
+
+    for user in User.objects.all():
+        if hasattr(user, 'system_admin'):  
+            role = "Admin"
+        elif hasattr(user, 'court_manager'):  
+            role = "Quản lý"
+        elif hasattr(user, 'court_staff'):  
+            role = "Staff"
+        else:
+            role = "Người dùng"  
+
+        if role != "Admin":
+            users_with_roles.append({
+                "id": user.id,
+                "username": user.username,
+                "first_name": user.first_name,
+                "role": role
+            })
+
+    return users_with_roles
+
+def Account_Management(request):
+    Add_Account_Form = AddAccountForm()
+    # Danh sách người dùng kèm vai trò
+    users_with_roles = getAll_role_User()
+
+    context = {
+        "Add_Account_Form": Add_Account_Form,
+        "users_with_roles": users_with_roles
+    }
+    return render(request, 'app1/QuanLyTaiKhoan.html', context)
+
+def AddAccount_Manage(request):
+    print(f"Request method: {request.method}")  
+    if request.method == "POST":
+        Add_Account_Form = AddAccountForm(request.POST)
+      
+
+        if not Add_Account_Form.is_valid():
+            messages.error(request, "Form không hợp lệ. Vui lòng kiểm tra lại.")
+            return redirect('Account_Management')
+
+        # Lấy thông tin từ form
+        username = Add_Account_Form.cleaned_data['username']
+        password = Add_Account_Form.cleaned_data['password']
+        role = Add_Account_Form.cleaned_data['role']
+
+        try:
+            with transaction.atomic():
+                # Tạo user mới
+                user = User.objects.create_user(username=username, password=password)
+
+                # Nếu vai trò là quản lý thì tạo CourtManager
+                if role == "manage":
+                    CourtManager.objects.create(user=user)
+                    # Nếu vai trò là quản lý thì tạo CourtManager
+                elif role == "staff":
+                    CourtStaff.objects.create(user=user)
+
+                # Nếu vai trò là người dùng, không cần tạo thêm Customer (xử lý tự động qua signal)
+                messages.success(request, "Thêm tài khoản mới thành công!")
+
+        except Exception as e:
+            messages.error(request, f"Lỗi khi thêm tài khoản: {str(e)}")
+
+        # Redirect về trang quản lý tài khoản
+        return redirect('Account_Management')
+    elif request.method == "GET":
+        # Chuyển hướng về trang quản lý tài khoản nếu truy cập qua GET
+        return redirect('Account_Management')
+    
+    # Nếu không phải POST hoăcj GET, trả về lỗi
+    messages.error(request, "Lỗi phương thức.")
+    return redirect('Account_Management')
+        
+# Xóa tài khoản
+def delete_user(request, user_id):
+    if request.method == "POST":
+        try:
+            user = User.objects.get(pk=user_id)
+            user.delete()
+            return JsonResponse({"message": "Tài khoản đã được xóa!"}, status=200)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "Tài khoản không tồn tại!"}, status=404)
+    return JsonResponse({"error": "Yêu cầu không hợp lệ!"}, status=400)
+
+
+def Update_account(request, user_id):
+    if request.method == "POST":
+        # Lấy thông tin user cần cập nhật
+        user = get_object_or_404(User, id=user_id)
+
+        # Lấy dữ liệu từ form
+        new_password = request.POST.get("password", "").strip()
+        new_role = request.POST.get("role", "").strip()
+
+        # Cập nhật password nếu có
+        if new_password:
+            user.set_password(new_password)
+
+        # Xóa tất cả vai trò cũ trước khi thêm vai trò mới
+        CourtManager.objects.filter(user=user).delete()
+        CourtStaff.objects.filter(user=user).delete()
+        Customer.objects.filter(user=user).delete()
+
+        if new_role:
+            if new_role == "manage":
+                CourtManager.objects.get_or_create(user=user)
+                
+            elif new_role == "staff":
+                CourtStaff.objects.get_or_create(user=user)
+                
+            elif new_role == "customer":
+                Customer.objects.get_or_create(user=user)
+                
+            
+        # Lưu thay đổi
+        user.save()
+
+        return JsonResponse({"status": "success", "message": "Tài khoản đã được cập nhật."})
+
+    return JsonResponse({"status": "error", "message": "Yêu cầu không hợp lệ."}, status=400)
+
+
+
+def menu(request):
+    return render(request, 'app1/Menu.html')
+
+# def menu_manager(request):
+#     return render(request, 'app1/Menu-manager.html')
+
+
+
+# tươg lai xóa
+# def manager_taikhoan(request):
+#     return render(request, 'app1/QuanLyTaiKhoan.html')
+
+def manager_san(request):
+    return render(request, 'app1/QuanLyThongTinSan.html')
+
+def lichThiDau(request):
+    return render(request, 'app1/LichThiDau.html')
+
+def themSan(request):
+    return render(request, 'app1/ThemSanMoi.html')
+
+def booking(request):
+    return render(request, 'app1/Book.html')
+
+def payment(request):
+    return render(request, 'app1/payment.html')
+
+def manager_taikhoan(request):
+    return render(request, 'app1/QuanLyTaiKhoan.html')
+
+def manager_san(request):
+    return render(request, 'app1/QuanLyThongTinSan.html')
 # quản lý thông tin sân cầu lông
 def manager_san(request):
     courts = Court.objects.all()

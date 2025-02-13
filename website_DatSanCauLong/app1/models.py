@@ -1,7 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
 import nanoid
+
 
 
 class PaymentAccount(models.Model):
@@ -34,7 +34,7 @@ def generate_short_id():
 class Customer(models.Model):
     customer_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
-    # stk = models.CharField(max_length=20, null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)  # Trường ngày sinh
     def __str__(self):
         return self.user.username
 
@@ -154,7 +154,7 @@ class Payment(models.Model):
 class CourtStaff(models.Model):
     court_staff_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_staff')
-    court = models.OneToOneField(Court, on_delete=models.CASCADE, related_name='court_staff')  # Thêm liên kết với một sân
+    court = models.OneToOneField(Court, on_delete=models.CASCADE, related_name='court_staff', null=True)  # Thêm liên kết với một sân
 
     # def __str__(self):
     #     return f"{self.user.username} - {self.badminton_hall.name}"

@@ -46,15 +46,15 @@ def get_otp_from_gmail(email_user, email_password):
         print("Lỗi khi truy cập Gmail:", e)
         return None
 
-
+from decouple import config
 # Thông tin tài khoản Gmail
-# email_user = "voduybao192005@gmail.com"
-# email_password = "sgnk ryus bmeb zcxt"
+email_user = config("EMAIL_USER")
+email_password = config("EMAIL_PASSWORD")
 
-# # Lấy mã OTP
-# otp_code = get_otp_from_gmail(email_user, email_password)
+# Lấy mã OTP
+otp_code = get_otp_from_gmail(email_user, email_password)
 
-# if otp_code:
-#     print("Mã OTP là:", otp_code)
-# else:
-#     print("Không thể lấy mã OTP.")
+if otp_code:
+    print("Mã OTP là:", otp_code)
+else:
+    print("Không thể lấy mã OTP.")
