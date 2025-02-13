@@ -212,6 +212,10 @@ class Sign_In(View):
                 user_role = 'customer'
             elif hasattr(user, 'court_manager'):
                 user_role = 'manage'
+            elif hasattr(user, 'system_admin'):
+                user_role = 'admin'
+            else:
+                user_role = 'staff'
 
             # Lưu loại tài khoản vào session
             request.session['user_role'] = user_role
@@ -240,12 +244,11 @@ def get_user_role(request):
     return request.session.get('user_role', None) 
 
 def get_menu_by_role(user_role):
-    if user_role == 'customer':
-        return 'app1/Menu.html'
-    elif user_role == 'manage':
+    if user_role == 'manage' or user_role == 'admin' or user_role == 'staff':
         return 'app1/Menu-manager.html'
-    else:
-        return 'app1/Menu.html'  
+    elif user_role == 'customer':
+        return 'app1/Menu.html'
+
     
 def TrangChu(request):
      
@@ -576,7 +579,15 @@ def delete_time_slot(request, slot_id):
 # lấy thông tin từ cơ sở dữ liệu của lịch sau đó hiển thị ra giao diện.
 def price_list(request):
     time_slots = TimeSlotTemplate.objects.all()
-    return render(request, "app1/price_list.html", {"time_slots": time_slots})
+    user_role = get_user_role(request)
+    menu = get_menu_by_role(user_role)
+    
+    context = {
+        'menu': menu,
+        "time_slots": time_slots
+    }  
+    
+    return render(request, "app1/price_list.html", context)
 
 
 # thêm dữ liệu của một sân cầu lông mới(thêm một chi nhánh)
@@ -656,9 +667,10 @@ def Account_Management(request):
     return render(request, 'app1/QuanLyTaiKhoan.html', context)
 
 def AddAccount_Manage(request):
+    print(f"Request method: {request.method}")  
     if request.method == "POST":
         Add_Account_Form = AddAccountForm(request.POST)
-        users_with_roles = getAll_role_User()
+      
 
         if not Add_Account_Form.is_valid():
             messages.error(request, "Form không hợp lệ. Vui lòng kiểm tra lại.")
@@ -689,8 +701,11 @@ def AddAccount_Manage(request):
 
         # Redirect về trang quản lý tài khoản
         return redirect('Account_Management')
+    elif request.method == "GET":
+        # Chuyển hướng về trang quản lý tài khoản nếu truy cập qua GET
+        return redirect('Account_Management')
     
-    # Nếu không phải POST, trả về lỗi
+    # Nếu không phải POST hoăcj GET, trả về lỗi
     messages.error(request, "Lỗi phương thức.")
     return redirect('Account_Management')
         
