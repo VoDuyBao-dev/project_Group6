@@ -64,14 +64,8 @@ class SystemAdmin(models.Model):
     systemAdmin_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='system_admin')
 
-import uuid
 class BadmintonHall(models.Model):
-    badminton_hall_id = models.CharField(
-        primary_key=True, 
-        default=uuid.uuid4, 
-        editable=False, 
-        max_length=36  
-    )
+    badminton_hall_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     name = models.CharField(max_length=255)
     address = models.TextField()
 
@@ -131,46 +125,67 @@ class Slot(models.Model):
     court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='slots') # Gắn với sân
     template = models.ForeignKey(TimeSlotTemplate, on_delete=models.CASCADE, related_name='slots')
 
-import uuid
+
 # Booking model
-import uuid
 from django.db import models
 from django.utils import timezone
 
 class Booking(models.Model):
-    booking_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  # Tự động tạo UUID hợp lệ
+    booking_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
+    
     BOOKING_TYPES = (
         ('fixed', 'Fixed'),
         ('daily', 'Daily'),
         ('flexible', 'Flexible'),
     )
-    customer = models.ForeignKey("Customer", on_delete=models.CASCADE, related_name='bookings')
-    court = models.ForeignKey("Court", on_delete=models.CASCADE, related_name='bookings')
-    slot = models.ForeignKey("Slot", on_delete=models.CASCADE, related_name='bookings')
+    
+    customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='bookings')
+    court_id = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='bookings')
+    slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name='bookings', null=True, blank=True)
     booking_type = models.CharField(max_length=20, choices=BOOKING_TYPES)
     date = models.DateField()
-    start_time = models.TimeField(default='00:00:00')
-    end_time = models.TimeField(default='00:00:00')
-    status = models.BooleanField(default=False)  # True: Đã đặt, False: Đã hủy
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    status = models.BooleanField(default=False)  # đã đặt hoặc đã hủy
 
-    def __str__(self):
-        return f"Booking for {self.customer} on {self.date} at {self.start_time}"
+    def clean(self):
+        """Kiểm tra dữ liệu hợp lệ trước khi lưu"""
+        if self.start_time >= self.end_time:
+            raise ValidationError("Start time must be before end time.")
+
+    def assign_slot(self):
+        """Gán slot_id dựa vào start_time và end_time"""
+        matching_slots = Slot.objects.filter(
+            start_time__lte=self.start_time,
+            end_time__gte=self.end_time
+        )
+        if matching_slots.exists():
+            self.slot_id = matching_slots.first()
+        else:
+            raise ValidationError("No available slot matches the selected time range.")
 
     def save(self, *args, **kwargs):
-        # Kiểm tra ràng buộc: Không được đặt sân quá 1 năm sau ngày hiện tại
-        max_booking_date = timezone.now().date() + timezone.timedelta(days=365)
-        if self.date > max_booking_date:
-            raise ValueError("Không thể đặt sân trước quá 1 năm!")
+        self.clean()  # Kiểm tra dữ liệu hợp lệ
+        self.assign_slot()  # Tự động gán slot_id
+        super().save(*args, **kwargs)
 
-        # Kiểm tra ràng buộc: Không thể đặt ngày trong quá khứ
-        if self.date < timezone.now().date():
-            raise ValueError("Không thể đặt sân vào ngày trong quá khứ!")
+    def __str__(self):
+        return f"Booking for {self.customer_id} on {self.date} from {self.start_time} to {self.end_time}"
 
-        # Kiểm tra giờ đặt hợp lệ
-        if self.start_time >= self.end_time:
-            raise ValueError("Giờ bắt đầu phải nhỏ hơn giờ kết thúc!")
-
-        super().save(*args, **kwargs)  # Lưu booking vào database
+class Payment(models.Model):
+    payment_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
+    booking_id = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='payment')
+    customer_id = models.OneToOneField(Customer, on_delete=models.CASCADE, related_name='payment')
+    payment_account = models.ForeignKey(
+        PaymentAccount,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='payments'
+    )
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_date = models.DateTimeField(auto_now_add=True)
+    status = models.BooleanField(default=False) # đã thanh toán hay chưa
 
 
 class Payment(models.Model):

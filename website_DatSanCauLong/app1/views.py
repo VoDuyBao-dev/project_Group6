@@ -658,24 +658,42 @@ def them_san_moi(request):
 
     return render(request, "app1/them_san_moi.html")
 
-
 def them_san(request):
     if request.method == "POST":
-        badminton_hall_id = request.POST.get('address')
+        badminton_hall_id = request.POST.get('address') 
         name = request.POST.get('name')
         image = request.FILES.get('image') 
-        status = request.POST.get('status')
 
-        # Kiểm tra nếu tên hoặc địa chỉ bị bỏ trống
-        if not name or not badminton_hall_id or not status:
+        # Kiểm tra nếu có trường bị bỏ trống
+        if not name or not badminton_hall_id:
             messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
             return redirect('them_san')
+
+        if Court.objects.filter(name=name).exists():
+            messages.error(request, "Sân này đã tồn tại!")
+            return redirect("them_san")
+
+        # Lấy thông tin nhà thi đấu
         badminton_hall = get_object_or_404(BadmintonHall, badminton_hall_id=badminton_hall_id)
-        # Lưu dữ liệu nếu hợp lệ
-        Court.objects.create(badminton_hall=badminton_hall, name=name, image=image, status=status)
+
+        # Tạo sân mới (ID sẽ tự động được tạo bởi `default=generate_short_id`)
+        court = Court.objects.create(
+            badminton_hall=badminton_hall,
+            name=name,
+            image=image,
+        )
         messages.success(request, "Thêm sân mới thành công!")
+
+        # Lấy tất cả TimeSlotTemplate
+        time_slots = TimeSlotTemplate.objects.all()
+
+        # Tạo danh sách Slot (sử dụng bulk_create để tối ưu hiệu suất)
+        slot_list = [Slot(court=court, template=time_slot) for time_slot in time_slots]
+        Slot.objects.bulk_create(slot_list)
+
         return redirect('them_san')
 
+    # Hiển thị danh sách sân và nhà thi đấu
     courts = Court.objects.all()
     badminton_halls = BadmintonHall.objects.all()
     return render(request, 'app1/them_san.html', {"courts": courts, "badminton_halls": badminton_halls})
