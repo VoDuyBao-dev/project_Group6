@@ -321,8 +321,6 @@ def History(request):
     return render(request, 'app1/LichSuDatSan.html')
 
 
-def payment_view(request):
-    return render(request, "app1/payment.html")
 # def price_list(request):
 #     search_court = SearchForm() 
 #     context = {'searchCourt': search_court}  
@@ -429,8 +427,16 @@ def themSan(request):
 def booking(request):
     return render(request, 'app1/Book.html')
 
+from django.shortcuts import render, get_object_or_404
+from app1.models import Booking
+from decimal import Decimal
+@login_required
 def payment(request, booking_id, court_id):
-    return render(request, 'app1/payment.html')
+    booking = get_object_or_404(Booking, booking_id=booking_id, court_id=court_id)
+    amount = Decimal(booking.amount).quantize(Decimal("0.001"))  
+    
+    return render(request, 'app1/payment.html', {'booking': booking, 'amount': amount})
+
 
 def manager_taikhoan(request):
     return render(request, 'app1/QuanLyTaiKhoan.html')
@@ -542,7 +548,7 @@ def booking_view(request, court_id=None):
                 # Làm tròn đến 3 chữ số thập phân
             price = price.quantize(Decimal('0.001'), rounding=ROUND_HALF_UP)
             logger.info(f"Tổng tiền: {price}")
-
+            print(f"Debug - Giá tiền đã làm tròn: {price}")
             # Lưu booking
             booking = Booking.objects.create(
                 customer_id=request.user.customer.customer_id,

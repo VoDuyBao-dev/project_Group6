@@ -62,9 +62,16 @@ class BadmintonHall(models.Model):
     badminton_hall_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     name = models.CharField(max_length=255)
     address = models.TextField()
+    court_manager = models.ForeignKey(
+        CourtManager, 
+        on_delete=models.CASCADE, 
+        related_name='halls'  # Cho phép truy xuất từ CourtManager
+    )
 
     def __str__(self):
         return self.name
+
+
 
 # Court model
 class Court(models.Model):

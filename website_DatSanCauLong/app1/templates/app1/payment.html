@@ -1,60 +1,64 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="vi">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hóa đơn Thanh toán</title>
     <link rel="stylesheet" href="{% static 'app1/CSS/payment.css' %}" />
     <script src="{% static 'app1/js/payment.js' %}"></script>
     <script src="{% static 'app1/js/layout-customer.js' %}"></script>
-  </head>
+</head>
 
-  <body>
+<body>
     {% include 'app1/Header-user.html' %}
     {% block content %}
-      <div class="invoice">
+    <div class="invoice">
         <h2>Hóa đơn Thanh toán</h2>
         <div class="invoice-details">
-          {% if user.is_authenticated %}
-            <p><strong>Khách hàng:</strong> {{ user.username }}</p>
-          {%endif%}
-          <p><strong>Tên sân:</strong> Sân 1</p>
-          <p><strong>Loại lịch:</strong> Lịch cố định</p>
-          <p><strong>Giờ:</strong> 01:30 CH</p>
-          <p><strong>Địa điểm:</strong> Đường XYZ, Quận ABC</p>
-          <p><strong>Mã đặt lịch:</strong> Sân 1</p>
-          <p><strong>Giá:</strong> Lịch cố định</p>
-          <p class="total">Tổng cộng: 35,000,000 VND</p>
+            {% if user.is_authenticated %}
+                <p><strong>Khách hàng:</strong> {{ user.username }}</p>
+            {% endif %}
+            <p><strong>Tên sân:</strong> {{ booking.court.name }}</p>
+            <p><strong>Loại lịch:</strong> 
+                {% if booking.booking_type == "fixed" %} Lịch cố định
+                {% elif booking.booking_type == "daily" %} Lịch theo ngày
+                {% elif booking.booking_type == "flexible" %} Lịch linh hoạt
+                {% else %} Không xác định {% endif %}
+            </p>
+            <p><strong>Giờ:</strong> {{ booking.start_time|time:"H:i" }} - {{ booking.end_time|time:"H:i" }}</p>
+            <p><strong>Ngày:</strong> {{ booking.date|date:"d/m/Y" }}</p>
+            <p><strong>Địa điểm:</strong> {{ booking.court.badminton_hall }}  - {{booking.court.badminton_hall.address}}</p>
+            <p><strong>Mã đặt lịch:</strong> {{ booking.booking_id }} </p>
+            <p class="total">Tổng cộng:  {{ amount|floatformat:3 }} VND</p>
         </div>
         <div class="payment-method">
-          <h3>Thông tin thanh toán</h3>
-          <div class="bank-details">
-            <p>
-              <strong>Ví điện tử:</strong> Momo
-            </p>
-            <p>
-              <strong>Số điện thoại:</strong> 0909 123 456
-            </p>
-          </div>
-          <div class="bank-details">
-            <p>
-              <strong>Ngân hàng:</strong> Vietcombank
-            </p>
-            <p>
-              <strong>Chủ tài khoản:</strong> Nguyễn Văn A
-            </p>
-            <p>
-              <strong>Số tài khoản:</strong> 1234 5678 9101 1121
-            </p>
-          </div>
+            <h3>Thông tin thanh toán</h3>
+
+{% if payment_account %}
+    <div class="payment-info">
+        <div class="payment-method">
+            <strong>Ví điện tử:</strong> {{ payment_account.wallet_type }} <br>
+            <strong>Số điện thoại:</strong> {{ payment_account.phone_number }}
+        </div>
+
+        <div class="payment-method">
+            <strong>Ngân hàng:</strong> {{ payment_account.bank_name }} <br>
+            <strong>Chủ tài khoản:</strong> {{ payment_account.account_holder }} <br>
+            <strong>Số tài khoản:</strong> {{ payment_account.bank_account }}
+        </div>
+    </div>
+{% else %}
+    <p>Chưa có thông tin thanh toán. Vui lòng cập nhật!</p>
+{% endif %}
+
         </div>
         <div class="button-container">
-          <button class="btn btn-cancel" onclick="cancelPayment()">Hủy</button>
-          <button class="btn btn-confirm" onclick="confirmPayment()">Xác nhận thanh toán</button>
+            <button class="btn btn-cancel" onclick="cancelPayment()">Hủy</button>
+            <button class="btn btn-confirm" onclick="confirmPayment()">Xác nhận thanh toán</button>
         </div>
-      </div>
+    </div>
     {% endblock %}
     {% include 'app1/Footer.html' %}
-  </body>
+</body>
 </html>
