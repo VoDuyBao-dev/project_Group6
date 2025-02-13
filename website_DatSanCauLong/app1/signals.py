@@ -3,31 +3,35 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User, Group
 from app1.models import SystemAdmin, CourtStaff, CourtManager  
 
-# Đảm bảo tất cả nhóm luôn tồn tại trước khi thêm user
-def ensure_groups_exist():
-    groups = ["Admin", "Court_staff", "Manager", "Customer"]
-    for group_name in groups:
-        Group.objects.get_or_create(name=group_name)
+with open("debug.log", "a") as f:
+    f.write(f"instance : \n")
+    f.write(f" \n")
 
-# Đăng ký signal
+# # Đăng ký signal
 @receiver(post_save, sender=User)
 def assign_user_to_group(sender, instance, created, **kwargs):
-    """Tự động thêm người dùng vào nhóm phù hợp khi được tạo"""
     if created:  # Chỉ chạy khi user vừa được tạo mới
-        ensure_groups_exist()  # Đảm bảo tất cả nhóm đã tồn tại
-
         if instance.is_superuser:  # Nếu là superuser -> nhóm Admin
-            admin_group = Group.objects.get(name="Admin")
-            instance.groups.add(admin_group)
+            group, created = Group.objects.get_or_create(name='Admin')
+            instance.groups.add(group)
+            SystemAdmin.objects.create(user=instance)  # Thêm người dùng vào model SystemAdmin
+            with open("debug.log", "a") as f:
+                f.write(f"instance : instance\n")
+                f.write(f" \n")
 
-        elif hasattr(instance, "court_staff"):  # Nếu là CourtStaff -> nhóm CourtStaff
-            staff_group = Group.objects.get(name="Court_staff")
-            instance.groups.add(staff_group)
+        elif hasattr(instance, CourtStaff):
+            group, created = Group.objects.get_or_create(name='Court_staff')
+            instance.groups.add(group)
+            CourtStaff.objects.create(user=instance)  # Thêm người dùng vào model CourtStaff         
 
-        elif hasattr(instance, "court_manager"):  # Nếu là CourtManager -> nhóm CourtManager
-            manager_group = Group.objects.get(name="Manager")
-            instance.groups.add(manager_group)
-
+        elif hasattr(instance, CourtManager): 
+            group, created = Group.objects.get_or_create(name='Manager')
+            instance.groups.add(group)
+            CourtManager.objects.create(user=instance)  # Thêm người dùng vào model CourtManager
+                
         else:  # Mặc định, tất cả user còn lại thuộc nhóm "Customer"
-            customer_group = Group.objects.get(name="Customer")
-            instance.groups.add(customer_group)
+            group, created = Group.objects.get_or_create(name='Customer')
+            instance.groups.add(group)
+
+
+

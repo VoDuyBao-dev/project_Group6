@@ -752,13 +752,13 @@ def booking(request, court_id):
         else:
             price = Decimal('0.00')
 
-        with open("debug.log", "a") as f:
-            f.write(f"price : {price}\n")
-            f.write(f" \n")
+        # with open("debug.log", "a") as f:
+        #     f.write(f"price : {price}\n")
+        #     f.write(f" \n")
 
         # Tạo Booking và cập nhật trạng thái sân
         booking = Booking.objects.create(
-            customer=request.user.id, 
+            customer_id=request.user.id, 
             court=court,  # Lấy ID của court
             booking_type=booking_type,
             date=booking_date,

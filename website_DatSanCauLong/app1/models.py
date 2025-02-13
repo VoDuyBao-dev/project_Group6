@@ -122,7 +122,7 @@ class Booking(models.Model):
         ('daily', 'Daily'),
         ('flexible', 'Flexible'),
     )
-    customer_id = models.CharField(blank=False, null=False, max_length=5)
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
     court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='bookings')
     booking_type = models.CharField(max_length=20, choices=BOOKING_TYPES)
     date = models.DateField()
