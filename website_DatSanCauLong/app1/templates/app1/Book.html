@@ -10,56 +10,56 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="{% static 'app1/CSS/Styles-Book.css' %}" />
-    <script src="{% static 'app1/js/layout-customer.js' %}"></script>
+    <script src="{% static 'app1/js/layout-customer.js' %} "></script>
   </head>
+
   <body>
-    {% include 'app1/Header-customer.html' %} {% block content %}
-
-    <!-- Hiển thị thông báo lỗi hoặc thành công -->
-    {% if messages %}
-    <div class="messages">
-      {% for message in messages %}
-      <div class="message {{ message.tags }}">{{ message }}</div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    <form action="{% url 'booking' %}" method="post" id="form-group">
+    {% include 'app1/Header-user.html' %} {% block content %}
+    <form action="#" method="post" id="form-group">
       {% csrf_token %}
       <div class="container">
         <div class="form-group">
           <h1>Đặt Sân Cầu Lông</h1>
-          <label for="scheduleType">Chọn loại lịch</label>
-          <select id="scheduleType" name="scheduleType" required>
+          <h2 style="color: blue">{{court.name}}</h2>
+          <label for="booking_type">Chọn loại lịch</label>
+          <select id="booking_type" name="booking_type" required>
             <option value="fixed">Lịch cố định</option>
             <option value="flexible">Lịch linh hoạt</option>
             <option value="daily">Lịch ngày</option>
           </select>
         </div>
-
         <div class="form-group">
-          <label for="date">Ngày</label>
+          <label for="date">Chọn ngày:</label>
           <input type="date" id="date" name="date" required />
         </div>
-
         <div class="form-group">
-          <label for="start-time">Giờ Bắt Đầu</label>
-          <input type="time" id="start-time" name="start-time" required />
+          <label for="start_time">Giờ bắt đầu:</label>
+          <input type="time" name="start_time" id="start_time" required />
         </div>
         <div class="form-group">
-          <label for="end-time">Giờ Kết Thúc</label>
-          <input type="time" id="end-time" name="end-time" required />
+          <label for="end_time">Giờ kết thúc:</label>
+          <input type="time" name="end_time" id="end_time" required />
         </div>
-        <button type="submit">Đặt Sân</button>
+        {%if booking_id and court_id%}
+        <button type="submit" href="{% url 'payment' booking_id court_id %}">
+          Đặt Sân
+        </button>
+        {% else %}
+        <button type="submit" href="{% url 'thanhToan' %}">Đặt Sân</button>
+        {%endif%}
+        <br />
+        <br />
+        {% if messages %}
+        <ul class="messages" style="color: black">
+          {% for message in messages %}
+          <li style="text-align: center">{{ message }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        <script src="{% static 'app1/js/Script-Book.js' %} "></script>
       </div>
     </form>
-    {% if booking_success %}
-    <div class="alert alert-success">
-      Đặt sân thành công! Vui lòng nhấn vào nút bên dưới để tiếp tục thanh toán.
-    </div>
-    <a href="{% url 'payment' %}" class="btn btn-primary"
-      >Tiếp tục thanh toán</a
-    >
-    {% endif %} {% endblock content %} {% include 'app1/Footer.html' %}
+
+    {% endblock %} {% include 'app1/Footer.html' %}
   </body>
 </html>

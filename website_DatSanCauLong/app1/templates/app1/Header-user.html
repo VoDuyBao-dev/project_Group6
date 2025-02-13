@@ -16,7 +16,6 @@
                 <img src="{% static 'app1/images/logo.png' %}" alt="logo" class="logo-img">
             </a>
         </div>
-        <h1>ABC {{user.is_authenticated}}</h1>
         <header>
             <div class="search-container">
                 <nav class="nav">
@@ -38,7 +37,7 @@
                     </div>
                     <div class="dropdown" id="dropdownMenu">
                         <a href="#">Thông tin cá nhân</a>
-                        <a href="{% url 'Logout' %}">Đăng xuất</a>
+                        <a href="{% url 'Logout' %}" id="logout">Đăng xuất</a>
                     </div>
                 {% else %}
                     <div>
@@ -52,48 +51,8 @@
 
     {% if user.is_authenticated %}
         <script src="{% static 'app1/js/Header-customer.js' %}"></script>
-    {% else %}
-        <script src="{% static 'app1/js/Header-guest.js' %}"></script>
     {% endif %}
 </body>
 
-{% comment %} 
-<body>
-    <div class="header-container">
-        <div class="logo-section">
-            <a href="#">
-                <img src="{% static 'app1/images/logo.png' %}" alt="logo" class="logo-img">
-            </a>
-        </div>
-        <header>
-            <div class="search-container">
-                <nav class="nav">
-                    <form class="search-form" method="get" action="{% url 'SearchCourt' %}">
-                        {% csrf_token %}
-                        {{ search_court.query }}
-                        <button type="submit">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </form>
-                </nav>
-
-                <div class="user-info" onclick="toggleDropdown()">
-                    <span>
-                        <img src="{% static 'app1/images/avata.jpg' %}" alt="User Avatar">
-                    </span>
-
-                </div>
-                <div class="dropdown" id="dropdownMenu">
-                    <a href="#">Thông tin cá nhân</a>
-                    <a href="#">Lịch sử đặt sân</a>
-                    <a href="#">Thêm tài khoản</a>
-                    <a href="#">Đăng xuất</a>
-                </div>
-            </div>
-    </div>
-    </header>
-
-    <script src="{% static 'app1/js/Header-customer.js' %}"></script>
-</body> {% endcomment %}
 
 </html>

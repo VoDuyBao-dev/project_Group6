@@ -10,21 +10,19 @@
   </head>
 
   <body>
-    {% include 'app1/Header-customer.html' %} {% include
-    'app1/Menu-manager.html' %} {% block content %}
+    {% include 'app1/Header-user.html' %} {% include 'app1/Menu-manager.html' %}
+    {% block content %}
     <div class="form-container">
-      <h1>Thêm Chi Nhánh Mới</h1>
-
-      <form id="addBranchForm" action="{% url 'them_san_moi' %}" method="POST">
+      <h1>Thêm Sân Mới</h1>
+      <form id="addFieldForm" action="{% url 'them_san_moi' %}" method="POST">
         {% csrf_token %}
-
-        <label for="name">Tên Chi Nhánh</label>
+        <label for="name">Tên Sân</label>
         <input
           type="text"
           id="name"
           name="name"
           required
-          placeholder="Nhập tên chi nhánh"
+          placeholder="Nhập tên sân"
         />
 
         <label for="address">Địa điểm</label>
@@ -37,17 +35,17 @@
         />
 
         <button type="submit">Xác Nhận</button>
+        <br />
+        <br />
       </form>
-
       {% if messages %}
-      <ul class="messages">
+      <ul class="messages" style="color: black">
         {% for message in messages %}
-        <li class="{{ message.tags }}">{{ message }}</li>
+        <li>{{ message }}</li>
         {% endfor %}
       </ul>
       {% endif %}
     </div>
-
     {% endblock %} {% include 'app1/Footer.html' %}
   </body>
 </html>

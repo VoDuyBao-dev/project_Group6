@@ -3,10 +3,7 @@ from django.urls import path, include
 from django.shortcuts import render 
 from . import views
 from .views import *
-from app1.views import booking_view, payment_view
 
-from django.conf import settings
-from django.conf.urls.static import static
 
 from rest_framework.routers import DefaultRouter
 from .views import BookingViewSet
@@ -51,13 +48,13 @@ urlpatterns = [
     path('lichThiDau/', views.lichThiDau, name='lichThiDau'),
     path('them_san_moi/', views.them_san_moi, name='them_san_moi'),
     path('them_san/', views.them_san, name='them_san'),
-    path('booking/', booking_view, name='booking'),  # Đặt sân
-    path('payment/', payment_view, name='payment'),  # Thanh toán
+    path('payment/<str:booking_id>/<str:court_id>/', views.payment, name='payment'),
+    path('payment/', views.thanhToan, name='thanhToan'),
+    path('booking/<str:court_id>/', views.booking, name='booking'),
     path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
     path('manager_san/', views.manager_san, name='manager_san'),
 
-
-    # path('menu_manager/', views.menu_manager, name='menu_manager'),
+    path('menu_manager/', views.menu_manager, name='menu_manager'),
     path('header_guest/', views.header_guest, name='header'),
     path('header_customer/', views.header_customer, name='header1'),
     path('manage_time_slots/', views.manage_time_slots, name='manage_time_slots'),
@@ -65,7 +62,7 @@ urlpatterns = [
     path('ThongTinCaNhan/', views.ThongTinCaNhan, name='ThongTinCaNhan'),
     path('ChinhSuaThongTin', views.ChinhSuaThongTin, name='ChinhSuaThongTin'),
 
-    path("select_court/", views.select_court, name="court_selection"),
-
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('court/edit/<str:court_id>/', edit_court, name='edit_court'),
+    path('court/delete/<str:court_id>/', delete_court, name='delete_court'),
+] 
 # coi url
