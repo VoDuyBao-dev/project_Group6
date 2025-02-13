@@ -13,6 +13,13 @@ h1 {
     color: black !important;
 }
 
+p {
+    color: black !important;
+    text-align: left;
+    font-size: 1.1em;
+    margin: 4px auto;
+}
+
 main {
     margin: 20px;
 }
@@ -31,6 +38,7 @@ h2 {
     margin-bottom: 15px;
     border-bottom: 2px solid #007BFF;
     padding-bottom: 5px;
+    text-align: center;
 }
 
 .court-container {
@@ -38,18 +46,21 @@ h2 {
     flex-wrap: wrap;
     gap: 20px;
     justify-content: center;
+
 }
 
 .court-card {
     background-color: #f8f9fa;
     border: 1px solid #ddd;
     border-radius: 10px;
-    width: 250px;
+    width: 350px;
+    height: 400px;
     padding: 15px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     text-align: center;
     transition: transform 0.2s;
     color: black !important;
+    background-color: rgb(104, 202, 170);
 }
 
 .court-card:hover {
@@ -96,13 +107,15 @@ h2 {
 }
 
 button {
-    background-color: #6ab4c8;
+    background-color: #14677e;
     color: white;
     padding: 10px 15px;
+    margin: 5px 3px 0 0;
     cursor: pointer;
     border-radius: 5px;
     border: none;
     transition: background-color 0.2s;
+    text-align: center;
 }
 
 button:hover {
@@ -113,12 +126,26 @@ button:hover {
     margin-bottom: 15px;
 }
 
-input[type="text"],
-input[type="number"],
-select {
-    width: 100%;
+input[type="text"] {
+    width: 90%;
     padding: 10px;
-    margin-top: 5px;
+    margin: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+input[type="number"] {
+    width: 90%;
+    padding: 10px;
+    margin: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+select {
+    width: 95%;
+    padding: 10px;
+    margin: 8px;
     border-radius: 5px;
     border: 1px solid #ccc;
 }
@@ -150,10 +177,10 @@ select {
 
 
 .court-image {
-    width: 10%;
-    height: 20%;
+    width: 100%;
+    height: 40%;
     object-fit: cover;
-    border-radius: 12px;
+    border-radius: 8px;
     /* Bo tròn các góc của hình ảnh */
     margin-bottom: 15px;
     transition: transform 0.3s ease, filter 0.3s ease;
@@ -168,7 +195,7 @@ select {
     position: fixed;
     z-index: 1000;
     left: 0;
-    top: 0;
+    top: 20px;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
@@ -181,7 +208,8 @@ select {
     background: white;
     padding: 20px;
     border-radius: 8px;
-    text-align: center;
+    margin: 15px;
+    color: rgb(80, 80, 80);
 }
 
 .close {
@@ -190,4 +218,11 @@ select {
     right: 20px;
     font-size: 24px;
     cursor: pointer;
+}
+
+label {
+    font-size: 1.1em;
+    margin: 10px auto;
+    font-weight: bold;
+    text-align: left;
 }

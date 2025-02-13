@@ -10,94 +10,100 @@
   <body>
     {% include 'app1/Header-user.html' %}
     {% include 'app1/Menu-manager.html' %}
-    {% block content %}
-      <h1>Quản Lý Sân</h1>
-      <main>
-        <section>
-          <h2>Danh Sách Các Sân</h2>
-          <div class="court-container">
-            <!-- Full sân -->
-            {% for court in courts %}
-              <div class="court-card">
-                <img src="{{ court.ImageURL }}" alt="{{ court.name }}" class="court-image" />
-                <h3>{{ court.name }}</h3>
-                <p>Địa chỉ: {{ court.badminton_hall.address }}</p>
-                <p>Trạng thái: {{ court.status }}</p>
-                <p>Giờ hoạt động: 6h - 22h</p>
-                <p>Ngày: Thứ 2 - Chủ Nhật</p>
-                <button class="edit-btn" data-court-id="{{ court.court_id }}" data-court-name="{{ court.name }}">Chỉnh sửa</button>
-                <br />
-                <button class="delete-btn" data-court-id="{{ court.court_id }}" data-court-name="{{ court.name }}">Xóa</button>
-              </div>
-            {% endfor %}
-          </div>
-        </section>
-      </main>
-
-      <!-- Modal Chỉnh sửa -->
-      <div id="editModal" class="modal">
-        <div class="modal-content">
-          <span class="modal-close">&times;</span>
-          <h2>Chỉnh sửa thông tin sân</h2>
-          <form id="editForm" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div>
-              <label for="editCourtName">Tên sân:</label>
-              <input type="text" id="editCourtName" name="name" required />
-            </div>
-            <div>
-              <label for="editBranchName">Tên chi nhánh:</label>
-              <select id="editBranchName" name="badminton_hall">
-                {% for court in courts %}
-                  <option value="{{ court.badminton_hall }}">{{ court.badminton_hall.address }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div>
-              <label for="editStatus">Trạng thái:</label>
-              <select id="editStatus" name="status">
-                <option value="empty">Trống</option>
-                <option value="booked">Đã đặt lịch</option>
-                <option value="under_maintenance">Đang bảo trì</option>
-              </select>
-            </div>
-            <div>
-              <label>Ảnh hiện tại:</label>
+    <main>
+      <section>
+        <h2>Danh Sách Các Sân</h2>
+        <div class="court-container">
+          <!-- Full sân -->
+          {% for court in courts %}
+            <div class="court-card">
+              <img src="{{ court.ImageURL }}" alt="{{ court.name }}" class="court-image" />
+              <h3>{{ court.name }}</h3>
+              <p>
+                <strong>Địa chỉ:</strong> {{ court.badminton_hall.address }}
+              </p>
+              <p>
+                <strong>Trạng thái:</strong> {{ court.status }}
+              </p>
+              <p>
+                <strong>Giờ hoạt động:</strong> 6h - 22h
+              </p>
+              <p>
+                <strong>Ngày:</strong> Thứ 2 - Chủ Nhật
+              </p>
+              <button class="edit-btn" data-court-id="{{ court.court_id }}" data-court-name="{{ court.name }}">Chỉnh sửa</button>
               <br />
-              <img id="imagePreview" src="" alt="Ảnh sân" style="max-width:200px; display:none;" />
-              <button type="button" id="deleteImageButton">Xóa ảnh</button>
+              <button class="delete-btn" data-court-id="{{ court.court_id }}" data-court-name="{{ court.name }}">Xóa</button>
             </div>
-            <div>
-              <label for="editImage">Chọn ảnh mới:</label>
-              <input type="file" id="editImage" name="image" />
-            </div>
-            <!-- Input ẩn để đánh dấu xóa ảnh nếu cần -->
-            <input type="hidden" id="deleteImage" name="delete_image" value="" />
-            <div style="margin-top:15px;">
-              <button type="submit">Lưu thay đổi</button>
-              <button type="button" class="cancel-edit">Hủy</button>
-            </div>
-          </form>
+          {% endfor %}
         </div>
-      </div>
+      </section>
+    </main>
 
-      <!-- Modal Xóa sân -->
-      <div id="deleteModal" class="modal">
-        <div class="modal-content">
-          <span class="modal-close">&times;</span>
-          <h2>Xác nhận xóa sân</h2>
-          <p id="deleteMessage"></p>
-          <form id="deleteForm" method="POST">
-            {% csrf_token %}
+    <!-- Modal Chỉnh sửa -->
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <h2>Chỉnh sửa thông tin sân</h2>
+        <form id="editForm" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div>
+            <label for="editCourtName">Tên sân:</label>
+            <input type="text" id="editCourtName" name="name" required />
+          </div>
+          <div>
+            <label for="editBranchName">Tên chi nhánh:</label>
+            <select id="editBranchName" name="badminton_hall">
+              {% for court in courts %}
+                <option value="{{ court.badminton_hall }}">{{ court.badminton_hall.address }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="editStatus">Trạng thái:</label>
+            <select id="editStatus" name="status">
+              <option value="empty">Trống</option>
+              <option value="booked">Đã đặt lịch</option>
+              <option value="under_maintenance">Đang bảo trì</option>
+            </select>
+          </div>
+          <div>
+            <label>Ảnh hiện tại:</label>
+            <br />
+            <img id="imagePreview" src="" alt="Ảnh sân" style="max-width:200px; display:none;" />
+            <button type="button" id="deleteImageButton">Xóa ảnh</button>
+          </div>
+          <div>
+            <label for="editImage">Chọn ảnh mới:</label>
+            <input type="file" id="editImage" name="image" />
+          </div>
+          <!-- Input ẩn để đánh dấu xóa ảnh nếu cần -->
+          <input type="hidden" id="deleteImage" name="delete_image" value="" />
+          <div style="margin-top:15px; text-align:center;">
+            <button type="submit">Lưu thay đổi</button>
+            <button type="button" class="cancel-edit">Hủy</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal Xóa sân -->
+    <div id="deleteModal" class="modal">
+      <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <h2>Xác nhận xóa sân</h2>
+        <p id="deleteMessage"></p>
+        <form id="deleteForm" method="POST">
+          {% csrf_token %}
+          <div style="margin-top:15px; text-align:center;">
             <button type="submit">Xóa</button>
             <button type="button" class="cancel-delete">Hủy</button>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
+    </div>
 
-      <button class="add-court-btn" title="Thêm sân"><a href="{% url 'them_san' %}" style="color:white;">+</a></button>
-      <script src="{% static 'app1/js/QuanLyThongTinSan.js' %}"></script>
-    {% endblock %}
+    <button class="add-court-btn" title="Thêm sân"><a href="{% url 'them_san' %}" style="color:white;">+</a></button>
+    <script src="{% static 'app1/js/QuanLyThongTinSan.js' %}"></script>
     {% include 'app1/Footer.html' %}
   </body>
 </html>

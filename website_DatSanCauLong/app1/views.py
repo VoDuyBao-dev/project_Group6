@@ -638,14 +638,6 @@ def manager_san(request):
     return render(request, 'app1/QuanLyThongTinSan.html', {'courts': courts})
 
 def edit_court(request, court_id):
-    """
-    Xử lý cập nhật thông tin sân khi nhận POST từ modal chỉnh sửa.
-    Các thông tin cập nhật:
-      - Tên sân
-      - Trạng thái
-      - Tên chi nhánh (cập nhật tên cho BadmintonHall liên quan)
-      - Ảnh: Nếu có upload ảnh mới hoặc yêu cầu xóa ảnh hiện tại
-    """
     court = get_object_or_404(Court, court_id=court_id)
     if request.method == "POST":
         new_name = request.POST.get("name")
@@ -685,11 +677,6 @@ def edit_court(request, court_id):
     return redirect("manager_san")
 
 def delete_court(request, court_id):
-    """
-    Xử lý xóa sân.
-    Khi nhận POST từ modal xác nhận, xóa sân và chuyển hướng về trang danh sách.
-    Nếu không phải POST, chuyển hướng về danh sách.
-    """
     court = get_object_or_404(Court, court_id=court_id)
     if request.method == "POST":
         court.delete()
@@ -771,8 +758,8 @@ def booking(request, court_id):
 
         # Tạo Booking và cập nhật trạng thái sân
         booking = Booking.objects.create(
-            customer_id=request.user.id,  # Hoạt động đúng vì request.user.customer là một object
-            court_id=court,  # Lấy ID của court
+            customer=request.user.id, 
+            court=court,  # Lấy ID của court
             booking_type=booking_type,
             date=booking_date,
             start_time=start_time,
