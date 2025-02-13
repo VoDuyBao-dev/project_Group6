@@ -26,7 +26,6 @@ urlpatterns = [
     path('DangKyTaiKhoanThanhToan/', DangKyTaiKhoanThanhToan.as_view(), name='DangKyTaiKhoanThanhToan'),
     path('header_user/', views.header_user, name='header_user'),
     path('menu/', views.menu, name='menu'),
-    path('footer/', views.footer, name='footer'),
     path('History/', views.History, name= 'History'),
     path('price_list/', views.price_list, name='price_list'),
    
@@ -45,15 +44,21 @@ urlpatterns = [
     path('manager_san/', views.manager_san, name='manager_san'),
 
     path('menu_manager/', views.menu_manager, name='menu_manager'),
-    path('header_guest/', views.header_guest, name='header'),
-    path('header_customer/', views.header_customer, name='header1'),
     path('manage_time_slots/', views.manage_time_slots, name='manage_time_slots'),
     path('delete_time_slot/<str:slot_id>/', views.delete_time_slot, name='delete_time_slot'),
-    path('ThongTinCaNhan/', views.ThongTinCaNhan, name='ThongTinCaNhan'),
-    path('ChinhSuaThongTin', views.ChinhSuaThongTin, name='ChinhSuaThongTin'),
 
     path('court/edit/<str:court_id>/', edit_court, name='edit_court'),
     path('court/delete/<str:court_id>/', delete_court, name='delete_court'),
+    # quản lí tài khoản:
+    path('Account_Management/', views.Account_Management, name='Account_Management'),
+    # 1. thêm tài khoản
+    path('AddAccount_Manage/', views.AddAccount_Manage, name='AddAccount_Manage'),
+    # 2. xóa tài khoản
+    path('delete-user/<int:user_id>/', views.delete_user, name='delete_user'),
+    # 3. Cập nhật tài khoản
+    path('Update_account/<int:user_id>/', views.Update_account, name='Update_account'),
+    path('ThongTinCaNhan/', views.ThongTinCaNhan, name='ThongTinCaNhan'),
+    path('ChinhSuaThongTinCaNhan/', ChinhSuaThongTinCaNhan.as_view(), name='ChinhSuaThongTinCaNhan'),
 ] 
 # coi url
 
