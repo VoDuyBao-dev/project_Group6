@@ -1,0 +1,1 @@
+SELECT * FROM scl.app1_court;
