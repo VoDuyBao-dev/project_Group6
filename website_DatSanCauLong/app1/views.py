@@ -384,39 +384,69 @@ class SearchCourt(View):
 # Đăng ký tài khoản thanh toán của manager
 class DangKyTaiKhoanThanhToan(View):
 
-    def get(self,request):
-        register_payment_Account=RegisterPaymentAccountForm()
+    def get(self, request):
+        register_payment_Account = RegisterPaymentAccountForm()
         search_court = SearchForm()
+        court_managers = CourtManager.objects.all()  # Lấy danh sách CourtManager
+        
+        print(f"Danh sách CourtManager: {list(court_managers)}")  # Debug
+        
         context = {
             'Register_Payment_Account': register_payment_Account,
-            'searchCourt': search_court
+            'searchCourt': search_court,
+            'court_managers': court_managers
         }
         return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
 
-    def post(self,request):
-        register_payment_Account=RegisterPaymentAccountForm(request.POST)
+    def post(self, request):
+        register_payment_Account = RegisterPaymentAccountForm(request.POST)
         search_court = SearchForm()
+        court_managers = CourtManager.objects.all()
+        
         context = {
             'Register_Payment_Account': register_payment_Account,
-            'searchCourt': search_court
+            'searchCourt': search_court,
+            'court_managers': court_managers
         }
 
         if not register_payment_Account.is_valid():
             return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
         
-        # form hợp lệ thì lấy dữ liệu từ form
+        # Lấy dữ liệu từ form
         accountHolder = register_payment_Account.cleaned_data['accountHolder']
         accountNumber = register_payment_Account.cleaned_data['accountNumber']
         paymentMethod = register_payment_Account.cleaned_data['paymentMethod']
+        court_manager_id = request.POST.get('court_manager')  # Lấy ID của CourtManager được chọn
+        print(f"court_manager_id nhận được: {court_manager_id}")  # Debug
 
+        if not court_manager_id:
+            messages.error(request, "Vui lòng chọn Court Manager hợp lệ!")
+            return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+
+        try:
+            court_manager = CourtManager.objects.get(courtManager_id=court_manager_id)
+        except CourtManager.DoesNotExist:
+            messages.error(request, "Court Manager không tồn tại!")
+            return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+
+        # Kiểm tra nếu CourtManager đã có tài khoản thanh toán
+        if hasattr(court_manager, 'payment_account'):
+            messages.error(request, "Court Manager này đã có tài khoản thanh toán!")
+            return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+
+        # Tạo tài khoản thanh toán mới và gán cho CourtManager
         payment_account = PaymentAccount.objects.create(
             accountHolder=accountHolder,
             accountNumber=accountNumber,
             paymentMethod=paymentMethod
         )
-        messages.success(request, "Đăng ký tài khoản thanh toán thành công!")
 
-        return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+        court_manager.payment_account = payment_account
+        court_manager.save()
+
+        messages.success(request, "Đăng ký tài khoản thanh toán thành công!")
+        return redirect('DangKyTaiKhoanThanhToan')
+
 
 def lichThiDau(request):
     return render(request, 'app1/LichThiDau.html')
@@ -705,26 +735,49 @@ def price_list(request):
 
 
 # thêm dữ liệu của một sân cầu lông mới(thêm một chi nhánh)
-from .models import BadmintonHall
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.models import User
+from .models import BadmintonHall, CourtManager
 
 def them_san_moi(request):
-    if request.method == "POST":
-        name = request.POST.get("name")
-        address = request.POST.get("address")
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        address = request.POST.get('address')
+        court_manager_id = request.POST.get('court_manager')  # Lấy ID của CourtManager
 
-        if BadmintonHall.objects.filter(name=name).exists():
-            messages.error(request, "Tên chi nhánh đã tồn tại!")
-            return redirect("them_san_moi")
+        if not name or not address:
+            messages.error(request, "Vui lòng nhập đầy đủ thông tin.")
+        else:
+            # Kiểm tra xem chi nhánh hoặc địa điểm đã tồn tại chưa
+            if BadmintonHall.objects.filter(name=name).exists():
+                messages.error(request, "Tên chi nhánh đã tồn tại. Vui lòng chọn tên khác.")
+            elif BadmintonHall.objects.filter(address=address).exists():
+                messages.error(request, "Địa điểm này đã có chi nhánh. Vui lòng chọn địa điểm khác.")
+            else:
+                badminton_hall = BadmintonHall(name=name, address=address)
 
-        if BadmintonHall.objects.filter(address=address).exists():
-            messages.error(request, "Địa điểm này đã có chi nhánh khác!")
-            return redirect("them_san_moi")
+                if court_manager_id:
+                    try:
+                        court_manager = CourtManager.objects.get(courtManager_id=court_manager_id)
 
-        BadmintonHall.objects.create(name=name, address=address)
-        messages.success(request, "Chi nhánh mới đã được thêm thành công!")
-        return redirect("danh_sach_san")
+                        # Kiểm tra nếu CourtManager đã có BadmintonHall
+                        if hasattr(court_manager, 'badminton_hall'):
+                            messages.error(request, "Quản lý này đã được gán cho một chi nhánh khác.")
+                        else:
+                            badminton_hall.court_manager = court_manager
+                            badminton_hall.save()
+                            messages.success(request, "Thêm chi nhánh thành công!")
+                    except CourtManager.DoesNotExist:
+                        messages.error(request, "Quản lý không tồn tại.")
+                else:
+                    badminton_hall.save()
+                    messages.success(request, "Thêm chi nhánh thành công!")
 
-    return render(request, "app1/them_san_moi.html")
+    # Cập nhật danh sách CourtManager chưa có BadmintonHall
+    court_managers = CourtManager.objects.filter(badminton_hall__isnull=True)
+    
+    return render(request, 'app1/them_san_moi.html', {'court_managers': court_managers})
 
 
 def them_san(request):

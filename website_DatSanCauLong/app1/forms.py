@@ -287,21 +287,68 @@ class RegisterPaymentAccountForm(forms.Form):
 #         model = TimeSlotTemplate
 #         fields = ['day_of_week', 'time_frame', 'fixed_price', 'daily_price', 'flexible_price', 'status']
 
-#Badmintonhall Form
-from .models import BadmintonHall
+from django import forms
+from django.contrib.auth.models import User
+from app1.models import BadmintonHall, CourtManager, PaymentAccount
 
 class BadmintonHallForm(forms.ModelForm):
+    manager_username = forms.CharField(max_length=150, required=True, label="Tên đăng nhập Quản lý")
+    manager_email = forms.EmailField(required=True, label="Email Quản lý")
+    manager_password = forms.CharField(widget=forms.PasswordInput, required=True, label="Mật khẩu Quản lý")
+
     class Meta:
         model = BadmintonHall
-        fields = ['name', 'address']
+        fields = ['name', 'address', 'manager_username', 'manager_email', 'manager_password']
 
     def clean(self):
         cleaned_data = super().clean()
         name = cleaned_data.get("name")
         address = cleaned_data.get("address")
+        manager_username = cleaned_data.get("manager_username")
 
+        # Kiểm tra trùng lặp chi nhánh
         if BadmintonHall.objects.filter(name=name).exists():
             raise forms.ValidationError("Tên chi nhánh đã tồn tại!")
         if BadmintonHall.objects.filter(address=address).exists():
             raise forms.ValidationError("Địa điểm này đã có chi nhánh khác!")
+
+        # Kiểm tra trùng lặp tài khoản quản lý
+        if User.objects.filter(username=manager_username).exists():
+            raise forms.ValidationError("Tên đăng nhập của Quản lý đã tồn tại!")
+
         return cleaned_data
+
+    def save(self, commit=True):
+        cleaned_data = self.cleaned_data
+
+        # Tạo BadmintonHall nhưng chưa lưu ngay
+        badminton_hall = super().save(commit=False)
+
+        # Tạo User cho CourtManager
+        user = User.objects.create_user(
+            username=cleaned_data["manager_username"],
+            email=cleaned_data["manager_email"],
+            password=cleaned_data["manager_password"]
+        )
+
+        # Tạo PaymentAccount cho CourtManager
+        payment_account = PaymentAccount.objects.create(
+        accountHolder=user.username,
+        accountNumber="000000",  # Placeholder, cập nhật khi có số tài khoản thực tế
+        paymentMethod="bank"  # Sử dụng "bank" hoặc "momo"
+)
+
+
+        # Tạo CourtManager và liên kết với User & PaymentAccount
+        court_manager = CourtManager.objects.create(
+            user=user,
+            payment_account=payment_account
+        )
+
+        # Gán CourtManager cho BadmintonHall và lưu vào DB
+        badminton_hall.court_manager = court_manager
+        if commit:
+            badminton_hall.save()
+
+        return badminton_hall
+

@@ -38,19 +38,16 @@ class Customer(models.Model):
     def __str__(self):
         return self.user.username
 
-# Court Manager models
 class CourtManager(models.Model):
     courtManager_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_manager')
-    payment_account = models.OneToOneField(
-        PaymentAccount,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='court_manager'
-    )
+
     def __str__(self):
-        return self.user.username
+        # Lấy chi nhánh từ badminton_hall (quan hệ ngược)
+        if hasattr(self, 'badminton_hall'):
+            return f"{self.user.username} - {self.badminton_hall.name}"
+        return self.user.username  # Nếu chưa có chi nhánh
+
 
 # System Admin model
 class SystemAdmin(models.Model):
@@ -62,14 +59,16 @@ class BadmintonHall(models.Model):
     badminton_hall_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     name = models.CharField(max_length=255)
     address = models.TextField()
-    court_manager = models.ForeignKey(
-        CourtManager, 
+    court_manager = models.OneToOneField(
+        'CourtManager', 
         on_delete=models.CASCADE, 
-        related_name='halls'  # Cho phép truy xuất từ CourtManager
+        null=True, blank=True, 
+        related_name='badminton_hall'
     )
 
     def __str__(self):
         return self.name
+
 
 
 

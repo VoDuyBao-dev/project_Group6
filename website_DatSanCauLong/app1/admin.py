@@ -27,14 +27,22 @@ class CourtStaffAdmin(admin.ModelAdmin):
         add_user_to_group(obj.user, "Court_staff")  # Thêm vào nhóm Court_staff
 
 # Khi SystemAdmin tạo CourtManager, tự động gán vào nhóm CourtManager
+from django.contrib import admin
+from .models import CourtManager, BadmintonHall
+
 @admin.register(CourtManager)
 class CourtManagerAdmin(admin.ModelAdmin):
-    list_display = ("user", "courtManager_id")
-    search_fields = ("user__username", "courtManager_id")
+    list_display = ("user", "get_badminton_hall")  # Hiển thị tên + chi nhánh
+    search_fields = ("user__username",)
 
-    def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
-        add_user_to_group(obj.user, "Manager")  # Thêm vào nhóm Manager
+    def get_badminton_hall(self, obj):
+        # Lấy chi nhánh từ badminton_hall (quan hệ ngược)
+        if hasattr(obj, 'badminton_hall'):
+            return obj.badminton_hall.name
+        return "Chưa có chi nhánh"
+    
+    get_badminton_hall.short_description = "Chi Nhánh"
+
 
 # các model còn lại
 admin.site.register(Customer)
@@ -44,6 +52,5 @@ admin.site.register(TimeSlotTemplate)
 admin.site.register(Booking)
 admin.site.register(Payment)
 admin.site.register(RevenueReport)
-
 
 
