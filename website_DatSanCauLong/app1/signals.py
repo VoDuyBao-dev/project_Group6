@@ -19,12 +19,12 @@ def assign_user_to_group(sender, instance, created, **kwargs):
                 f.write(f"instance : instance\n")
                 f.write(f" \n")
 
-        elif hasattr(instance, CourtStaff):
+        elif hasattr(instance, "court_staff"):
             group, created = Group.objects.get_or_create(name='Court_staff')
             instance.groups.add(group)
             CourtStaff.objects.get_or_create(user=instance)  # Thêm người dùng vào model CourtStaff         
 
-        elif hasattr(instance, CourtManager): 
+        elif hasattr(instance, "court_manager"): 
             group, created = Group.objects.get_or_create(name='Manager')
             instance.groups.add(group)
             CourtManager.objects.get_or_create(user=instance)  # Thêm người dùng vào model CourtManager

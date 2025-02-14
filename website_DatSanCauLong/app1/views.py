@@ -18,7 +18,6 @@ import json
 
 import nanoid
 from .models import TimeSlotTemplate, Court, Booking, Payment, PaymentAccount
-from .forms import TimeSlotTemplateForm  # Sẽ tạo file form ở bước tiếp theo
 from django.shortcuts import get_object_or_404
 from .models import BadmintonHall
 from django.contrib.auth.decorators import login_required
@@ -710,7 +709,6 @@ def Update_account(request, user_id):
 
 
 # thêm thời gian(khung giờ) và giá,... của từng loại hình đặt lịch
-@login_required
 def manage_time_slots(request):
     if request.method == "POST":
         day_of_week = request.POST.get('day_of_week')
@@ -739,7 +737,6 @@ def manage_time_slots(request):
         
 
 # xóa lịch nếu thấy bất ổn nào đó.
-@login_required
 def delete_time_slot(request, slot_id):
     slot = get_object_or_404(TimeSlotTemplate, template_id=slot_id)
     slot.delete()
@@ -761,7 +758,6 @@ def price_list(request):
 
 
 # thêm dữ liệu của một sân cầu lông mới(thêm một chi nhánh)
-@login_required
 def them_san_moi(request):
     if request.method == "POST":
         name = request.POST.get('name')
@@ -783,7 +779,6 @@ def them_san_moi(request):
 
     return render(request, 'app1/them_san_moi.html')
 
-@login_required
 def them_san(request):
     if request.method == "POST":
         badminton_hall_id = request.POST.get('address') 
@@ -819,12 +814,10 @@ def them_san(request):
 
 
 # quản lý thông tin sân cầu lông
-@login_required
 def manager_san(request):
     courts = Court.objects.all()
     return render(request, 'app1/QuanLyThongTinSan.html', {'courts': courts})
 
-@login_required
 def edit_court(request, court_id):
     court = get_object_or_404(Court, court_id=court_id)
     if request.method == "POST":
@@ -864,7 +857,6 @@ def edit_court(request, court_id):
 
     return redirect("manager_san")
 
-@login_required
 def delete_court(request, court_id):
     court = get_object_or_404(Court, court_id=court_id)
     if request.method == "POST":

@@ -56,7 +56,7 @@ ROOT_URLCONF = 'website_DatSanCauLong.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [(os.path.join(BASE_DIR, 'templates'))],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -64,9 +64,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # Thêm context processor của bạn vào đây
-                'app1.context_processors.badminton_halls_context',
-                'app1.context_processors.search_form_processor',
             ],
         },
     },
@@ -136,8 +133,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'app1/static')]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -160,4 +156,3 @@ EMAIL_PORT = config('EMAIL_PORT', cast=int)  # Chuyển thành số nguyên
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)  # Chuyển thành kiểu boolean
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-

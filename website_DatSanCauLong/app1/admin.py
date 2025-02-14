@@ -2,9 +2,9 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from .models import *
 
-with open("debug.log", "a") as f:
-    f.write(f"Tạo nhóm khi đăng kí tài khoản trong url admin : \n")
-    f.write(f" \n")
+# with open("debug.log", "a") as f:
+#     f.write(f"Tạo nhóm khi đăng kí tài khoản trong url admin : \n")
+#     f.write(f" \n")
 
 # Hàm tự động gán nhóm
 def add_user_to_group(user, group_name):
