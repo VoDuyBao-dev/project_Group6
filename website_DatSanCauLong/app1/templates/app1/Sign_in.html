@@ -14,21 +14,25 @@
 
   <body>
     {% if messages %}
+    <div class="notification">
     <ul class="messages">
       {% for message in messages %}
       <li class="{{ message.tags }}">{{ message }}</li>
       {% endfor %}
     </ul>
+  </div>
     {% endif %}
     {% if error_message %}
-    <div class="alert alert-danger">{{ error_message }}</div>
+    <div class="notification">{{ error_message }}</div>
     {% endif %}
     <form class="login-form" action="{% url 'Sign_in' %}" method="post">
       {% csrf_token %}
       <h1 class="login-title">Đăng nhập</h1>
+    </div>
       <div class="input-box">
         <i class="fas fa-user"></i>
         {{ SignIn.username }}
+    </div>
         {% if SignIn.username.errors %}
         <ul class="error-list">
           {% for error in SignIn.username.errors %}
