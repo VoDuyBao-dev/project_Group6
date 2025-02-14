@@ -10,7 +10,13 @@
   <body>
     {% include 'app1/Header-user.html' %}
     {% block content %}
-    
+    {% if messages %}
+    <div id="message-box" class="message error show">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
       <div class="container">
         <h3>Chỉnh sửa thông tin</h3>
         <form id="info-form" action="{% url 'ChinhSuaThongTinCaNhan' %}" method="post">
@@ -26,6 +32,7 @@
             </ul>
           {% endif %}
           </div>
+          {% if role == 'customer' %}
           <div class="form-group">
             <label for="new-dob">Ngày sinh:</label>
             {{ChinhSuaThongTin.date_of_birth}}
@@ -37,6 +44,7 @@
             </ul>
           {% endif %}
           </div>
+          {%endif%}
           <button type="submit" class="button" onclick="updateInfo()">Cập nhật</button>
         </form>
       </div>

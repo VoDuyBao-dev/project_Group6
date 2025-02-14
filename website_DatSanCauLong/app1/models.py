@@ -157,7 +157,7 @@ class Payment(models.Model):
 class CourtStaff(models.Model):
     court_staff_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_staff')
-    court = models.OneToOneField(Court, on_delete=models.CASCADE, related_name='court_staff')  # Thêm liên kết với một sân
+    court = models.OneToOneField(Court, on_delete=models.CASCADE, related_name='court_staff', null=True)  # Thêm liên kết với một sân
 
     # def get_court_status(self):
     #     return {c.name: c.slots.all() for c in self.courts.all()}
