@@ -126,8 +126,14 @@ class SignInForm(forms.Form):
         username = cleaned_data.get("username")
         errors = {}
 
-        if not is_valid_email(username):
-            errors['username'] = "Email không hợp lệ."
+        # if not is_valid_email(username):
+        #     errors['username'] = "Email không hợp lệ."
+
+        # Nếu người đăng nhập không thuộc group customer thì thông báo lỗi
+        user = User.objects.filter(username=username).first()
+        if user and user.groups.filter(name='Customer').exists():
+            if not is_valid_email(username):
+                errors['username'] = "Email không hợp lệ."
 
 
         for field, error in errors.items():
@@ -152,12 +158,15 @@ class ForgotPasswordForm(forms.Form):
         username = cleaned_data.get("username")
         errors = {}
 
-        if not is_valid_email(username):
-            errors['username'] = "Email không hợp lệ."
-
         if not User.objects.filter(username = username).exists():
             errors['username'] = "Người dùng không tồn tại."
 
+        # if not is_valid_email(username):
+        #     errors['username'] = "Email không hợp lệ."
+        user = User.objects.filter(username=username).first()
+        if user and user.groups.filter(name='Customer').exists():
+            if not is_valid_email(username):
+                errors['username'] = "Email không hợp lệ."
 
         for field, error in errors.items():
             self.add_error(field, error)
@@ -220,18 +229,12 @@ class RegisterPaymentAccountForm(forms.Form):
     accountHolder = forms.CharField(
         label="Tên chủ tài khoản",
         max_length=100,
-        widget=forms.TextInput(attrs={
-            'placeholder': 'Nhập tên chủ tài khoản', 
-            'required': True
-        })
+        widget=forms.TextInput(attrs={'placeholder': 'Nhập tên chủ tài khoản', 'required': True})
     )
     accountNumber = forms.CharField(
         label="Số tài khoản",
         max_length=50,
-        widget=forms.TextInput(attrs={
-            'placeholder': 'Nhập số tài khoản', 
-            'required': True
-        })
+        widget=forms.TextInput(attrs={'placeholder': 'Nhập số tài khoản', 'required': True})
     )
     paymentMethod = forms.ChoiceField(
         label="Phương thức thanh toán",
@@ -242,50 +245,50 @@ class RegisterPaymentAccountForm(forms.Form):
         ],
         widget=forms.Select(attrs={'required': True})
     )
+    bankName = forms.CharField(  # Thêm trường này
+        label="Tên ngân hàng",
+        max_length=255,
+        required=False,  # Chỉ yêu cầu khi chọn phương thức ngân hàng
+        widget=forms.TextInput(attrs={'placeholder': 'Nhập tên ngân hàng'})
+    )
 
     def clean(self):
         cleaned_data = super().clean()
-        accountHolder = cleaned_data.get("accountHolder").strip()
-        accountNumber = cleaned_data.get("accountNumber").strip()
+        accountHolder = cleaned_data.get("accountHolder", "").strip()
+        accountNumber = cleaned_data.get("accountNumber", "").strip()
         paymentMethod = cleaned_data.get("paymentMethod")
-
+        bankName = cleaned_data.get("bankName", "").strip()
         errors = {}
 
         if paymentMethod == "bank":
+            if not bankName:
+                errors['bankName'] = "Vui lòng nhập tên ngân hàng."
             if not re.match(r'^[A-Z\s]+$', accountHolder):
                 errors['accountHolder'] = "Tên chủ tài khoản chỉ được chứa chữ cái in hoa và khoảng trắng."
-
             if not accountNumber.isdigit():
                 errors['accountNumber'] = "Số tài khoản chỉ được chứa các chữ số."
-
             if len(accountNumber) < 9:
                 errors['accountNumber'] = "Số tài khoản phải có ít nhất 9 chữ số."
-        
+
         elif paymentMethod == "momo":
             if not re.match(r'^[A-Za-zÀ-ỹ\s]+$', accountHolder):
                 errors['accountHolder'] = "Tên chủ tài khoản chỉ được chứa chữ cái in hoa, in thường, dấu và khoảng trắng."
-
             if not accountNumber.isdigit():
                 errors['accountNumber'] = "Số tài khoản chỉ được chứa các chữ số."
-
             if len(accountNumber) < 10:
                 errors['accountNumber'] = "Số tài khoản phải có ít nhất 10 chữ số."
 
         # Kiểm tra trùng số tài khoản
         if PaymentAccount.objects.filter(accountNumber=accountNumber, paymentMethod=paymentMethod).exists():
-                errors['accountNumber'] = "Số tài khoản đã tồn tại."
+            errors['accountNumber'] = "Số tài khoản này đã được sử dụng với phương thức thanh toán này."
+
+
         for field, error in errors.items():
             self.add_error(field, error)
 
-        return cleaned_data  # Trả về dữ liệu đã làm sạch
+        return cleaned_data  
 
 
-
-# Tạo form cho TimeSlotTemplate(thêm khung thời gian và giá)
-# class TimeSlotTemplateForm(forms.ModelForm):
-#     class Meta:
-#         model = TimeSlotTemplate
-#         fields = ['day_of_week', 'time_frame', 'fixed_price', 'daily_price', 'flexible_price', 'status']
 
 from django import forms
 from django.contrib.auth.models import User

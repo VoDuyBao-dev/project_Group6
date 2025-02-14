@@ -16,20 +16,22 @@
 
     <!-- Hiển thị thông báo -->
     {% if messages %}
-    <div id="message-box" class="message success show">
+    <div class="message-container">
         {% for message in messages %}
-            <p>{{ message }}</p>
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
         {% endfor %}
     </div>
     {% endif %}
-
-    <div id="menu-container"></div>
+    
     <div class="registration-container">
         <h2>Đăng ký tài khoản thanh toán</h2>
         <form id="registrationForm" action="{% url 'DangKyTaiKhoanThanhToan' %}" method="post">
             {% csrf_token %}
 
             <!-- Tên Chủ Tài Khoản -->
+            <label for="accountHolder">Tên chủ tài khoản</label>
             {{ Register_Payment_Account.accountHolder }}
             {% if Register_Payment_Account.accountHolder.errors %}
                 <ul class="error-list">
@@ -39,26 +41,41 @@
                 </ul>
             {% endif %}
 
-            <!-- Số Tài Khoản -->
-            {{ Register_Payment_Account.accountNumber }}
-            {% if Register_Payment_Account.accountNumber.errors %}
-                <ul class="error-list">
-                    {% for error in Register_Payment_Account.accountNumber.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-
             <!-- Phương Thức Thanh Toán -->
+            <label for="paymentMethod">Phương thức thanh toán</label>
             {{ Register_Payment_Account.paymentMethod }}
 
-            <!-- Thêm dropdown chọn Court Manager -->
+            <!-- Ô nhập tên ngân hàng (chỉ hiển thị nếu chọn ngân hàng) -->
+            <div id="bankNameContainer" style="display: none;">
+                <label for="bankName">Tên ngân hàng</label>
+                <input type="text" id="bankName" name="bankName" placeholder="Nhập tên ngân hàng">
+            </div>
+
+            <!-- Ô nhập số tài khoản (chỉ hiển thị nếu chọn ngân hàng) -->
+            <div id="bankAccountContainer" style="display: none;">
+                <label for="accountNumber">Số tài khoản</label>
+                {{ Register_Payment_Account.accountNumber }}
+                {% if Register_Payment_Account.accountNumber.errors %}
+                    <ul class="error-list">
+                        {% for error in Register_Payment_Account.accountNumber.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <!-- Ô nhập số điện thoại (chỉ hiển thị nếu chọn Momo) -->
+            <div id="phoneNumberContainer" style="display: none;">
+                <label for="phoneNumber">Số điện thoại (Momo)</label>
+                <input type="text" id="phoneNumber" name="phoneNumber" placeholder="Nhập số điện thoại MoMo" pattern="0[0-9]{9}" title="Số điện thoại phải có 10 số và bắt đầu bằng số 0">
+            </div>
+
+            <!-- Chọn Court Manager -->
             <label for="court_manager">Chọn Court Manager</label>
             <select id="court_manager" name="court_manager" required>
                 <option value="">-- Chọn Court Manager --</option>
                 {% for manager in court_managers %}
                 <option value="{{ manager.courtManager_id }}">{{ manager.user.username }}</option>
-
                 {% endfor %}
             </select>
             
@@ -68,6 +85,36 @@
 
     {% endblock %}
     {% include 'app1/Footer.html' %}
-    <script src="{% static 'app1/js/Register_Payment_Account.js' %}"></script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let paymentMethodField = document.getElementById("id_paymentMethod");
+            let bankNameContainer = document.getElementById("bankNameContainer");
+            let bankAccountContainer = document.getElementById("bankAccountContainer");
+            let phoneNumberContainer = document.getElementById("phoneNumberContainer");
+
+            function togglePaymentFields() {
+                if (paymentMethodField.value === "bank") {
+                    bankNameContainer.style.display = "block";
+                    bankAccountContainer.style.display = "block";
+                    phoneNumberContainer.style.display = "none";
+                } else if (paymentMethodField.value === "momo") {
+                    bankNameContainer.style.display = "none";
+                    bankAccountContainer.style.display = "none";
+                    phoneNumberContainer.style.display = "block";
+                } else {
+                    bankNameContainer.style.display = "none";
+                    bankAccountContainer.style.display = "none";
+                    phoneNumberContainer.style.display = "none";
+                }
+            }
+
+            // Gọi hàm khi trang load
+            togglePaymentFields();
+
+            // Lắng nghe thay đổi trên paymentMethodField
+            paymentMethodField.addEventListener("change", togglePaymentFields);
+        });
+    </script>
 </body>
 </html>

@@ -102,7 +102,7 @@ def trangOTP(request):
 def create_user_account(username, full_name, password):
     try:
         # Tạo đối tượng User trong database
-        user = User.objects.create_user(username=username, first_name=full_name, password=password)
+        user = User.objects.create_user(username=username,email=username ,first_name=full_name, password=password)
         user.save()
         return user
     except Exception:
@@ -145,7 +145,12 @@ def validate_otp_and_register(request):
                 # Gọi hàm tạo người dùng
                 user = create_user_account(username, full_name, password)
 
+
+
                 if user:
+                    # Tạo đối tượng Customer liên quan
+                    Customer.objects.get_or_create(user=user)
+
                     # Xóa thông tin OTP khỏi session
                     request.session.pop("otp", None)
                     request.session.pop("otp_created_at", None)
@@ -182,6 +187,11 @@ def resend_otp(request):
     return JsonResponse({'success': False, 'message': 'Yêu cầu không hợp lệ.'})
 
 
+def redirect_user(user):
+    # with open("debug.log", "a") as f:  
+    #     f.write(f"User: {user.username}, Nhóm: {[group.name for group in user.groups.all()]}\n")
+    return redirect('TrangChu')
+
 class Sign_In(View):
     def get(self, request):
         # Lấy email từ cookie nếu có
@@ -197,7 +207,7 @@ class Sign_In(View):
     def post(self, request):
         # Nếu user đã đăng nhập, không cần đăng nhập lại
         if request.user.is_authenticated:
-            return redirect('TrangChu')
+            return redirect_user(request.user)
 
         # Khởi tạo form với dữ liệu từ request.POST
         sign_in_form = SignInForm(request.POST)
@@ -223,8 +233,23 @@ class Sign_In(View):
             login(request, user)
             request.session['failed_attempts'] = 0  # Reset số lần sai
 
+            # Xác định loại tài khoản (Customer hoặc CourtManager)
+            user_role = None
+            if hasattr(user, 'customer'):
+                user_role = 'customer'
+            elif hasattr(user, 'court_manager'):
+                user_role = 'manage'
+            elif hasattr(user, 'system_admin'):
+                user_role = 'admin'
+            else:
+                user_role = 'staff'
+
+            # Lưu loại tài khoản vào session
+            request.session['user_role'] = user_role
+
             # Chuyển hướng về trang chủ sau khi đăng nhập thành công
-            response = redirect('TrangChu')
+            # response = redirect('TrangChu')
+            response = redirect_user(user)
 
             # Lưu email vào cookie nếu chọn "Nhớ tài khoản"
             if remember_me:
@@ -242,6 +267,29 @@ class Sign_In(View):
                 context['error_message'] = "Email hoặc mật khẩu không đúng."
 
             return render(request, 'app1/Sign_in.html', context)
+
+def get_user_role(request):
+    return request.session.get('user_role', None) 
+
+def get_menu_by_role(user_role):
+    if user_role == 'manage' or user_role == 'admin' or user_role == 'staff':
+        return 'app1/Menu-manager.html'
+    elif user_role == 'customer':
+        return 'app1/Menu.html'
+
+    
+def TrangChu(request):
+     
+    # Lấy thông tin user_role từ session
+    user_role = get_user_role(request)
+
+    menu = get_menu_by_role(user_role)
+    
+    context = {
+        'menu': menu
+    }  
+    return render(request, 'app1/TrangChu.html', context) if context else "Context is empty"
+
 # Quên mật khẩu
 class ForgotPassword(View):
     def get(self,request):
@@ -316,6 +364,11 @@ class New_password(View):
 def Logout(request):
     logout(request)
     return redirect('TrangChu')
+    
+# Đăng xuất 
+def Logout(request):
+    logout(request)
+    return redirect('TrangChu')
 
 def History(request):
     return render(request, 'app1/LichSuDatSan.html')
@@ -382,15 +435,18 @@ class SearchCourt(View):
         return render(request, 'app1/kqTimKiem.html', context)
 
 # Đăng ký tài khoản thanh toán của manager
-class DangKyTaiKhoanThanhToan(View):
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.views import View
+from .forms import RegisterPaymentAccountForm, SearchForm
+from .models import CourtManager, PaymentAccount
 
+class DangKyTaiKhoanThanhToan(View):
     def get(self, request):
         register_payment_Account = RegisterPaymentAccountForm()
         search_court = SearchForm()
-        court_managers = CourtManager.objects.all()  # Lấy danh sách CourtManager
-        
-        print(f"Danh sách CourtManager: {list(court_managers)}")  # Debug
-        
+        court_managers = CourtManager.objects.all()
+
         context = {
             'Register_Payment_Account': register_payment_Account,
             'searchCourt': search_court,
@@ -402,7 +458,7 @@ class DangKyTaiKhoanThanhToan(View):
         register_payment_Account = RegisterPaymentAccountForm(request.POST)
         search_court = SearchForm()
         court_managers = CourtManager.objects.all()
-        
+    
         context = {
             'Register_Payment_Account': register_payment_Account,
             'searchCourt': search_court,
@@ -410,15 +466,18 @@ class DangKyTaiKhoanThanhToan(View):
         }
 
         if not register_payment_Account.is_valid():
+            messages.error(request, "Thông tin nhập không hợp lệ!")
             return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
-        
-        # Lấy dữ liệu từ form
+    
+    # Lấy dữ liệu từ form
         accountHolder = register_payment_Account.cleaned_data['accountHolder']
-        accountNumber = register_payment_Account.cleaned_data['accountNumber']
         paymentMethod = register_payment_Account.cleaned_data['paymentMethod']
-        court_manager_id = request.POST.get('court_manager')  # Lấy ID của CourtManager được chọn
-        print(f"court_manager_id nhận được: {court_manager_id}")  # Debug
+        accountNumber = request.POST.get('accountNumber')  # Số tài khoản ngân hàng
+        phoneNumber = request.POST.get('phoneNumber')  # Số điện thoại MoMo
+        bankName = request.POST.get('bankName')  # Tên ngân hàng (nếu có)
+        court_manager_id = request.POST.get('court_manager')
 
+    # Kiểm tra nếu chưa chọn Court Manager
         if not court_manager_id:
             messages.error(request, "Vui lòng chọn Court Manager hợp lệ!")
             return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
@@ -429,23 +488,48 @@ class DangKyTaiKhoanThanhToan(View):
             messages.error(request, "Court Manager không tồn tại!")
             return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
 
-        # Kiểm tra nếu CourtManager đã có tài khoản thanh toán
-        if hasattr(court_manager, 'payment_account'):
+    # Kiểm tra Court Manager đã có tài khoản thanh toán chưa
+        if PaymentAccount.objects.filter(accountHolder=court_manager.user.username).exists():
             messages.error(request, "Court Manager này đã có tài khoản thanh toán!")
             return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
 
-        # Tạo tài khoản thanh toán mới và gán cho CourtManager
-        payment_account = PaymentAccount.objects.create(
-            accountHolder=accountHolder,
-            accountNumber=accountNumber,
-            paymentMethod=paymentMethod
-        )
+    # Xử lý theo phương thức thanh toán
+        if paymentMethod == "bank":
+            if not accountNumber or not bankName:
+                messages.error(request, "Vui lòng nhập đầy đủ số tài khoản và tên ngân hàng!")
+                return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
 
+            payment_account = PaymentAccount.objects.create(
+                accountHolder=accountHolder,
+                accountNumber=accountNumber,
+                bankName=bankName,
+                paymentMethod=paymentMethod
+            )
+
+        elif paymentMethod == "momo":
+            if not phoneNumber or not phoneNumber.isdigit() or len(phoneNumber) != 10:
+                messages.error(request, "Vui lòng nhập số điện thoại MoMo hợp lệ!")
+                return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+
+            payment_account = PaymentAccount.objects.create(
+                accountHolder=accountHolder,
+                phoneNumber=phoneNumber,  
+                paymentMethod=paymentMethod
+            )
+
+        else:
+            messages.error(request, "Phương thức thanh toán không hợp lệ!")
+            return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+
+    # Gán tài khoản thanh toán cho Court Manager
         court_manager.payment_account = payment_account
         court_manager.save()
 
         messages.success(request, "Đăng ký tài khoản thanh toán thành công!")
+    
         return redirect('DangKyTaiKhoanThanhToan')
+
+
 
 
 def lichThiDau(request):
@@ -466,6 +550,7 @@ def payment(request, booking_id, court_id):
     amount = Decimal(booking.amount).quantize(Decimal("0.001"))  
     
     return render(request, 'app1/payment.html', {'booking': booking, 'amount': amount})
+
 
 
 def manager_taikhoan(request):
@@ -605,85 +690,6 @@ def booking_view(request, court_id=None):
 
 
 
-
-
-
-
-
-
-
-
-
-
-# def court_badminton(request):
-#     get_court = CourtBadminton.objects.all()
-#     context = {'courts': get_court}
-#     return render(request, 'QuanLiUser/courtbadminton.html', context)
-
-# @decorators.login_required(login_url='login')
-# def history_booking(request):
-   
-#     get_history = CourtBooking.objects.all()
-#     context = {'historys': get_history}
-#     return render(request,'QuanLiUser/historybooking.html', context)
-
-# def search_court(request):
-#     query = request.GET.get('search_court')
-#     results = []
-#     if query:
-#         results = CourtBadminton.objects.filter(court_name__icontains = query)
-#     return render(request, 'QuanLiUser/kq_tim_kiem.html.html', {'query': query, 'results': results})
-
-# def search_court_two(request):
-#     data = CourtBadminton.objects.values_list('court_name','location','price_per_house')
-#     courts, locations, prices = zip(*data)
-#     return render(request, 'QuanLiUser/search_court2.html', {'courts': courts, 'locations': locations, 'prices': prices}) 
-
-# def result_search(request):
-#     court_name = request.GET.get('court_name')
-#     location = request.GET.get('location')
-#     prices = request.GET.get('price_per_house')
-#     is_available = request.GET.get('is_available')
-#     #chuyển sang true false:
-#     is_available = True if is_available == '1' else False
-#     results = []
-#     results = CourtBadminton.objects.filter(
-#         (Q(court_name__icontains = court_name) | Q(location__icontains = location)|Q(price_per_house__icontains = prices)) & Q(is_available = is_available)
-#     )
-#     return render(request, 'QuanLiUser/kq_tim_kiem.html', {'results': results})
-
-
-
-
-
-
-
-# class ForgotPassword(View):
-
-#     def get(self,request):
-#         ForgotPassword_Form = ForgotPasswordForm()
-#         context = {'form': ForgotPassword_Form}
-#         return render(request, 'QuanLiUser/Forgot_Password.html', context)
-
-#     def post(self, request):
-#         ForgotPassword_Form= ForgotPasswordForm(request.POST, initial={'otp': request.session.get('otp')})
-#         context = {'form': ForgotPassword_Form} 
-
-#         if 'send_otp' in request.POST:
-#             handle_send_otp(request, ForgotPassword_Form, context)
-#             return render(request, 'QuanLiUser/Forgot_Password.html', context)
-        
-
-
-        
-    
-
-
-
-
-
-
-
 def header_guest(request):
     return render(request, 'app1/Header-guest.html')
 
@@ -813,6 +819,29 @@ def them_san(request):
     badminton_halls = BadmintonHall.objects.all()
     return render(request, 'app1/them_san.html', {"courts": courts, "badminton_halls": badminton_halls})
 
+def getAll_role_User():
+    users_with_roles = []
+
+    for user in User.objects.all():
+        if hasattr(user, 'system_admin'):  
+            role = "Admin"
+        elif hasattr(user, 'court_manager'):  
+            role = "Quản lý"
+        elif hasattr(user, 'court_staff'):  
+            role = "Staff"
+        else:
+            role = "Người dùng"  
+
+        if role != "Admin":
+            users_with_roles.append({
+                "id": user.id,
+                "username": user.username,
+                "first_name": user.first_name,
+                "role": role
+            })
+
+    return users_with_roles
+
 #Quản lý thông tin sân
 def manager_san(request):
     courts = Court.objects.all()
@@ -864,3 +893,109 @@ def delete_court(request, court_id):
         messages.success(request, "Sân đã được xóa thành công!")
         return redirect("manager_san")
     return redirect("manager_san")
+
+def Account_Management(request):
+    Add_Account_Form = AddAccountForm()
+    # Danh sách người dùng kèm vai trò
+    users_with_roles = getAll_role_User()
+
+    context = {
+        "Add_Account_Form": Add_Account_Form,
+        "users_with_roles": users_with_roles
+    }
+    return render(request, 'app1/QuanLyTaiKhoan.html', context)
+
+def AddAccount_Manage(request):
+    print(f"Request method: {request.method}")  
+    if request.method == "POST":
+        Add_Account_Form = AddAccountForm(request.POST)
+      
+
+        if not Add_Account_Form.is_valid():
+            messages.error(request, "Form không hợp lệ. Vui lòng kiểm tra lại.")
+            return redirect('Account_Management')
+
+        # Lấy thông tin từ form
+        username = Add_Account_Form.cleaned_data['username']
+        password = Add_Account_Form.cleaned_data['password']
+        role = Add_Account_Form.cleaned_data['role']
+
+        try:
+            with transaction.atomic():
+                # Tạo user mới
+                user = User.objects.create_user(username=username, password=password)
+
+                # Nếu vai trò là quản lý thì tạo CourtManager
+                if role == "manage":
+                    CourtManager.objects.create(user=user)
+                    # Nếu vai trò là quản lý thì tạo CourtManager
+                elif role == "staff":
+                    CourtStaff.objects.create(user=user)
+
+                elif role == "user":
+                    Customer.objects.create(user=user)
+
+                # Nếu vai trò là người dùng, không cần tạo thêm Customer (xử lý tự động qua signal)
+                messages.success(request, "Thêm tài khoản mới thành công!")
+
+        except Exception as e:
+            messages.error(request, f"Lỗi khi thêm tài khoản: {str(e)}")
+
+        # Redirect về trang quản lý tài khoản
+        return redirect('Account_Management')
+    elif request.method == "GET":
+        # Chuyển hướng về trang quản lý tài khoản nếu truy cập qua GET
+        return redirect('Account_Management')
+    
+    # Nếu không phải POST hoăcj GET, trả về lỗi
+    messages.error(request, "Lỗi phương thức.")
+    return redirect('Account_Management')
+        
+# Xóa tài khoản
+def delete_user(request, user_id):
+    if request.method == "POST":
+        try:
+            user = User.objects.get(pk=user_id)
+            user.delete()
+            return JsonResponse({"message": "Tài khoản đã được xóa!"}, status=200)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "Tài khoản không tồn tại!"}, status=404)
+    return JsonResponse({"error": "Yêu cầu không hợp lệ!"}, status=400)
+
+
+def Update_account(request, user_id):
+    if request.method == "POST":
+        # Lấy thông tin user cần cập nhật
+        user = get_object_or_404(User, id=user_id)
+
+        # Lấy dữ liệu từ form
+        new_password = request.POST.get("password", "").strip()
+        new_role = request.POST.get("role", "").strip()
+
+        # Cập nhật password nếu có
+        if new_password:
+            user.set_password(new_password)
+
+        # Xóa tất cả vai trò cũ trước khi thêm vai trò mới
+        CourtManager.objects.filter(user=user).delete()
+        CourtStaff.objects.filter(user=user).delete()
+        Customer.objects.filter(user=user).delete()
+
+        if new_role:
+            if new_role == "manage":
+                CourtManager.objects.get_or_create(user=user)
+                
+            elif new_role == "staff":
+                CourtStaff.objects.get_or_create(user=user)
+                
+            elif new_role == "customer":
+                Customer.objects.get_or_create(user=user)
+                
+            
+        # Lưu thay đổi
+        user.save()
+
+        return JsonResponse({"status": "success", "message": "Tài khoản đã được cập nhật."})
+
+    return JsonResponse({"status": "error", "message": "Yêu cầu không hợp lệ."}, status=400)
+
