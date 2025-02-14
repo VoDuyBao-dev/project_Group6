@@ -75,8 +75,8 @@
       <td colspan="4">
         <form id="editAccountForm-{{ user.id }}">
           {% csrf_token %}
-          <input type="text" name="password" placeholder="Mật khẩu mới" />
-          <select name="role" required>
+          <input type="text" name="password" id='change_password' placeholder="Mật khẩu mới" />
+          <select name="role" id="role2" required>
             <option value="manage" {% if user.role == 'manage' %}selected{% endif %}>Quản trị viên</option>
             <option value="staff" {% if user.role == 'staff' %}selected{% endif %}>Staff</option>
             <option value="customer" {% if user.role == 'customer' %}selected{% endif %}>Người dùng</option>

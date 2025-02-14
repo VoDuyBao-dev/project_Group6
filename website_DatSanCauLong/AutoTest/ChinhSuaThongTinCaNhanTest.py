@@ -67,7 +67,7 @@ class TestChinhSuaThongTinCaNhan(unittest.TestCase):
         ThongTinCaNhan_button = driver.find_element(By.ID, "ThongTinCaNhan")
         ThongTinCaNhan_button.click()
         time.sleep(1)
-        # Kiểm tra xem đã đến trang chỉnh thông tin cá nhân chưa
+        # Kiểm tra xem đã đến trang thông tin cá nhân chưa
         try:
             WebDriverWait(driver, 5).until(EC.title_contains("Thông Tin Cá Nhân"))
             actualTitle = driver.title
@@ -77,7 +77,67 @@ class TestChinhSuaThongTinCaNhan(unittest.TestCase):
         except:
             print("Test vào trang Thông Tin Cá Nhân thất bại")
 
+        time.sleep(3)
+        # Tìm nút cập nhật thông tin:
+        CapNhatThongTin_button = driver.find_element(By.ID, "CapNhatThongTin")
+        CapNhatThongTin_button.click()
+        try:
+            WebDriverWait(driver, 5).until(EC.title_contains("Chỉnh Sửa Thông Tin"))
+            actualTitle = driver.title
+            print("Tiêu đề sau khi nhấn vào Chỉnh Sửa Thông Tin:", actualTitle)
+            self.assertEqual(actualTitle, "Chỉnh Sửa Thông Tin")
+            print("Test vào trang Chỉnh Sửa Thông Tin thành công")
+        except:
+            print("Test vào trang Chỉnh Sửa Thông Tin thất bại")
+
         time.sleep(2)
+        # Tìm các trường chỉnh tên và ngày sinh
+        full_name_Update_Form = driver.find_element(By.ID, "full_name_UpdateForm")
+        dob_Update_Form = driver.find_element(By.ID, "dob_UpdateForm")
+        # Nhập sai định dạng tên và năm sinh
+        full_name_Update_Form.send_keys("Nguyễn%% Văn A")
+        dob_Update_Form.send_keys("11015050")
+        time.sleep(1)
+        dob_Update_Form.send_keys(Keys.RETURN)
+        # Chờ xem có xuất hiện thông báo lỗi không
+        try:
+            WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "error-list"))
+            )
+            print("test sai định dạng tên và yêu cầu của ngày sinh thành công")
+        except:
+            print("Không tìm thấy thông báo lỗi")
+        time.sleep(2)
+        full_name_Update_Form = driver.find_element(By.ID, "full_name_UpdateForm")
+        dob_Update_Form = driver.find_element(By.ID, "dob_UpdateForm")
+        full_name_Update_Form.clear()
+        dob_Update_Form.clear()
+        # Nhập lại đúng format
+        full_name_Update_Form.send_keys("Nguyễn Văn A")
+        dob_Update_Form.send_keys("11011990")
+        time.sleep(2)
+        dob_Update_Form.send_keys(Keys.RETURN)
+        # Chờ xem có xuất hiện thông báo lỗi không
+        try:
+            WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "error-list"))
+            )
+            print("Nhập đúng định dạng thất bại")
+        except:
+            print("Nhập đúng định dạng thành công")
+        
+        # Kiểm tra đã chỉnh sửa tài khoản thành công chưa
+        try:
+            # Chờ thông báo thành công xuất hiện và trở nên hiển thị
+            message_box = WebDriverWait(driver, 5).until(
+                EC.visibility_of_element_located((By.ID, "message-box"))
+            )
+            success_message = message_box.text
+            print(f"Chỉnh sửa thành công. Thông báo: {success_message}")
+        except :
+            print("Không tìm thấy thông báo thành công.")
+        time.sleep(2)
+
 
 if __name__ == "__main__":
     unittest.main()

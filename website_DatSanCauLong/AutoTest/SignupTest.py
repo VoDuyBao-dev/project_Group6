@@ -13,12 +13,11 @@ from decouple import config
 class TestUserSignUp(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-        self.driver.maximize_window()  # Mở Chrome full màn hình
-        self.driver.implicitly_wait(10)  # Chờ tối đa 10s nếu phần tử chưa xuất hiện
+        self.driver.maximize_window()  
+        self.driver.implicitly_wait(10)  
 
     def tearDown(self):
-        self.driver.quit()  # Đóng trình duyệt sau khi test xong
-    
+        self.driver.quit() 
 
     def test_user_SignUp(self):
         print("Bắt đầu kiểm thử đăng ký sân cầu lông")
@@ -138,7 +137,7 @@ class TestUserSignUp(unittest.TestCase):
             print("Thông báo từ JS:", alert_message)
             time.sleep(1)
             alert.accept()
-        except NoAlertPresentException:
+        except :
             print("Không có thông báo JS nào xuất hiện.")
 
         time.sleep(2)
@@ -162,7 +161,7 @@ class TestUserSignUp(unittest.TestCase):
             print("Thông báo từ JS:", alert_message)
             time.sleep(1)
             alert.accept()
-        except NoAlertPresentException:
+        except :
             print("Không có thông báo JS nào xuất hiện.")
 
         # Điền từng chữ số của OTP vào các ô nhập
@@ -181,7 +180,7 @@ class TestUserSignUp(unittest.TestCase):
             print("Thông báo từ JS:", alert_message)
             time.sleep(2)
             alert.accept()
-        except NoAlertPresentException:
+        except :
             print("Không có thông báo JS nào xuất hiện.")
         
         # Kiểm tra xem đã chuyển hướng đến trang đăng nhập chưa

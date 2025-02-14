@@ -447,19 +447,17 @@ def ThongTinCaNhan(request):
     }
     return render(request, 'app1/ThongTinCaNhan.html', context)
 
+def get_role_and_profile(user):
+    if hasattr(user, 'customer'):  # Nếu user là Customer
+        return 'customer', user.customer
+    return 'other', 'none'
 
 # Chỉnh sửa thông tin cá nhân
 class ChinhSuaThongTinCaNhan(View):
     
     def get(self, request):
         user = request.user  # Lấy thông tin người dùng đã đăng nhập
-        # Kiểm tra loại tài khoản
-        if hasattr(user, 'customer'):  # Nếu user là Customer
-            role = 'customer'
-            profile = user.customer 
-        else:
-            role = 'other'  # User không có role cụ thể
-            profile = 'none'
+        role, profile = get_role_and_profile(user)
         ChinhSuaThongTin = FormChinhSuaThongTinCaNhan()
         context = {
             "ChinhSuaThongTin" : ChinhSuaThongTin,
@@ -469,13 +467,17 @@ class ChinhSuaThongTinCaNhan(View):
         return render(request, 'app1/ChinhSuaThongTin.html', context)
 
     def post(self, request):
+        user = request.user
+        role, profile = get_role_and_profile(user)
         ChinhSuaThongTin = FormChinhSuaThongTinCaNhan(request.POST)
-        context = {"ChinhSuaThongTin" : ChinhSuaThongTin} 
+        context = {
+            "ChinhSuaThongTin" : ChinhSuaThongTin,
+            'role': role,  # Truyền loại tài khoản vào template
+            'profile': profile,
+        }  
 
         if not ChinhSuaThongTin.is_valid():
             return render(request, 'app1/ChinhSuaThongTin.html', context)
-        
-        user = request.user
         
         #  Nếu dữ liệu hợp lệ:
         # Lấy dữ liệu
@@ -667,14 +669,17 @@ def Account_Management(request):
     return render(request, 'app1/QuanLyTaiKhoan.html', context)
 
 def AddAccount_Manage(request):
-    print(f"Request method: {request.method}")  
+      
     if request.method == "POST":
         Add_Account_Form = AddAccountForm(request.POST)
-      
-
+        users_with_roles = getAll_role_User()
+        context = {
+            "Add_Account_Form": Add_Account_Form,
+            "users_with_roles": users_with_roles
+        }
         if not Add_Account_Form.is_valid():
-            messages.error(request, "Form không hợp lệ. Vui lòng kiểm tra lại.")
-            return redirect('Account_Management')
+            # messages.error(request, "Form không hợp lệ. Vui lòng kiểm tra lại.")
+            return render(request, 'app1/QuanLyTaiKhoan.html', context)
 
         # Lấy thông tin từ form
         username = Add_Account_Form.cleaned_data['username']

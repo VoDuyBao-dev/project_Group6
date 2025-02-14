@@ -11,11 +11,11 @@ from webdriver_manager.chrome import ChromeDriverManager
 class TestUserSignIn(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-        self.driver.maximize_window()  # Mở Chrome full màn hình
-        self.driver.implicitly_wait(10)  # Chờ tối đa 10s nếu phần tử chưa xuất hiện
+        self.driver.maximize_window()  
+        self.driver.implicitly_wait(10)  
 
     def tearDown(self):
-        self.driver.quit()  # Đóng trình duyệt sau khi test xong
+        self.driver.quit()  
     
     def enter_credentials(self, password):
         # Nhập mật khẩu vào form đăng nhập
