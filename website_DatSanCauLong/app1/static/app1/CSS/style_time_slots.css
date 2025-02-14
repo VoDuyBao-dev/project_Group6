@@ -13,6 +13,7 @@ body {
     background-color: #f4f4f4;
     padding: 20px;
 }
+
 .container {
     background-color: white;
     padding: 20px;
@@ -34,6 +35,7 @@ label {
     margin-top: 10px;
     font-weight: bold;
 }
+
 /* 
 input, select {
     padding: 8px;
@@ -73,7 +75,7 @@ form select {
 button {
     width: 100%;
     padding: 10px;
-    background: #28a745;
+    background: #5757f4;
     color: white;
     border: none;
     border-radius: 5px;

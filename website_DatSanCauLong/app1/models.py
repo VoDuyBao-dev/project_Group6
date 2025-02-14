@@ -57,11 +57,21 @@ class SystemAdmin(models.Model):
     systemAdmin_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='system_admin')
 
+# Court Staff model
+class CourtStaff(models.Model):
+    court_staff_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='court_staff')
+    # def __str__(self):
+    #     return f"{self.user.username} - {self.badminton_hall.name}"
+
+
 
 class BadmintonHall(models.Model):
     badminton_hall_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     name = models.CharField(max_length=255)
     address = models.TextField()
+    # courtManager = models.ForeignKey(CourtManager, on_delete=models.CASCADE, related_name='courts')
+    # court_staff = models.ForeignKey(CourtStaff, on_delete=models.CASCADE, related_name='courts')
     def __str__(self):
         return self.name
 
@@ -77,8 +87,7 @@ class Court(models.Model):
     name = models.CharField(max_length=255, unique=True)
     image = models.ImageField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='empty')
-    # courtManager = models.ForeignKey(CourtManager, on_delete=models.CASCADE, related_name='courts')
-    # court_staff = models.ForeignKey(CourtStaff, on_delete=models.CASCADE, related_name='courts')
+    
 
     def __str__(self):
         return f"{self.name}"
@@ -147,13 +156,6 @@ class Payment(models.Model):
     payment_date = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField(default=False) # đã thanh toán hay chưa
 
-# Court Staff model
-class CourtStaff(models.Model):
-    court_staff_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='court_staff')
-    court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='court_staffs')
-    # def __str__(self):
-    #     return f"{self.user.username} - {self.badminton_hall.name}"
 
 # class CheckIn(models.Model):
 #     checkin_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)

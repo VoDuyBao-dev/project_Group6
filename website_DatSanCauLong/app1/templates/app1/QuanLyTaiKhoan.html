@@ -17,14 +17,12 @@
       <h1>Quản lý tài khoản</h1>
        <!-- Hiển thị thông báo -->
       {% if messages %}
-  <div class="messages">
-    {% for message in messages %}
-    <div class="message {{ message.tags }} show">
-        {{ message }}
-      </div>
-    {% endfor %}
-  </div>
-{% endif %}
+        <div class="messages">
+          {% for message in messages %}
+            <div class="message {{ message.tags }} show"> {{ message }} </div>
+          {% endfor %}
+        </div>
+      {% endif %}
       <div class="container">
         <!-- Form Thêm tài khoản -->
         <div class="form-container">
@@ -33,81 +31,73 @@
             {% csrf_token %}
             {{Add_Account_Form.username}}
             {% if Add_Account_Form.username.errors %}
-        <ul class="error-list">
-          {% for error in Add_Account_Form.username.errors %}
-          <li>{{ error }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
+              <ul class="error-list">
+                {% for error in Add_Account_Form.username.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
             {{Add_Account_Form.password}}
             {{Add_Account_Form.role}}
             <button type="submit" class="btn"><i class="fas fa-plus"></i> Thêm tài khoản</button>
           </form>
         </div>
 
-        <!-- Danh sách tài khoản -->
-        <h2>Danh sách tài khoản</h2>
-        <table id="accountList">
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Họ và tên</th>
-              <th>Vai trò</th>
-              <th>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Các tài khoản sẽ được thêm vào đây -->
-            {% for user in users_with_roles %}
-    <tr>
-      <td>{{ user.username }}</td> 
-      <td>{{ user.first_name }}</td>
-      <td>{{ user.role }}</td>
-      <td>
-        <button class="btn edit-btn" onclick="showEditForm({{ user.id }})"><i class="fas fa-edit"></i> Chỉnh sửa</button>
-        <button class="btn delete-btn" onclick="showDeleteModal({{ user.id }})">
-          <i class="fas fa-trash"></i> Xóa
-        </button>
-      </td>
-    </tr>
-    <!-- Hàng ẩn chứa form chỉnh sửa -->
-    <tr id="editRow-{{ user.id }}" class="edit-row hidden">
-      <td colspan="4">
-        <form id="editAccountForm-{{ user.id }}">
-          {% csrf_token %}
-          <input type="text" name="password" placeholder="Mật khẩu mới" />
-          <select name="role" required>
-            <option value="manage" {% if user.role == 'manage' %}selected{% endif %}>Quản trị viên</option>
-            <option value="staff" {% if user.role == 'staff' %}selected{% endif %}>Staff</option>
-            <option value="customer" {% if user.role == 'customer' %}selected{% endif %}>Người dùng</option>
-          </select>
-          <div class="actions">
-            <button type="button" class="btn" onclick="updateAccount({{ user.id }})">Cập nhật</button>
-            <button type="button" class="btn" onclick="hideEditForm({{ user.id }})">Hủy</button>
-          </div>
-        </form>
-      </td>
-    </tr>
-            {% endfor%}
-
-          </tbody>
-           
-        </tbody>
-        </table>
-
-        
+      <!-- Danh sách tài khoản -->
+      <h2>Danh sách tài khoản</h2>
+      <table id="accountList">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Họ và tên</th>
+            <th>Vai trò</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+      <!-- Các tài khoản sẽ được thêm vào đây -->
+        {% for user in users_with_roles %}
+          <tr>
+            <td>{{ user.username }}</td> 
+            <td>{{ user.first_name }}</td>
+            <td>{{ user.role }}</td>
+            <td>
+              <button class="btn edit-btn" onclick="showEditForm({{ user.id }})"><i class="fas fa-edit"></i> Chỉnh sửa</button>
+              <button class="btn delete-btn" onclick="showDeleteModal({{ user.id }})">
+                <i class="fas fa-trash"></i> Xóa
+              </button>
+            </td>
+          </tr>
+        <!-- Hàng ẩn chứa form chỉnh sửa -->
+          <tr id="editRow-{{ user.id }}" class="edit-row hidden">
+            <td colspan="4">
+              <form id="editAccountForm-{{ user.id }}">
+                {% csrf_token %}
+                <input type="text" name="password" placeholder="Mật khẩu mới" />
+                <select name="role" required>
+                  <option value="manage" {% if user.role == 'manage' %}selected{% endif %}>Quản trị viên</option>
+                  <option value="staff" {% if user.role == 'staff' %}selected{% endif %}>Staff</option>
+                  <option value="customer" {% if user.role == 'customer' %}selected{% endif %}>Người dùng</option>
+                </select>
+                <div class="actions">
+                  <button type="button" class="btn" onclick="updateAccount({{ user.id }})">Cập nhật</button>
+                  <button type="button" class="btn" onclick="hideEditForm({{ user.id }})">Hủy</button>
+                </div>
+              </form>
+            </td>
+          </tr>
+        {% endfor%}
+      </table>
+          <!-- Modal xác nhận xóa -->
+    <div id="deleteConfirmModal" class="modal hidden">
+      <div class="modal-content">
+        <h3>Bạn có chắc chắn muốn xóa tài khoản này không?</h3>
+        <p>Tài khoản sẽ bị xóa vĩnh viễn và không thể khôi phục.</p>
+        <div class="modal-actions">
+          <button class="btn confirm-delete" onclick="confirmDelete()">Xác nhận</button>
+          <button class="btn cancel-delete" onclick="closeDeleteModal()">Hủy</button>
+        </div>
       </div>
-      <!-- Modal xác nhận xóa -->
-<div id="deleteConfirmModal" class="modal hidden">
-  <div class="modal-content">
-    <h3>Bạn có chắc chắn muốn xóa tài khoản này không?</h3>
-    <p>Tài khoản sẽ bị xóa vĩnh viễn và không thể khôi phục.</p>
-    <div class="modal-actions">
-      <button class="btn confirm-delete" onclick="confirmDelete()">Xác nhận</button>
-      <button class="btn cancel-delete" onclick="closeDeleteModal()">Hủy</button>
     </div>
-  </div>
-</div>
     {% endblock %}
     {% include 'app1/Footer.html' %}
     <script src="{% static 'app1/js/QuanLyTaiKhoan.js' %}"></script>

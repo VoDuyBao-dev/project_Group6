@@ -24,6 +24,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from decimal import Decimal
+from django.db import transaction
 
 # Create your views here.   
 
@@ -134,12 +135,12 @@ def validate_otp_and_register(request):
                 # Gọi hàm tạo người dùng
                 user = create_user_account(username, full_name, password)
 
-            # Thêm người dùng vào nhóm "Customer" ở giao diện admin
-                group, created = Group.objects.get_or_create(name='Customer')
-                user.groups.add(group)
 
 
                 if user:
+                    # Tạo đối tượng Customer liên quan
+                    Customer.objects.get_or_create(user=user)
+
                     # Xóa thông tin OTP khỏi session
                     request.session.pop("otp", None)
                     request.session.pop("otp_created_at", None)
@@ -179,9 +180,6 @@ def resend_otp(request):
 def redirect_user(user):
     # with open("debug.log", "a") as f:  
     #     f.write(f"User: {user.username}, Nhóm: {[group.name for group in user.groups.all()]}\n")
-
-    if user.groups.filter(name="Admin").exists():
-        return redirect('/admin')
     return redirect('TrangChu')
 
 class Sign_In(View):
@@ -636,6 +634,9 @@ def AddAccount_Manage(request):
                 elif role == "staff":
                     CourtStaff.objects.create(user=user)
 
+                elif role == "user":
+                    Customer.objects.create(user=user)
+
                 # Nếu vai trò là người dùng, không cần tạo thêm Customer (xử lý tự động qua signal)
                 messages.success(request, "Thêm tài khoản mới thành công!")
 
@@ -706,6 +707,10 @@ def Update_account(request, user_id):
 
 
 # từ khúc này là con Lan làm có gì thì né né ra nha.
+
+def footer(request):
+    Badminton_Halls = BadmintonHall.objects.all()
+    return render(request, 'app1/Footer.html', {"Badminton_Halls": Badminton_Halls})
 
 
 # thêm thời gian(khung giờ) và giá,... của từng loại hình đặt lịch
