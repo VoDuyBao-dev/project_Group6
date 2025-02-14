@@ -15,7 +15,50 @@ body {
     background-size: cover;
     background-position: center;
 }
-
+.notification {
+    position: fixed;
+    top: 20px; /* Cách phía trên 20px */
+    left: 50%; /* Giữa màn hình theo chiều ngang */
+    transform: translateX(-50%); /* Căn giữa */
+    background-color:#0b87ec; 
+    color: white; /* Màu chữ */
+    padding: 15px 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    font-size: 16px;
+    font-weight: bold;
+    z-index: 9999; /* Luôn ở trên cùng */
+    animation: fade-in-out 5s ease-in-out; /* Hiệu ứng */
+  }
+  
+  /* Hiệu ứng fade-in và fade-out */
+  @keyframes fade-in-out {
+    0% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-10px);
+    }
+    10% {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    90% {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-10px);
+    }
+  }
+  
+.error-list {
+    color: white;
+    font-size: 16px;
+    margin-top: 8px;
+    text-align: left;
+    list-style-type: none;
+    padding-left: 15px; /* Căn lề trái để thẳng với input */
+  }
 .login-form {
     background: rgba(64, 64, 64, 0.15);
     border: 3px solid rgba(255, 255, 255, 0.3);
@@ -36,6 +79,7 @@ body {
 .input-box {
     margin: 20px 0;
     position: relative;
+    display: flexbox;
 }
 
 .input-box input {

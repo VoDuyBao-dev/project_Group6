@@ -16,6 +16,15 @@ body {
     background-position: center;
 }
 
+.error-list {
+    color: white; 
+    font-size: 16px;
+    margin-top: 8px;
+    text-align: left;
+    list-style-type: none;
+    padding-left: 15px; /* Căn lề trái để thẳng với input */
+  }
+
 .password-form {
     background: rgba(64, 64, 64, 0.15);
     border: 3px solid rgba(255, 255, 255, 0.3);

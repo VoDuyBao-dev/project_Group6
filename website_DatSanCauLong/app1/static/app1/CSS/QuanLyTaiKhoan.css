@@ -200,6 +200,7 @@ border-radius: 8px;
 text-align: center;
 max-width: 400px;
 width: 100%;
+color: black;
 }
 
 .modal-content h3 {
@@ -225,6 +226,6 @@ color: white;
 }
 
 .modal-actions .btn.cancel-delete {
-background-color: #95a5a6;
+background-color: #2cc2bb;
 color: white;
 }
