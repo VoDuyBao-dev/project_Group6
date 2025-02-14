@@ -35,15 +35,9 @@ def handle_send_otp(request, form_input):
         request.session['otp_created_at'] = timezone.now().isoformat()  # Lưu thời gian tạo OTP
         send_otp_email(username, otp)
         
-
-
-
-
 def header_user(request):
 
     return render(request, 'app1/Header-user.html')
-
-
 
 class Sign_Up(View):
     def get(self, request):
@@ -244,9 +238,9 @@ def get_user_role(request):
     return request.session.get('user_role', None) 
 
 def get_menu_by_role(user_role):
-    if user_role == 'manage' or user_role == 'admin' or user_role == 'staff':
+    if user_role == 'manage' or user_role == 'admin':
         return 'app1/Menu-manager.html'
-    elif user_role == 'customer':
+    elif user_role == 'customer' or user_role == 'staff':
         return 'app1/Menu.html'
 
     
@@ -254,7 +248,6 @@ def TrangChu(request):
      
     # Lấy thông tin user_role từ session
     user_role = get_user_role(request)
-
     menu = get_menu_by_role(user_role)
     
     context = {
@@ -387,8 +380,8 @@ class SearchCourt(View):
         return render(request, 'app1/kqTimKiem.html', context)
 
 # Đăng ký tài khoản thanh toán của manager
-class DangKyTaiKhoanThanhToan(View):
-
+class DangKyTaiKhoanThanhToan(LoginRequiredMixin,View):
+    login_url = 'Sign_in'
     def get(self,request):
         register_payment_Account=RegisterPaymentAccountForm()
 
@@ -424,17 +417,13 @@ class DangKyTaiKhoanThanhToan(View):
 # Thôg tin cá nhân
 def ThongTinCaNhan(request):
     user = request.user  # Lấy thông tin người dùng đã đăng nhập
+    user_role = get_user_role(request)
+    menu = get_menu_by_role(user_role)
 
     # Kiểm tra loại tài khoản
     if hasattr(user, 'customer'):  # Nếu user là Customer
         role = 'customer'
         profile = user.customer  # Lấy thông tin từ bảng Customer
-    # elif hasattr(user, 'court_manager'):  # Nếu user là Court Manager
-    #     role = 'manager'
-    #     profile = user.court_manager  # Lấy thông tin từ bảng Court Manager
-    # elif hasattr(user, 'system_admin'):  # Nếu user là system_admin
-    #     role = 'admin'
-    #     profile = user.system_admin  # Lấy thông tin từ bảng system_admin
     else:
         role = 'other'  # User không có role cụ thể
         profile = 'none'
@@ -444,6 +433,7 @@ def ThongTinCaNhan(request):
         'user': user,  
         'role': role,  # Truyền loại tài khoản vào template
         'profile': profile,  # Truyền thông tin profile cụ thể
+        'menu': menu
     }
     return render(request, 'app1/ThongTinCaNhan.html', context)
 
@@ -459,10 +449,15 @@ class ChinhSuaThongTinCaNhan(View):
         user = request.user  # Lấy thông tin người dùng đã đăng nhập
         role, profile = get_role_and_profile(user)
         ChinhSuaThongTin = FormChinhSuaThongTinCaNhan()
+        user_role = get_user_role(request)
+        menu = get_menu_by_role(user_role)
+    
+   
         context = {
             "ChinhSuaThongTin" : ChinhSuaThongTin,
             'role': role,  # Truyền loại tài khoản vào template
             'profile': profile,
+            'menu': menu
         } 
         return render(request, 'app1/ChinhSuaThongTin.html', context)
 
@@ -499,61 +494,6 @@ class ChinhSuaThongTinCaNhan(View):
         messages.success(request, "Chỉnh sửa thông tin thành công!")
         return redirect('ThongTinCaNhan')
 
-
-# def court_badminton(request):
-#     get_court = CourtBadminton.objects.all()
-#     context = {'courts': get_court}
-#     return render(request, 'QuanLiUser/courtbadminton.html', context)
-
-# @decorators.login_required(login_url='login')
-# def history_booking(request):
-   
-#     get_history = CourtBooking.objects.all()
-#     context = {'historys': get_history}
-#     return render(request,'QuanLiUser/historybooking.html', context)
-
-# def search_court(request):
-#     query = request.GET.get('search_court')
-#     results = []
-#     if query:
-#         results = CourtBadminton.objects.filter(court_name__icontains = query)
-#     return render(request, 'QuanLiUser/kq_tim_kiem.html.html', {'query': query, 'results': results})
-
-# def search_court_two(request):
-#     data = CourtBadminton.objects.values_list('court_name','location','price_per_house')
-#     courts, locations, prices = zip(*data)
-#     return render(request, 'QuanLiUser/search_court2.html', {'courts': courts, 'locations': locations, 'prices': prices}) 
-
-# def result_search(request):
-#     court_name = request.GET.get('court_name')
-#     location = request.GET.get('location')
-#     prices = request.GET.get('price_per_house')
-#     is_available = request.GET.get('is_available')
-#     #chuyển sang true false:
-#     is_available = True if is_available == '1' else False
-#     results = []
-#     results = CourtBadminton.objects.filter(
-#         (Q(court_name__icontains = court_name) | Q(location__icontains = location)|Q(price_per_house__icontains = prices)) & Q(is_available = is_available)
-#     )
-#     return render(request, 'QuanLiUser/kq_tim_kiem.html', {'results': results})
-
-
-
-
-# class ForgotPassword(View):
-
-#     def get(self,request):
-#         ForgotPassword_Form = ForgotPasswordForm()
-#         context = {'form': ForgotPassword_Form}
-#         return render(request, 'QuanLiUser/Forgot_Password.html', context)
-
-#     def post(self, request):
-#         ForgotPassword_Form= ForgotPasswordForm(request.POST, initial={'otp': request.session.get('otp')})
-#         context = {'form': ForgotPassword_Form} 
-
-#         if 'send_otp' in request.POST:
-#             handle_send_otp(request, ForgotPassword_Form, context)
-#             return render(request, 'QuanLiUser/Forgot_Password.html', context)
  
 
 # từ khúc này là con Lan làm có gì thì né né ra nha.
@@ -657,6 +597,7 @@ def getAll_role_User():
 
     return users_with_roles
 
+@decorators.login_required(login_url='Sign_in')
 def Account_Management(request):
     Add_Account_Form = AddAccountForm()
     # Danh sách người dùng kèm vai trò
@@ -764,17 +705,9 @@ def Update_account(request, user_id):
 
 
 
-def menu(request):
-    return render(request, 'app1/Menu.html')
-
-# def menu_manager(request):
-#     return render(request, 'app1/Menu-manager.html')
 
 
 
-# tươg lai xóa
-# def manager_taikhoan(request):
-#     return render(request, 'app1/QuanLyTaiKhoan.html')
 
 def manager_san(request):
     return render(request, 'app1/QuanLyThongTinSan.html')

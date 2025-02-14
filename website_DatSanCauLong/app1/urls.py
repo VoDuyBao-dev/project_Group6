@@ -1,12 +1,8 @@
-from django.contrib import admin
-from django.urls import path, include
-from django.shortcuts import render 
+
+from django.urls import path
+ 
 from . import views
 from .views import *
-
-
-from django.conf import settings
-from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -28,7 +24,6 @@ urlpatterns = [
     path('SearchCourt/', SearchCourt.as_view(), name= 'SearchCourt'),
     path('DangKyTaiKhoanThanhToan/', DangKyTaiKhoanThanhToan.as_view(), name='DangKyTaiKhoanThanhToan'),
     path('header_user/', views.header_user, name='header_user'),
-    path('menu/', views.menu, name='menu'),
     path('History/', views.History, name= 'History'),
     path('price_list/', views.price_list, name='price_list'),
    
@@ -58,6 +53,7 @@ urlpatterns = [
     path('delete_time_slot/<str:slot_id>/', views.delete_time_slot, name='delete_time_slot'),
     path('ThongTinCaNhan/', views.ThongTinCaNhan, name='ThongTinCaNhan'),
     path('ChinhSuaThongTinCaNhan/', ChinhSuaThongTinCaNhan.as_view(), name='ChinhSuaThongTinCaNhan'),
+
 ] 
 # coi url
 

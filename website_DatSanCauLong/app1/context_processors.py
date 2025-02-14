@@ -10,3 +10,4 @@ def badminton_halls_context(request):
 def search_form_processor(request):
     search_court = SearchForm()
     return {'searchCourt': search_court,}
+
