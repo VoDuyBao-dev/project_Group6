@@ -5,9 +5,6 @@ from . import views
 from .views import *
 
 
-from django.conf import settings
-from django.conf.urls.static import static
-
 
 urlpatterns = [
     path('', views.TrangChu, name= 'TrangChu'),
@@ -37,17 +34,29 @@ urlpatterns = [
     path('bao_cao/', views.bao_cao, name='bao_cao'),
     path('checkin/', views.checkin, name='checkin'),
     
+    path("footer/", views.footer, name="footer"),
     path('lichThiDau/', views.lichThiDau, name='lichThiDau'),
     path('them_san_moi/', views.them_san_moi, name='them_san_moi'),
     path('them_san/', views.them_san, name='them_san'),
-    path('payment/', views.payment, name='payment'),
-    path('booking/', views.booking, name='booking'),
-    path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
+    path('payment/<str:booking_id>/<str:court_id>/', views.payment, name='payment'),
+    path('payment/', views.thanhToan, name='thanhToan'),
+    path('booking/<str:court_id>/', views.booking, name='booking'),
+    # path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
 
-
-    # path('menu_manager/', views.menu_manager, name='menu_manager'),
+    path('menu_manager/', views.menu_manager, name='menu_manager'),
     path('manage_time_slots/', views.manage_time_slots, name='manage_time_slots'),
     path('delete_time_slot/<str:slot_id>/', views.delete_time_slot, name='delete_time_slot'),
+
+    path('court/edit/<str:court_id>/', edit_court, name='edit_court'),
+    path('court/delete/<str:court_id>/', delete_court, name='delete_court'),
+    # quản lí tài khoản:
+    path('Account_Management/', views.Account_Management, name='Account_Management'),
+    # 1. thêm tài khoản
+    path('AddAccount_Manage/', views.AddAccount_Manage, name='AddAccount_Manage'),
+    # 2. xóa tài khoản
+    path('delete-user/<int:user_id>/', views.delete_user, name='delete_user'),
+    # 3. Cập nhật tài khoản
+    path('Update_account/<int:user_id>/', views.Update_account, name='Update_account'),
     path('ThongTinCaNhan/', views.ThongTinCaNhan, name='ThongTinCaNhan'),
     path('ChinhSuaThongTinCaNhan/', ChinhSuaThongTinCaNhan.as_view(), name='ChinhSuaThongTinCaNhan'),
     
@@ -57,5 +66,7 @@ urlpatterns = [
 
 ] 
 # coi url
+
+
 
 

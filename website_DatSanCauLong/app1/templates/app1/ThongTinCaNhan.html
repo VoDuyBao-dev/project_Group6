@@ -9,36 +9,40 @@
   </head>
   <body>
     {% include 'app1/Header-user.html' %}
+    {% if request.user.groups.all.0.name == 'Customer' %}
+      {% include 'app1/Menu.html' %}
+    {% elif request.user.groups.all.0.name != 'Customer' %}
+      {% include 'app1/Menu-manager.html' %}
+    {% endif %}
     {% block content %}
-    {% if messages %}
-    <div id="message-box" class="message success show">
-        {% for message in messages %}
+      {% if messages %}
+        <div id="message-box" class="message success show">
+          {% for message in messages %}
             <p>{{ message }}</p>
-        {% endfor %}
-    </div>
-{% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
       <div class="container">
         <h2>Thông Tin Cá Nhân</h2>
         <!-- View Mode -->
         <div id="info-view" class="info">
           {% if role == 'customer' %}
-          <p>
-            <strong>Tên:</strong> <span id="username">{{user.first_name}}</span>
-          </p>
-          <p>
-            <strong>Ngày sinh:</strong> <span id="dob">{{profile.date_of_birth|date:"d/m/Y"}}</span>
-          </p>
-          <p>
-            <strong>Email:</strong> <span id="email">{{user.username}}</span>
-          </p>
-          {% elif role == 'manager' %}
-          <p>
-            <strong>Tên:</strong> <span id="username">{{user.first_name}}</span>
-          </p>
-          
-          <p>
-            <strong>Email:</strong> <span id="email">{{user.username}}</span>
-          </p>
+            <p>
+              <strong>Tên:</strong> <span id="username">{{ user.first_name }}</span>
+            </p>
+            <p>
+              <strong>Ngày sinh:</strong> <span id="dob">{{ profile.date_of_birth|date:'d/m/Y' }}</span>
+            </p>
+            <p>
+              <strong>Email:</strong> <span id="email">{{ user.username }}</span>
+            </p>
+          {% elif role == 'other' %}
+            <p>
+              <strong>Tên:</strong> <span id="username">{{ user.first_name }}</span>
+            </p>
+            <p>
+              <strong>Email:</strong> <span id="email">{{ user.username }}</span>
+            </p>
           {% endif %}
           <a href="{% url 'ChinhSuaThongTinCaNhan' %}" class="button edit-button">Cập nhật thông tin</a>
         </div>

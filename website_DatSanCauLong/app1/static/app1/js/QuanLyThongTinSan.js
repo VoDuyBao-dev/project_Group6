@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-    document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
     const messageBox = document.getElementById("message-box");
     if (messageBox) {
         setTimeout(() => {

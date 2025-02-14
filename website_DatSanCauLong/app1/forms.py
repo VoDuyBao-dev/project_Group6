@@ -130,8 +130,14 @@ class SignInForm(forms.Form):
         username = cleaned_data.get("username")
         errors = {}
 
-        if not is_valid_email(username):
-            errors['username'] = "Email không hợp lệ."
+        # if not is_valid_email(username):
+        #     errors['username'] = "Email không hợp lệ."
+
+        # Nếu người đăng nhập không thuộc group customer thì thông báo lỗi
+        user = User.objects.filter(username=username).first()
+        if user and user.groups.filter(name='Customer').exists():
+            if not is_valid_email(username):
+                errors['username'] = "Email không hợp lệ."
 
 
         for field, error in errors.items():
@@ -159,8 +165,12 @@ class ForgotPasswordForm(forms.Form):
         if not User.objects.filter(username = username).exists():
             errors['username'] = "Người dùng không tồn tại."
 
-        if not is_valid_email(username):
-            errors['username'] = "Email không hợp lệ."
+        # if not is_valid_email(username):
+        #     errors['username'] = "Email không hợp lệ."
+        user = User.objects.filter(username=username).first()
+        if user and user.groups.filter(name='Customer').exists():
+            if not is_valid_email(username):
+                errors['username'] = "Email không hợp lệ."
 
         for field, error in errors.items():
             self.add_error(field, error)
@@ -201,11 +211,11 @@ class NewPasswordForm(forms.Form):
 
    
     
-# form này con Lan làm nha.
-class TimeSlotTemplateForm(forms.ModelForm):
-    class Meta:
-        model = TimeSlotTemplate
-        fields = ["day_of_week", "time_frame", "fixed_price", "daily_price", "flexible_price", "status"]
+# # form này con Lan làm nha.
+# class TimeSlotTemplateForm(forms.ModelForm):
+#     class Meta:
+#         model = TimeSlotTemplate
+#         fields = ["day_of_week", "time_frame", "fixed_price", "daily_price", "flexible_price", "status"]
    
 
 
@@ -334,19 +344,61 @@ class FormChinhSuaThongTinCaNhan(forms.Form):
 
         return cleaned_data  # Trả về dữ liệu đã làm sạch
 
+# form thêm tài khoản của manage _ Quan lý tài khoản
+class AddAccountForm(forms.Form):
+    username = forms.CharField(
+        max_length=150,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Email',
+            'id': 'username_add_account'
+        })
+    )
+    
+    password = forms.CharField(
+        max_length=128,
+        required=True,
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Mật khẩu',
+            'id': 'password_add_account'
+        })
+    )
 
+    role = forms.ChoiceField(
+        choices=[
+            ('', 'Chọn vai trò'),
+            ('manage', 'Quản trị viên'),
+            ('staff', 'staff'),
+            ('user', 'Người dùng')
+        ],
+        required=True,
+        widget=forms.Select(attrs={
+            'id': 'role'
+        })
+    )
 
-
-
-
-
-
-
-
-# Tạo form cho TimeSlotTemplate(thêm khung thời gian và giá)
-# class TimeSlotTemplateForm(forms.ModelForm):
-#     class Meta:
-#         model = TimeSlotTemplate
-#         fields = ['day_of_week', 'time_frame', 'fixed_price', 'daily_price', 'flexible_price', 'status']
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get("username")
         
+
+        #  Biến để lưu lỗi
+        errors = {}
+
+        if not is_valid_email(username):
+            errors['username'] = "Email không hợp lệ."
+        
+        # Kiểm tra tên người dùng
+        if  User.objects.filter(username=username).exists():
+            errors['username'] = "Người dùng đã tồn tại."
+            
+        # Nếu có lỗi, thêm vào biểu mẫu
+        for field, error in errors.items():
+            self.add_error(field, error)
+
+        return cleaned_data  # Trả về dữ liệu đã làm sạch
+
+
+
+
 
