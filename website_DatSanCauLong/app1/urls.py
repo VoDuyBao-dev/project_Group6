@@ -24,7 +24,7 @@ urlpatterns = [
     path('SearchCourt/', SearchCourt.as_view(), name= 'SearchCourt'),
     path('DangKyTaiKhoanThanhToan/', DangKyTaiKhoanThanhToan.as_view(), name='DangKyTaiKhoanThanhToan'),
     path('header_user/', views.header_user, name='header_user'),
-    path('History/', views.History, name= 'History'),
+   
     path('price_list/', views.price_list, name='price_list'),
    
    
@@ -32,11 +32,11 @@ urlpatterns = [
     path('bao_cao/', views.bao_cao, name='bao_cao'),
     path('checkin/', views.checkin, name='checkin'),
     
-    path('lichThiDau/', views.lichThiDau, name='lichThiDau'),
+    
     path('them_san_moi/', views.them_san_moi, name='them_san_moi'),
     path('them_san/', views.them_san, name='them_san'),
-    path('payment/', views.payment, name='payment'),
-    path('booking/', views.booking, name='booking'),
+    
+    
     # quản lí tài khoản:
     path('Account_Management/', views.Account_Management, name='Account_Management'),
     # 1. thêm tài khoản

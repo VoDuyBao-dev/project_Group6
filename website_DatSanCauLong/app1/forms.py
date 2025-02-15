@@ -130,8 +130,11 @@ class SignInForm(forms.Form):
         username = cleaned_data.get("username")
         errors = {}
 
-        if not is_valid_email(username):
-            errors['username'] = "Email không hợp lệ."
+        # Nếu người đăng nhập không thuộc group customer thì thông báo lỗi
+        user = User.objects.filter(username=username).first()
+        if user and user.groups.filter(name='Customer').exists():
+            if not is_valid_email(username):
+                errors['username'] = "Email không hợp lệ."
 
 
         for field, error in errors.items():
@@ -159,8 +162,11 @@ class ForgotPasswordForm(forms.Form):
         if not User.objects.filter(username = username).exists():
             errors['username'] = "Người dùng không tồn tại."
 
-        if not is_valid_email(username):
-            errors['username'] = "Email không hợp lệ."
+        
+        user = User.objects.filter(username=username).first()
+        if user and user.groups.filter(name='Customer').exists():
+            if not is_valid_email(username):
+                errors['username'] = "Email không hợp lệ."
 
         for field, error in errors.items():
             self.add_error(field, error)
@@ -304,17 +310,15 @@ class FormChinhSuaThongTinCaNhan(forms.Form):
         })
     )
 
-    # def __init__(self, *args, **kwargs):
-    #     # Lấy user và customer từ kwargs để điền dữ liệu vào form
-    #     self.user = kwargs.pop('user', None)
-    #     self.customer = kwargs.pop('customer', None)
-    #     super().__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)  # Lấy user từ kwargs
+        super().__init__(*args, **kwargs)
 
-    #     # Nếu user và customer tồn tại, prepopulate dữ liệu vào form
-    #     if self.user:
-    #         self.fields['full_name'].initial = self.user.first_name
-    #     if self.customer:
-    #         self.fields['date_of_birth'].initial = self.customer.date_of_birth
+        if user:
+            self.fields['full_name'].initial = user.first_name  # Gán tên mặc định từ User
+    
+        
+
 
     def clean(self):
         cleaned_data = super().clean()
@@ -359,7 +363,7 @@ class AddAccountForm(forms.Form):
             ('', 'Chọn vai trò'),
             ('manage', 'Quản trị viên'),
             ('staff', 'staff'),
-            ('user', 'Người dùng')
+            ('customer', 'Người dùng')
         ],
         required=True,
         widget=forms.Select(attrs={

@@ -15,12 +15,14 @@ from datetime import timedelta
 from django.http import JsonResponse
 from .models import *
 import json
-# import nanoid
+
 from .models import TimeSlotTemplate
 from .forms import TimeSlotTemplateForm  # Sẽ tạo file form ở bước tiếp theo
 from django.shortcuts import get_object_or_404
 from .models import BadmintonHall
 from django.db import transaction
+from .context_processors import get_user_role
+
 
 # Create your views here.   
 
@@ -123,6 +125,8 @@ def validate_otp_and_register(request):
                 user = create_user_account(username, full_name, password)
 
                 if user:
+                    # Tạo đối tượng Customer liên quan
+                    Customer.objects.get_or_create(user=user)
                     # Xóa thông tin OTP khỏi session
                     request.session.pop("otp", None)
                     request.session.pop("otp_created_at", None)
@@ -234,13 +238,12 @@ class Sign_In(View):
 
             return render(request, 'app1/Sign_in.html', context)
 
-def get_user_role(request):
-    return request.session.get('user_role', None) 
 
+# file get_user_role đã chuyển qua processor
 def get_menu_by_role(user_role):
-    if user_role == 'manage' or user_role == 'admin':
+    if user_role == 'manage' or user_role == 'admin'or user_role == 'staff':
         return 'app1/Menu-manager.html'
-    elif user_role == 'customer' or user_role == 'staff':
+    elif user_role == 'customer' or user_role == None:
         return 'app1/Menu.html'
 
     
@@ -330,15 +333,6 @@ def Logout(request):
     logout(request)
     return redirect('TrangChu')
 
-def History(request):
-    return render(request, 'app1/LichSuDatSan.html')
-
-def payment(request):
-    return render(request, 'app1/payment.html')
-
-# def price_list(request):
-#     
-#     return render(request, 'app1/price_list.html')
 
 def San(request):
     courts = Court.objects.all()
@@ -448,7 +442,7 @@ class ChinhSuaThongTinCaNhan(View):
     def get(self, request):
         user = request.user  # Lấy thông tin người dùng đã đăng nhập
         role, profile = get_role_and_profile(user)
-        ChinhSuaThongTin = FormChinhSuaThongTinCaNhan()
+        ChinhSuaThongTin = FormChinhSuaThongTinCaNhan(user=user)
         user_role = get_user_role(request)
         menu = get_menu_by_role(user_role)
     
@@ -464,7 +458,7 @@ class ChinhSuaThongTinCaNhan(View):
     def post(self, request):
         user = request.user
         role, profile = get_role_and_profile(user)
-        ChinhSuaThongTin = FormChinhSuaThongTinCaNhan(request.POST)
+        ChinhSuaThongTin = FormChinhSuaThongTinCaNhan(request.POST, user=user)
         context = {
             "ChinhSuaThongTin" : ChinhSuaThongTin,
             'role': role,  # Truyền loại tài khoản vào template
@@ -619,7 +613,7 @@ def AddAccount_Manage(request):
             "users_with_roles": users_with_roles
         }
         if not Add_Account_Form.is_valid():
-            # messages.error(request, "Form không hợp lệ. Vui lòng kiểm tra lại.")
+
             return render(request, 'app1/QuanLyTaiKhoan.html', context)
 
         # Lấy thông tin từ form
@@ -638,8 +632,10 @@ def AddAccount_Manage(request):
                     # Nếu vai trò là quản lý thì tạo CourtManager
                 elif role == "staff":
                     CourtStaff.objects.create(user=user)
-
-                # Nếu vai trò là người dùng, không cần tạo thêm Customer (xử lý tự động qua signal)
+                elif role == "customer":
+                    Customer.objects.create(user=user)
+                
+                
                 messages.success(request, "Thêm tài khoản mới thành công!")
 
         except Exception as e:
@@ -705,27 +701,15 @@ def Update_account(request, user_id):
 
 
 
-
-
-
-
-def manager_san(request):
-    return render(request, 'app1/QuanLyThongTinSan.html')
-
-def lichThiDau(request):
-    return render(request, 'app1/LichThiDau.html')
-
 def themSan(request):
     return render(request, 'app1/ThemSanMoi.html')
 
-def booking(request):
-    return render(request, 'app1/Book.html')
 
 def payment(request):
     return render(request, 'app1/payment.html')
 
-def manager_taikhoan(request):
-    return render(request, 'app1/QuanLyTaiKhoan.html')
 
 def manager_san(request):
     return render(request, 'app1/QuanLyThongTinSan.html')
+
+

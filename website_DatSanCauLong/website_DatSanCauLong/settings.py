@@ -67,6 +67,7 @@ TEMPLATES = [
                 # Thêm context processor của bạn vào đây
                 'app1.context_processors.badminton_halls_context',
                 'app1.context_processors.search_form_processor',
+                'app1.context_processors.user_role_context',
             ],
         },
     },
