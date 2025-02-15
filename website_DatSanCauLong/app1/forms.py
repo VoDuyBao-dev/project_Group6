@@ -225,16 +225,20 @@ class SearchForm(forms.Form):
     )
   
 # đăng kí tài khoản thanh toán
+from django import forms
+from app1.models import PaymentAccount
+import re
+
 class RegisterPaymentAccountForm(forms.Form):
     accountHolder = forms.CharField(
         label="Tên chủ tài khoản",
         max_length=100,
-        widget=forms.TextInput(attrs={'placeholder': 'Nhập tên chủ tài khoản', 'required': True})
+        widget=forms.TextInput(attrs={'placeholder': 'Nhập tên chủ tài khoản'})
     )
     accountNumber = forms.CharField(
         label="Số tài khoản",
         max_length=50,
-        widget=forms.TextInput(attrs={'placeholder': 'Nhập số tài khoản', 'required': True})
+        widget=forms.TextInput(attrs={'placeholder': 'Nhập số tài khoản'})
     )
     paymentMethod = forms.ChoiceField(
         label="Phương thức thanh toán",
@@ -243,13 +247,19 @@ class RegisterPaymentAccountForm(forms.Form):
             ("bank", "Ngân hàng"),
             ("momo", "Momo")
         ],
-        widget=forms.Select(attrs={'required': True})
+        widget=forms.Select()
     )
-    bankName = forms.CharField(  # Thêm trường này
+    bankName = forms.CharField(
         label="Tên ngân hàng",
         max_length=255,
-        required=False,  # Chỉ yêu cầu khi chọn phương thức ngân hàng
+        required=False,
         widget=forms.TextInput(attrs={'placeholder': 'Nhập tên ngân hàng'})
+    )
+    phoneNumber = forms.CharField(
+        label="Số điện thoại MoMo",
+        max_length=10,
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'Nhập số điện thoại MoMo'})
     )
 
     def clean(self):
@@ -258,35 +268,37 @@ class RegisterPaymentAccountForm(forms.Form):
         accountNumber = cleaned_data.get("accountNumber", "").strip()
         paymentMethod = cleaned_data.get("paymentMethod")
         bankName = cleaned_data.get("bankName", "").strip()
+        phoneNumber = cleaned_data.get("phoneNumber", "").strip()
+
         errors = {}
 
         if paymentMethod == "bank":
             if not bankName:
                 errors['bankName'] = "Vui lòng nhập tên ngân hàng."
             if not re.match(r'^[A-Z\s]+$', accountHolder):
-                errors['accountHolder'] = "Tên chủ tài khoản chỉ được chứa chữ cái in hoa và khoảng trắng."
+                errors['accountHolder'] = "Tên chủ tài khoản chỉ được chứa chữ in hoa và khoảng trắng."
             if not accountNumber.isdigit():
-                errors['accountNumber'] = "Số tài khoản chỉ được chứa các chữ số."
+                errors['accountNumber'] = "Số tài khoản chỉ được chứa số."
             if len(accountNumber) < 9:
                 errors['accountNumber'] = "Số tài khoản phải có ít nhất 9 chữ số."
 
         elif paymentMethod == "momo":
             if not re.match(r'^[A-Za-zÀ-ỹ\s]+$', accountHolder):
-                errors['accountHolder'] = "Tên chủ tài khoản chỉ được chứa chữ cái in hoa, in thường, dấu và khoảng trắng."
-            if not accountNumber.isdigit():
-                errors['accountNumber'] = "Số tài khoản chỉ được chứa các chữ số."
-            if len(accountNumber) < 10:
-                errors['accountNumber'] = "Số tài khoản phải có ít nhất 10 chữ số."
+                errors['accountHolder'] = "Tên chủ tài khoản chỉ được chứa chữ cái và khoảng trắng."
+            if not phoneNumber.isdigit():
+                errors['phoneNumber'] = "Số điện thoại chỉ được chứa số."
+            if len(phoneNumber) != 10:
+                errors['phoneNumber'] = "Số điện thoại phải có đúng 10 chữ số."
 
         # Kiểm tra trùng số tài khoản
         if PaymentAccount.objects.filter(accountNumber=accountNumber, paymentMethod=paymentMethod).exists():
             errors['accountNumber'] = "Số tài khoản này đã được sử dụng với phương thức thanh toán này."
 
-
         for field, error in errors.items():
             self.add_error(field, error)
 
-        return cleaned_data  
+        return cleaned_data
+
 
 
 

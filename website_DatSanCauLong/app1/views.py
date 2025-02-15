@@ -409,7 +409,7 @@ def bao_cao(request):
     return render(request, 'app1/BaoCaoDoanhThu.html')
 
 def checkin(request):
-    return render(request, 'app1/Chek-in.html')
+    return render(request, 'app1/Check-in.html')
 
 # Tìm kiếm sân
 class SearchCourt(View):
@@ -435,11 +435,12 @@ class SearchCourt(View):
         return render(request, 'app1/kqTimKiem.html', context)
 
 # Đăng ký tài khoản thanh toán của manager
+
 from django.shortcuts import render, redirect
-from django.contrib import messages
 from django.views import View
-from .forms import RegisterPaymentAccountForm, SearchForm
-from .models import CourtManager, PaymentAccount
+from django.contrib import messages
+from app1.models import CourtManager, PaymentAccount
+from app1.forms import RegisterPaymentAccountForm, SearchForm
 
 class DangKyTaiKhoanThanhToan(View):
     def get(self, request):
@@ -458,75 +459,50 @@ class DangKyTaiKhoanThanhToan(View):
         register_payment_Account = RegisterPaymentAccountForm(request.POST)
         search_court = SearchForm()
         court_managers = CourtManager.objects.all()
-    
-        context = {
-            'Register_Payment_Account': register_payment_Account,
-            'searchCourt': search_court,
-            'court_managers': court_managers
-        }
 
         if not register_payment_Account.is_valid():
             messages.error(request, "Thông tin nhập không hợp lệ!")
-            return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
-    
-    # Lấy dữ liệu từ form
-        accountHolder = register_payment_Account.cleaned_data['accountHolder']
-        paymentMethod = register_payment_Account.cleaned_data['paymentMethod']
-        accountNumber = request.POST.get('accountNumber')  # Số tài khoản ngân hàng
-        phoneNumber = request.POST.get('phoneNumber')  # Số điện thoại MoMo
-        bankName = request.POST.get('bankName')  # Tên ngân hàng (nếu có)
+            return render(request, 'app1/DangKiTaiKhoanThanhToan.html', {
+                'Register_Payment_Account': register_payment_Account,
+                'searchCourt': search_court,
+                'court_managers': court_managers
+            })
+
+        # Lấy dữ liệu đã được kiểm tra từ form
+        cleaned_data = register_payment_Account.cleaned_data
+        accountHolder = cleaned_data['accountHolder']
+        paymentMethod = cleaned_data['paymentMethod']
+        accountNumber = cleaned_data.get('accountNumber', None)
+        phoneNumber = cleaned_data.get('phoneNumber', None)
+        bankName = cleaned_data.get('bankName', None)
         court_manager_id = request.POST.get('court_manager')
 
-    # Kiểm tra nếu chưa chọn Court Manager
+        # Kiểm tra nếu chưa chọn Court Manager
         if not court_manager_id:
             messages.error(request, "Vui lòng chọn Court Manager hợp lệ!")
-            return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+            return self.render_form_with_errors(request, register_payment_Account, search_court)
 
-        try:
-            court_manager = CourtManager.objects.get(courtManager_id=court_manager_id)
-        except CourtManager.DoesNotExist:
-            messages.error(request, "Court Manager không tồn tại!")
-            return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
-
-    # Kiểm tra Court Manager đã có tài khoản thanh toán chưa
+        # Lấy Court Manager hoặc trả lỗi 404 nếu không tồn tại
+        court_manager = get_object_or_404(CourtManager, courtManager_id=court_manager_id)
+        # Kiểm tra Court Manager đã có tài khoản thanh toán chưa
         if PaymentAccount.objects.filter(accountHolder=court_manager.user.username).exists():
             messages.error(request, "Court Manager này đã có tài khoản thanh toán!")
-            return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+            return self.render_form_with_errors(request, register_payment_Account, search_court)
 
-    # Xử lý theo phương thức thanh toán
-        if paymentMethod == "bank":
-            if not accountNumber or not bankName:
-                messages.error(request, "Vui lòng nhập đầy đủ số tài khoản và tên ngân hàng!")
-                return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+        # Tạo tài khoản thanh toán
+        payment_account = PaymentAccount.objects.create(
+            accountHolder=accountHolder,
+            accountNumber=accountNumber if paymentMethod == "bank" else None,
+            phoneNumber=phoneNumber if paymentMethod == "momo" else None,
+            bankName=bankName if paymentMethod == "bank" else None,
+            paymentMethod=paymentMethod
+        )
 
-            payment_account = PaymentAccount.objects.create(
-                accountHolder=accountHolder,
-                accountNumber=accountNumber,
-                bankName=bankName,
-                paymentMethod=paymentMethod
-            )
-
-        elif paymentMethod == "momo":
-            if not phoneNumber or not phoneNumber.isdigit() or len(phoneNumber) != 10:
-                messages.error(request, "Vui lòng nhập số điện thoại MoMo hợp lệ!")
-                return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
-
-            payment_account = PaymentAccount.objects.create(
-                accountHolder=accountHolder,
-                phoneNumber=phoneNumber,  
-                paymentMethod=paymentMethod
-            )
-
-        else:
-            messages.error(request, "Phương thức thanh toán không hợp lệ!")
-            return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
-
-    # Gán tài khoản thanh toán cho Court Manager
+        # Gán tài khoản thanh toán cho Court Manager
         court_manager.payment_account = payment_account
         court_manager.save()
 
         messages.success(request, "Đăng ký tài khoản thanh toán thành công!")
-    
         return redirect('DangKyTaiKhoanThanhToan')
 
 
@@ -587,8 +563,69 @@ def payment(request, booking_id, court_id):
     })
 
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+
+from django.shortcuts import render
+from app1.models import Payment, Customer, Booking
+from django.contrib.auth.models import User
+
+def checkin(request):
+    context = {}
+
+    if request.method == "POST":
+        booking_id = request.POST.get("booking_id")
+
+        try:
+            # Kiểm tra mã đặt lịch trong bảng Payment
+            payment = Payment.objects.get(payment_id=booking_id)
+            booking = Booking.objects.get(booking_id=payment.booking_id)
+            customer = Customer.objects.get(customer_id=booking.customer_id)
+            user = User.objects.get(id=customer.user_id)
+
+            context["customer_name"] = user.first_name
+            context["court"] = booking.court.name
+        except (Payment.DoesNotExist, Booking.DoesNotExist, Customer.DoesNotExist, User.DoesNotExist):
+            context["error"] = "Mã đặt lịch không hợp lệ!"
+
+    return render(request, "app1/Check-in.html", context)
 
 
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from app1.models import Booking, Customer  # Import Customer
+
+@login_required
+def History(request):
+    user = request.user  
+
+    # Lấy Customer từ User
+    try:
+        customer = Customer.objects.get(user=user)
+    except Customer.DoesNotExist:
+        customer = None
+
+    # Nếu customer tồn tại, lấy danh sách booking đã thanh toán
+    if customer:
+        bookings = Booking.objects.filter(customer_id=customer.customer_id, payment__isnull=False)
+    else:
+        bookings = []
+
+    print("Danh sách booking của user:", bookings)
+
+    if request.method == "POST":
+        booking_id = request.POST.get("booking_id")
+        try:
+            booking = Booking.objects.get(booking_id=booking_id, customer_id=customer.customer_id)
+            booking.delete()
+            messages.success(request, "Đã hủy đặt sân thành công!")
+        except Booking.DoesNotExist:
+            messages.error(request, "Không tìm thấy đặt sân này!")
+
+        return redirect("History")  
+
+    return render(request, "app1/LichSuDatSan.html", {"bookings": bookings})
 
 
 def manager_taikhoan(request):

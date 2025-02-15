@@ -25,7 +25,7 @@
           <img src="{{ court.ImageURL }}" alt="{{ court.name }}" class="court-image" />
           <h3>{{ court.name }}</h3>
           <p>Địa chỉ: {{ court.badminton_hall.address }}</p>
-          <p>Giờ hoạt động: 8:00 - 22:00</p>
+          <p>Giờ hoạt động: 5:00 - 24:00</p>
           <p>Ngày: Thứ 2 - Chủ Nhật</p>
           {% if request.user.groups.all.0.name != 'Court_staff' %}
             <button class="book-btn"><a href="{% url 'booking' court_id=court.court_id %}">Đặt sân</a></button>

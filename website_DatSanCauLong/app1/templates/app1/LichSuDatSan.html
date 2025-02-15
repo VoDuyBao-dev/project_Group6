@@ -1,4 +1,4 @@
-{%load static %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="vi">
   <head>
@@ -12,29 +12,36 @@
     {% include 'app1/Header-customer.html' %}
     {% include 'app1/Menu.html' %}
     
-          <h2>Lịch Sử Đặt Sân</h2>
-    <div class="container">
-      <div class="ticket">
-        <h3>Sân 1</h3>
-        <p class="date">Ngày Đặt: <span id="date-2">21/01/2025</span></p>
-        <p class="address">Địa Chỉ: Đường XYZ, Quận ABC</p>
-        <p class="hours">Giờ: 8:00 - 22:00</p>
-        <p class="price">Giá Thuê: 100.000 VND/giờ</p>
-        <div class="ticket-footer">
-            <button class="cancel-btn">Hủy</button> <!-- Nút hủy -->
-          </div>
-      </div>
+    <h2>Lịch Sử Đặt Sân</h2>
 
+    <!-- Hiển thị thông báo -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="container">
+      {% for booking in bookings %}
       <div class="ticket">
-        <h3>Sân 2</h3>
-        <p class="date">Ngày Đặt: <span id="date-2">15/01/2025</span></p>
-        <p class="address">Địa Chỉ: Đường DEF, Quận GHI</p>
-        <p class="hours">Giờ : 7:00 - 23:00</p>
-        <p class="price">Giá Thuê: 120.000 VND/giờ</p>
+        <h3>{{ booking.court_name }}</h3>
+        <p class="date">Ngày Đặt: {{ booking.date |date:"d/m/Y"}}</p>
+        <p class="address">Địa Chỉ: {{ booking.court }} - {{booking.court.badminton_hall.address }}</p>
+        <p class="hours">Giờ: {{ booking.start_time }} - {{ booking.end_time }}</p>
+        <p class="price">Giá Thuê: {{ booking.amount }} VND</p>
         <div class="ticket-footer">
-            <button class="cancel-btn">Hủy</button> <!-- Nút hủy -->
-          </div>
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="booking_id" value="{{ booking.booking_id }}">
+            <button type="submit" class="cancel-btn">Hủy</button>
+          </form>
+        </div>
       </div>
-      {% include 'app1/Footer.html' %}
+      {% empty %}
+      <p>Không có lịch sử đặt sân nào.</p>
+      {% endfor %}
+    </div>
+
+    {% include 'app1/Footer.html' %}
   </body>
 </html>
