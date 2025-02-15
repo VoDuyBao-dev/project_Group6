@@ -11,12 +11,8 @@
   <body>
     {% include 'app1/Header-user.html' %}
 
-    {% if menu %}
+    
     {% include menu %}
-{% else %}
-    <!-- Hiển thị menu mặc định -->
-    {% include 'app1/Menu.html' %}
-{% endif %}
     
     {% block content %}
     <section id="main">
@@ -28,7 +24,15 @@
           tạo điều kiện tốt nhất cho cả vận động viên chuyên nghiệp và người
           chơi yêu thích.
         </p>
+        {% if user_role == "admin" %}
+        <button class="btn btn-primary"><a href="{% url 'Account_Management' %}">Quản lí tài khoản</a></button>
+        {% elif user_role == "manage" %}
+        <button class="btn btn-primary"><a href="{% url 'San' %}">Danh sách sân</a></button>
+        {% elif user_role == "staff" %}
+        <button class="btn btn-primary"><a href="{% url 'checkin' %}">check-in</a></button>
+        {% else %}
         <button class="btn btn-primary" id="DatSan_button"><a href="{% url 'San'%}">Đặt sân</a></button>
+        {% endif %}
       </div>
     </section>
     <section class="services">

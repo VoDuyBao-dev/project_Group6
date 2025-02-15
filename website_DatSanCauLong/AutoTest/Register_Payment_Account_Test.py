@@ -13,18 +13,124 @@ from selenium.common.exceptions import TimeoutException
 class TestUserSearchCourt(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-        self.driver.maximize_window()  # Mở Chrome full màn hình
-        self.driver.implicitly_wait(10)  # Chờ tối đa 10s nếu phần tử chưa xuất hiện
+        self.driver.maximize_window()  
+        self.driver.implicitly_wait(10)  
 
     def tearDown(self):
-        self.driver.quit()  # Đóng trình duyệt sau khi test xong
+        self.driver.quit()  
+
+    def scroll_smoothly(self, driver, direction="down", step=100, delay=0.05, target_position=None):
+    
+        if target_position is not None:
+            # Cuộn đến vị trí cụ thể
+            current_position = driver.execute_script("return window.scrollY")
+
+            if current_position < target_position:
+                # Cuộn xuống
+                while current_position < target_position:
+                    current_position += step
+                    if current_position > target_position:
+                        current_position = target_position
+                    driver.execute_script(f"window.scrollTo(0, {current_position});")
+                    time.sleep(delay)
+            elif current_position > target_position:
+                # Cuộn lên
+                while current_position > target_position:
+                    current_position -= step
+                    if current_position < target_position:
+                        current_position = target_position
+                    driver.execute_script(f"window.scrollTo(0, {current_position});")
+                    time.sleep(delay)
+        else:
+            # Cuộn dựa trên hướng nếu target_position không được đặt
+            if direction == "down":
+                total_height = driver.execute_script("return document.body.scrollHeight")
+                current_position = driver.execute_script("return window.scrollY")
+
+                while current_position < total_height:
+                    current_position += step
+                    driver.execute_script(f"window.scrollTo(0, {current_position});")
+                    time.sleep(delay)
+            elif direction == "up":
+                current_position = driver.execute_script("return window.scrollY")
+
+                while current_position > 0:
+                    current_position -= step
+                    driver.execute_script(f"window.scrollTo(0, {current_position});")
+                    time.sleep(delay)
 
     def test_user_SignIn(self):
         print("Bắt đầu kiểm thử đăng ký tài khoản thanh toán")
         driver = self.driver
-        driver.get("http://127.0.0.1:8000/DangKyTaiKhoanThanhToan")
+        driver.get("http://127.0.0.1:8000")
         time.sleep(2)  
         
+        # Tìm nút "Đăng nhập"
+        SignIn_button = driver.find_element(By.CSS_SELECTOR, ".btn.login-btn")  
+
+        # Nhấn vào nút "Đăng nhập"
+        SignIn_button.click()
+        time.sleep(2)  # Chờ 2 giây sau khi chuyển trang
+
+        # Kiểm tra kết quả
+        self.assertIn("Đăng nhập", driver.title)  # Kiểm tra xem tiêu đề có đúng là trang đăng nhập không
+        # In kết quả ra terminal
+        print("Đã nhấn vào nút Đăng nhập và chuyển hướng thành công.")
+        
+        # Tìm nút xem mật khẩu
+        eye_button = driver.find_element(By.ID, "new-password-icon")
+        # Đăg nhập
+        inputUserName = driver.find_element(By.ID, "username")
+        password = driver.find_element(By.ID, "id_password")
+        
+        inputUserName.send_keys("voduybao19052005@gmail.com")
+        time.sleep(1)  # Nghỉ 1s trước khi nhập mật khẩu
+        password.send_keys("123")
+        time.sleep(1)
+        # xem password
+        eye_button.click()
+        time.sleep(1.5)  # Chờ 1.5s trước khi nhấn Enter
+        password.send_keys(Keys.RETURN)
+        try:
+            WebDriverWait(driver, 5).until(EC.title_contains("Trang Chủ"))
+            actualTitle = driver.title
+            print("Tiêu đề sau khi đăng nhập:", actualTitle)
+            self.assertEqual(actualTitle, "Trang Chủ")
+            print("Test đăng nhập thành công")
+        except:
+            print("Test đăng nhập thất bại")
+        time.sleep(2)  # Chờ 2s để trang load lại
+
+        # Cuộn từ từ xuống dưới
+        print("Cuộn từ từ xuống dưới...")
+        self.scroll_smoothly(driver, target_position=2000, step=50, delay=0.05)
+
+        # Cuộn từ từ lên trên
+        print("Cuộn từ từ lên trên...")
+        self.scroll_smoothly(driver, target_position=0, step=50, delay=0.05)
+        time.sleep(1)
+
+        # Tìm menu
+        menu_button = driver.find_element(By.ID, "btn")
+        menu_button.click()
+        time.sleep(2)
+        # Tìm nút quản lí tài khoản
+        account_manage_link = driver.find_element(By.LINK_TEXT, "Quản lý sân")
+        account_manage_link.click()
+        print("Nhấn menu và chức năng Quản lý sân thành công")
+        time.sleep(1)
+        # Tìm chức năng thêm tài khảon thanh toán
+        DangKyTaiKhoanThanhToan_link = driver.find_element(By.LINK_TEXT, "Thêm tài khoản thanh toán")
+        DangKyTaiKhoanThanhToan_link.click()
+        try:    
+            WebDriverWait(driver, 5).until(EC.title_contains("Đăng ký tài khoản thanh toán"))
+            actualTitle = driver.title
+            print("Tiêu đề sau khi nhấn vào Đăng ký tài khoản thanh toán:", actualTitle)
+            self.assertEqual(actualTitle, "Đăng ký tài khoản thanh toán")
+            print("Test vào trang Đăng ký tài khoản thanh toán thành công")
+        except:
+            print("Test vào trang Đăng ký tài khoản thanh toán thất bại")
+        time.sleep(3)
     
         # Tìm nút nhập các thông tin:
         account_Holder = driver.find_element(By.ID, "accountHolder")  

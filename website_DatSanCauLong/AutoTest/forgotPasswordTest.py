@@ -173,7 +173,7 @@ class TestUserForgotPassword(unittest.TestCase):
             print("Thông báo từ JS:", alert_message)
             time.sleep(2)
             alert.accept()
-        except NoAlertPresentException:
+        except :
             print("Không có thông báo JS nào xuất hiện.")
 
         time.sleep(3)

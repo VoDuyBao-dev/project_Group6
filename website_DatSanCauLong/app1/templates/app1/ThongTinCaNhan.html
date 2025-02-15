@@ -10,6 +10,12 @@
   <body>
     {% include 'app1/Header-user.html' %}
     {% block content %}
+    {% if menu %}
+    {% include menu %}
+{% else %}
+    <!-- Hiển thị menu mặc định -->
+    {% include 'app1/Menu.html' %}
+{% endif %}
     {% if messages %}
     <div id="message-box" class="message success show">
         {% for message in messages %}
@@ -39,7 +45,7 @@
             <strong>Email:</strong> <span id="email">{{user.username}}</span>
           </p>
           {% endif %}
-          <a href="{% url 'ChinhSuaThongTinCaNhan' %}" class="button edit-button">Cập nhật thông tin</a>
+          <a href="{% url 'ChinhSuaThongTinCaNhan' %}" class="button edit-button" id="CapNhatThongTin">Cập nhật thông tin</a>
         </div>
       </div>
     {% endblock %}

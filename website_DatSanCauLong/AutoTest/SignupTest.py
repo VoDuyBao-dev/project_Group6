@@ -13,12 +13,11 @@ from decouple import config
 class TestUserSignUp(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-        self.driver.maximize_window()  # Mở Chrome full màn hình
-        self.driver.implicitly_wait(10)  # Chờ tối đa 10s nếu phần tử chưa xuất hiện
+        self.driver.maximize_window()  
+        self.driver.implicitly_wait(10)  
 
     def tearDown(self):
-        self.driver.quit()  # Đóng trình duyệt sau khi test xong
-    
+        self.driver.quit() 
 
     def test_user_SignUp(self):
         print("Bắt đầu kiểm thử đăng ký sân cầu lông")
@@ -46,14 +45,14 @@ class TestUserSignUp(unittest.TestCase):
         inputConfirmPassword = driver.find_element(By.ID, "id_confirm_password")
 
         # Nhập thiếu trường
-        inputUserName.send_keys("voduybao19052005@gmail.com")
+        inputUserName.send_keys("voduybao192005@gmail.com")
         inputUserName.send_keys(Keys.RETURN)
         time.sleep(2)
 
         # Nhập sai định dạng tên tài khoản và confirm password
         inputUserName.clear()
         time.sleep(2)
-        inputUserName.send_keys("voduybao1905200gmail")
+        inputUserName.send_keys("voduybao19200gmail")
         time.sleep(1)  # Nghỉ 1s trước khi nhập mật khẩu
         inputFullName.send_keys("Võ Duy Bảo")
         print("Tới nhập full name")
@@ -83,8 +82,8 @@ class TestUserSignUp(unittest.TestCase):
         inputUserName.clear()
         inputUserName.send_keys("voduybao192005@gmail.com")
         time.sleep(1)
-        inputPassword.send_keys("1234")
-        inputConfirmPassword.send_keys("1234")
+        inputPassword.send_keys("123")
+        inputConfirmPassword.send_keys("123")
         eye_password_button.click()
         eye_confirm_password_button.click()
         print("Nhấn xem mật khẩu")
@@ -138,7 +137,7 @@ class TestUserSignUp(unittest.TestCase):
             print("Thông báo từ JS:", alert_message)
             time.sleep(1)
             alert.accept()
-        except NoAlertPresentException:
+        except :
             print("Không có thông báo JS nào xuất hiện.")
 
         time.sleep(2)
@@ -162,7 +161,7 @@ class TestUserSignUp(unittest.TestCase):
             print("Thông báo từ JS:", alert_message)
             time.sleep(1)
             alert.accept()
-        except NoAlertPresentException:
+        except :
             print("Không có thông báo JS nào xuất hiện.")
 
         # Điền từng chữ số của OTP vào các ô nhập
@@ -181,7 +180,7 @@ class TestUserSignUp(unittest.TestCase):
             print("Thông báo từ JS:", alert_message)
             time.sleep(2)
             alert.accept()
-        except NoAlertPresentException:
+        except :
             print("Không có thông báo JS nào xuất hiện.")
         
         # Kiểm tra xem đã chuyển hướng đến trang đăng nhập chưa

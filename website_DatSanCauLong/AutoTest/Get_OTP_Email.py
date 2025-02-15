@@ -12,7 +12,7 @@ def get_otp_from_gmail(email_user, email_password):
         mail.select("inbox")
 
         # Tìm email mới nhất từ hệ thống gửi OTP (lọc email theo tiêu đề hoặc người gửi)
-        status, data = mail.search(None, '(FROM "mariathanhsuong1206@gmail.com")')
+        status, data = mail.search(None, '(FROM "sancaulongnhom6@gmail.com")')
         if status != "OK":
             print("Không tìm thấy email nào.")
             return None

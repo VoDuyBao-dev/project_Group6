@@ -22,7 +22,7 @@
     <div class="side-bar">
       <ul>
         <li>
-          <a href="#"
+          <a href="{% url 'TrangChu'%}"
             ><i class="fa-solid fa-house"></i> Trang Chủ</a
           >
         </li>
@@ -30,7 +30,9 @@
           <a href="#"><i class="fa-solid fa-list"></i> Sân Cầu Lông</a>
           <div class="sub-menu">
             <a href="{% url 'San'%}">Thông tin các sân</a>
+            {% if user_role == "admin" or user_role == "manage" %}
             <a href="#">Lịch sử đặt sân</a>
+            {% endif%}
           </div>
         </li>
         <li>
@@ -39,6 +41,7 @@
         <li>
           <a href="#"><i class="fa-solid fa-check-to-slot"></i>Check-in</a>
         </li>
+        {% if user_role == "admin" or user_role == "manage" %}
         <li>
           <a href="#"><i class="fa-solid fa-list-check"></i>Quản lý sân</a>
           <div class="sub-menu">
@@ -47,17 +50,14 @@
             <a href="#">Thêm sân mới</a>
           </div>
         </li>
-        <li>
-          <a href="#"
-            ><i class="fa-solid fa-calendar"></i>Quản lý lịch thi đấu</a
-          >
-        </li>
+    
         <li>
           <a href="{% url 'AddAccount_Manage'%}"><i class="fa-solid fa-user"></i>Quản lý tài khoản</a>
         </li>
         <li>
           <a href="#"><i class="fa-solid fa-clipboard"></i>Báo cáo doanh thu</a>
         </li>
+        {% endif%}
       </ul>
     </div>
   </body>

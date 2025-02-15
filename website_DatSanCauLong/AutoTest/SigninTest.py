@@ -11,11 +11,11 @@ from webdriver_manager.chrome import ChromeDriverManager
 class TestUserSignIn(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-        self.driver.maximize_window()  # Mở Chrome full màn hình
-        self.driver.implicitly_wait(10)  # Chờ tối đa 10s nếu phần tử chưa xuất hiện
+        self.driver.maximize_window()  
+        self.driver.implicitly_wait(10)  
 
     def tearDown(self):
-        self.driver.quit()  # Đóng trình duyệt sau khi test xong
+        self.driver.quit()  
     
     def enter_credentials(self, password):
         # Nhập mật khẩu vào form đăng nhập
@@ -92,7 +92,7 @@ class TestUserSignIn(unittest.TestCase):
          
         # test đăng nhập đúng
         # Tìm lại phần tử:
-        self.enter_credentials("1234")
+        self.enter_credentials("123")
         self.check_error_message("alert.alert-danger",6)
             
         # Kiểm tra xem đăng nhập có thành công không
@@ -139,7 +139,7 @@ class TestUserSignIn(unittest.TestCase):
         print("Nhấn nhớ tài khoản thành công")
         time.sleep(2)
         inputUserName.send_keys("voduybao192005@gmail.com")
-        password.send_keys("1234")
+        password.send_keys("123")
         # xem password
         eye_button.click()
         time.sleep(1.5) 
