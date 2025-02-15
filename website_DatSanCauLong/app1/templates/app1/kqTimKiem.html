@@ -27,7 +27,7 @@
           </div>
         {% endfor %}
       {% else %}
-        <p>Không tìm thấy sân cầu lông nào phù hợp với từ khóa "{{ request.GET.query }}".</p>
+        <p class="error-list">Không tìm thấy sân cầu lông nào phù hợp với từ khóa "{{ request.GET.query }}".</p>
       {% endif %}
     </div>
     {% include 'app1/Footer.html' %}

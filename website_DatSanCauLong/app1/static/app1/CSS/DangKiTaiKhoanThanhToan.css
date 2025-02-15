@@ -10,7 +10,14 @@ body {
   margin: 0;
   padding: 0;
 }
-
+.error-list {
+  color: rgb(0, 0, 0);
+  font-size: 16px;
+  margin-bottom: 8px ;
+  text-align: left;
+  list-style-type: none;
+  padding-left: 15px; /* Căn lề trái để thẳng với input */
+}
 .main-content {
   flex-grow: 1;
   /* Cho phép phần này chiếm hết không gian còn lại */
