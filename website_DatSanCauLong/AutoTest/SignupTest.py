@@ -45,14 +45,14 @@ class TestUserSignUp(unittest.TestCase):
         inputConfirmPassword = driver.find_element(By.ID, "id_confirm_password")
 
         # Nhập thiếu trường
-        inputUserName.send_keys("voduybao19052005@gmail.com")
+        inputUserName.send_keys("voduybao192005@gmail.com")
         inputUserName.send_keys(Keys.RETURN)
         time.sleep(2)
 
         # Nhập sai định dạng tên tài khoản và confirm password
         inputUserName.clear()
         time.sleep(2)
-        inputUserName.send_keys("voduybao1905200gmail")
+        inputUserName.send_keys("voduybao19200gmail")
         time.sleep(1)  # Nghỉ 1s trước khi nhập mật khẩu
         inputFullName.send_keys("Võ Duy Bảo")
         print("Tới nhập full name")
@@ -82,8 +82,8 @@ class TestUserSignUp(unittest.TestCase):
         inputUserName.clear()
         inputUserName.send_keys("voduybao192005@gmail.com")
         time.sleep(1)
-        inputPassword.send_keys("1234")
-        inputConfirmPassword.send_keys("1234")
+        inputPassword.send_keys("123")
+        inputConfirmPassword.send_keys("123")
         eye_password_button.click()
         eye_confirm_password_button.click()
         print("Nhấn xem mật khẩu")

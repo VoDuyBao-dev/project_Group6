@@ -95,6 +95,8 @@ class TestChinhSuaThongTinCaNhan(unittest.TestCase):
         full_name_Update_Form = driver.find_element(By.ID, "full_name_UpdateForm")
         dob_Update_Form = driver.find_element(By.ID, "dob_UpdateForm")
         # Nhập sai định dạng tên và năm sinh
+        full_name_Update_Form.clear()
+        time.sleep(1)
         full_name_Update_Form.send_keys("Nguyễn%% Văn A")
         dob_Update_Form.send_keys("11015050")
         time.sleep(1)
