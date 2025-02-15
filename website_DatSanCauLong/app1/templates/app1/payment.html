@@ -6,11 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hóa đơn Thanh toán</title>
     <link rel="stylesheet" href="{% static 'app1/CSS/payment.css' %}" />
-    <script src="{% static 'app1/js/payment.js' %}"></script>
     <script src="{% static 'app1/js/layout-customer.js' %}"></script>
 </head>
-
 <body>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}{{ message.tags }}{% endif %}">
+                {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     {% include 'app1/Header-user.html' %}
     {% block content %}
     <div class="invoice">
@@ -28,35 +36,38 @@
             </p>
             <p><strong>Giờ:</strong> {{ booking.start_time|time:"H:i" }} - {{ booking.end_time|time:"H:i" }}</p>
             <p><strong>Ngày:</strong> {{ booking.date|date:"d/m/Y" }}</p>
-            <p><strong>Địa điểm:</strong> {{ booking.court.badminton_hall }}  - {{booking.court.badminton_hall.address}}</p>
-            <p><strong>Mã đặt lịch:</strong> {{ booking.booking_id }} </p>
-            <p class="total">Tổng cộng:  {{ amount|floatformat:3 }} VND</p>
-        </div>
-        <div class="payment-method">
-            <h3>Thông tin thanh toán</h3>
-
-{% if payment_account %}
-    <div class="payment-info">
-        <div class="payment-method">
-            <strong>Ví điện tử:</strong> {{ payment_account.wallet_type }} <br>
-            <strong>Số điện thoại:</strong> {{ payment_account.phone_number }}
+            <p><strong>Địa điểm:</strong> {{ booking.court.badminton_hall }} - {{ booking.court.badminton_hall.address }}</p>
+            <p><strong>Mã đặt lịch:</strong> {{ booking.booking_id }}</p>
+            <p class="total">Tổng cộng: {{ amount|floatformat:3 }} VND</p>
         </div>
 
         <div class="payment-method">
-            <strong>Ngân hàng:</strong> {{ payment_account.bank_name }} <br>
-            <strong>Chủ tài khoản:</strong> {{ payment_account.account_holder }} <br>
-            <strong>Số tài khoản:</strong> {{ payment_account.bank_account }}
+            {% if payment_accounts %}
+                <h3>Thông tin thanh toán</h3>
+                {% for account in payment_accounts %}
+                    <div class="payment-info">
+                        <p><strong>Phương thức:</strong> {{ account.get_paymentMethod_display }}</p>
+                        {% if account.paymentMethod == "momo" %}
+                            <p><strong>Số điện thoại:</strong> {{ account.phoneNumber }}</p>
+                        {% else %}
+                            <p><strong>Ngân hàng:</strong> {{ account.bankName }}</p>
+                            <p><strong>Chủ tài khoản:</strong> {{ account.accountHolder }}</p>
+                            <p><strong>Số tài khoản:</strong> {{ account.accountNumber }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>Chưa có thông tin thanh toán. Vui lòng cập nhật!</p>
+            {% endif %}
         </div>
-    </div>
-{% else %}
-    <p>Chưa có thông tin thanh toán. Vui lòng cập nhật!</p>
-{% endif %}
 
-        </div>
-        <div class="button-container">
-            <button class="btn btn-cancel" onclick="cancelPayment()">Hủy</button>
-            <button class="btn btn-confirm" onclick="confirmPayment()">Xác nhận thanh toán</button>
-        </div>
+        <form method="POST" action="{% url 'payment' booking.booking_id booking.court_id%}">
+            {% csrf_token %}
+            <div class="button-container">
+                <button type="button" class="btn btn-cancel" onclick="window.history.back();">Hủy</button>
+                <button type="submit" class="btn btn-confirm">Xác nhận thanh toán</button>
+            </div>
+        </form>
     </div>
     {% endblock %}
     {% include 'app1/Footer.html' %}

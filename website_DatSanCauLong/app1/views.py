@@ -544,12 +544,50 @@ def booking(request):
 from django.shortcuts import render, get_object_or_404
 from app1.models import Booking
 from decimal import Decimal
+from app1.models import Booking, PaymentAccount
+from django.contrib import messages
 @login_required
 def payment(request, booking_id, court_id):
     booking = get_object_or_404(Booking, booking_id=booking_id, court_id=court_id)
-    amount = Decimal(booking.amount).quantize(Decimal("0.001"))  
-    
-    return render(request, 'app1/payment.html', {'booking': booking, 'amount': amount})
+    amount = Decimal(booking.amount).quantize(Decimal("0.001"))
+
+    # Kiểm tra xem sân có thuộc một BadmintonHall hay không
+    badminton_hall = getattr(booking.court, 'badminton_hall', None)
+
+    # Lấy CourtManager của sân đó (nếu có)
+    court_manager = getattr(badminton_hall, 'court_manager', None)
+
+    # Lấy danh sách tài khoản thanh toán của CourtManager (nếu có)
+    payment_accounts = court_manager.payment_accounts.all() if court_manager else []
+
+    if request.method == "POST":
+        # Kiểm tra nếu đã có payment cho booking này thì không tạo mới
+        if hasattr(booking, 'payment'):
+            messages.warning(request, "Booking này đã được thanh toán.")
+            return redirect('payment', booking_id=booking.booking_id, court_id=court_id)
+
+        # Lưu vào database
+        payment = Payment.objects.create(
+            booking=booking,
+            payment_account=payment_accounts.first() if payment_accounts else None,  # Chọn tài khoản đầu tiên
+            status=True  # Đánh dấu đã thanh toán
+        )
+
+        # Cập nhật trạng thái của booking
+        booking.status = True
+        booking.save()
+
+        messages.success(request, "Thanh toán thành công!")
+        return redirect('payment', booking_id=booking.booking_id, court_id=booking.court_id)  # Điều hướng đến trang chi tiết booking
+
+    return render(request, 'app1/payment.html', {
+        'booking': booking, 
+        'amount': amount,
+        'payment_accounts': payment_accounts
+    })
+
+
+
 
 
 
