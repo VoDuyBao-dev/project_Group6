@@ -134,6 +134,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'app1/static')]
+SECURE_CROSS_ORIGIN_OPENER_POLICY = ["https://app.powerbi.com/reportEmbed?reportId=36eac767-0cfe-4512-8d79-91bed1834995&autoAuth=true&embeddedDemo=true"]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
