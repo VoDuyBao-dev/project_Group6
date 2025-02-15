@@ -1,7 +1,7 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
 import nanoid
-
 
 
 class PaymentAccount(models.Model):
@@ -22,7 +22,15 @@ class PaymentAccount(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật")
+    phoneNumber = models.CharField(max_length=15, blank=True, null=True)  
+    bankName = models.CharField(max_length=255, null=True, blank=True)
 
+    court_manager = models.ForeignKey(
+        'CourtManager',  
+        on_delete=models.CASCADE,  
+        related_name='payment_accounts',
+        null=True, blank=True 
+    )
     def __str__(self):
         return f"{self.accountHolder} - {self.accountNumber}"
 
@@ -34,23 +42,20 @@ def generate_short_id():
 class Customer(models.Model):
     customer_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
-    date_of_birth = models.DateField(null=True, blank=True)  # Trường ngày sinh
+    # stk = models.CharField(max_length=20, null=True, blank=True)
     def __str__(self):
         return self.user.username
 
-# Court Manager models
 class CourtManager(models.Model):
     courtManager_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_manager')
-    payment_account = models.OneToOneField(
-        PaymentAccount,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='court_manager'
-    )
+
     def __str__(self):
-        return self.user.username
+        # Lấy chi nhánh từ badminton_hall (quan hệ ngược)
+        if hasattr(self, 'badminton_hall'):
+            return f"{self.user.username} - {self.badminton_hall.name}"
+        return self.user.username  # Nếu chưa có chi nhánh
+
 
 # System Admin model
 class SystemAdmin(models.Model):
@@ -70,10 +75,18 @@ class BadmintonHall(models.Model):
     badminton_hall_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     name = models.CharField(max_length=255)
     address = models.TextField()
-    # courtManager = models.ForeignKey(CourtManager, on_delete=models.CASCADE, related_name='courts')
-    # court_staff = models.ForeignKey(CourtStaff, on_delete=models.CASCADE, related_name='courts')
+    court_manager = models.OneToOneField(
+        'CourtManager', 
+        on_delete=models.CASCADE, 
+        null=True, blank=True, 
+        related_name='badminton_hall'
+    )
+
     def __str__(self):
         return self.name
+
+
+
 
 # Court model
 class Court(models.Model):
@@ -170,8 +183,6 @@ class RevenueReport(models.Model):
     payments = models.ManyToManyField(Payment, related_name='revenues')  # Thêm quan hệ với Payment
     total_revenue = models.DecimalField(max_digits=15, decimal_places=2)
     generated_at = models.DateTimeField(auto_now_add=True)
-
-
 
 
 

@@ -42,11 +42,22 @@
           <div class="form-group">
             <label for="end_time">Giờ kết thúc:</label>
             <input type="time" name="end_time" id="end_time" required />
+</form>
+
+{% if price_info %}
+    <script>
+        document.getElementById("fixed_price").value = "{{ price_info.fixed_price }}";
+        document.getElementById("daily_price").value = "{{ price_info.daily_price }}";
+        document.getElementById("flexible_price").value = "{{ price_info.flexible_price }}";
+    </script>
+{% endif %}
+
+
           </div>
           {%if booking_id and court_id%}
           <button type="submit" href="{% url 'payment' booking_id court_id %}">Đặt Sân</button>
           {% else %}
-          <button type="submit" href="{% url 'thanhToan' %}">Đặt Sân</button>
+          <button type="submit" href="{% url 'booking' court_id=court.court_id %}">Đặt Sân</button>
           {%endif%}
       <br>
       <br>

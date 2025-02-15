@@ -24,32 +24,21 @@ urlpatterns = [
     # Tìm kiếm sân:
     path('SearchCourt/', SearchCourt.as_view(), name= 'SearchCourt'),
     path('DangKyTaiKhoanThanhToan/', DangKyTaiKhoanThanhToan.as_view(), name='DangKyTaiKhoanThanhToan'),
-    path('header_user/', views.header_user, name='header_user'),
-    path('menu/', views.menu, name='menu'),
     path('History/', views.History, name= 'History'),
     path('price_list/', views.price_list, name='price_list'),
    
    
     path('San/', views.San, name='San'),
-    path('bao_cao/', views.bao_cao, name='bao_cao'),
-    path('checkin/', views.checkin, name='checkin'),
-    
-    path("footer/", views.footer, name="footer"),
-    path('lichThiDau/', views.lichThiDau, name='lichThiDau'),
     path('them_san_moi/', views.them_san_moi, name='them_san_moi'),
     path('them_san/', views.them_san, name='them_san'),
-    path('payment/<str:booking_id>/<str:court_id>/', views.payment, name='payment'),
-    path('payment/', views.thanhToan, name='thanhToan'),
-    path('booking/<str:court_id>/', views.booking, name='booking'),
-    # path('manager_taikhoan/', views.manager_taikhoan, name='manager_taikhoan'),
-    path('manager_san/', views.manager_san, name='manager_san'),
 
-    path('menu_manager/', views.menu_manager, name='menu_manager'),
+    path('manager_san/', views.manager_san, name='manager_san'),
     path('manage_time_slots/', views.manage_time_slots, name='manage_time_slots'),
     path('delete_time_slot/<str:slot_id>/', views.delete_time_slot, name='delete_time_slot'),
-
     path('court/edit/<str:court_id>/', edit_court, name='edit_court'),
     path('court/delete/<str:court_id>/', delete_court, name='delete_court'),
+
+
     # quản lí tài khoản:
     path('Account_Management/', views.Account_Management, name='Account_Management'),
     # 1. thêm tài khoản
@@ -60,6 +49,12 @@ urlpatterns = [
     path('Update_account/<int:user_id>/', views.Update_account, name='Update_account'),
     path('ThongTinCaNhan/', views.ThongTinCaNhan, name='ThongTinCaNhan'),
     path('ChinhSuaThongTinCaNhan/', ChinhSuaThongTinCaNhan.as_view(), name='ChinhSuaThongTinCaNhan'),
+
+
+    path('payment/<str:booking_id>/<str:court_id>/', views.payment, name='payment'),
+    path('booking/<str:court_id>/', views.booking_view, name='booking'),
+    path('bao_cao/', views.bao_cao, name='bao_cao'),
+    path('checkin/', views.checkin, name='checkin'),
 ] 
 # coi url
 
