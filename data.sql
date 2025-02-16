@@ -8,12 +8,8 @@ INSERT INTO auth_group value
 (3, "Manager"),
 (2, "Court_staff");
 
-# Sau khi chạy xong lệnh này trong terminal shell thì sẽ tự động tạo được người dùng và tạo nhóm
-python manage.py shell
 
-from django.contrib.auth.models import User
 
-# Danh sách người dùng cần tạo
 users_data = [
     {'username': 'customer1', 'password': 'p1', 'email': 'customer1@example.com', 'first_name': 'c1', 'last_name': 'One', 'is_staff': False, 'is_superuser': False},
     {'username': 'customer2', 'password': 'p2', 'email': 'customer2@example.com', 'first_name': 'c2', 'last_name': 'Two', 'is_staff': False, 'is_superuser': False},
@@ -23,20 +19,6 @@ users_data = [
     {'username': 'staff1', 'password': 'p6', 'email': 'staff1@example.com', 'first_name': 's1', 'last_name': 'One', 'is_staff': False, 'is_superuser': False},
     {'username': 'staff2', 'password': 'p7', 'email': 'staff2@example.com', 'first_name': 's2', 'last_name': 'Two', 'is_staff': False, 'is_superuser': False},
 ]
-
-# Tạo người dùng trong Django
-for user_data in users_data:
-    user = User.objects.create_user(
-        username=user_data['username'],
-        password=user_data['password'],  # Mật khẩu sẽ được mã hóa tự động
-        email=user_data['email'],
-        first_name=user_data['first_name'],
-        last_name=user_data['last_name'],
-		is_staff = user_data['is_staff'],
-		is_superuser = user_data['is_superuser'],
-    )
-
-print("Người dùng đã được tạo thành công!")
 
 
 

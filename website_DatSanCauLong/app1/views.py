@@ -25,7 +25,6 @@ from django.contrib.auth.decorators import login_required
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import transaction
-from .forms import TimeSlotTemplateForm  # Sẽ tạo file form ở bước tiếp theo
 
 from app1.forms import RegisterPaymentAccountForm, SearchForm
 from rest_framework import viewsets, status
@@ -182,10 +181,6 @@ def resend_otp(request):
     return JsonResponse({'success': False, 'message': 'Yêu cầu không hợp lệ.'})
 
 
-def redirect_user(user):
-    # with open("debug.log", "a") as f:  
-    #     f.write(f"User: {user.username}, Nhóm: {[group.name for group in user.groups.all()]}\n")
-    return redirect('TrangChu')
 
 class Sign_In(View):
     def get(self, request):
@@ -243,8 +238,7 @@ class Sign_In(View):
             request.session['user_role'] = user_role
 
             # Chuyển hướng về trang chủ sau khi đăng nhập thành công
-            # response = redirect('TrangChu')
-            response = redirect_user(user)
+            response = redirect('TrangChu')
 
             # Lưu email vào cookie nếu chọn "Nhớ tài khoản"
             if remember_me:
@@ -360,14 +354,6 @@ def Logout(request):
     logout(request)
     return redirect('TrangChu')
 
-def History(request):
-    return render(request, 'app1/LichSuDatSan.html')
-
-
-# def price_list(request):
-#     
-#     return render(request, 'app1/price_list.html')
-
 def San(request):
     courts = Court.objects.all()
     user_role = get_user_role(request)
@@ -407,40 +393,7 @@ class SearchCourt(View):
         }
         return render(request, 'app1/kqTimKiem.html', context)
 
-# Đăng ký tài khoản thanh toán của manager
-class DangKyTaiKhoanThanhToan(View):
 
-    def get(self,request):
-        register_payment_Account=RegisterPaymentAccountForm()
-
-        context = {
-            'Register_Payment_Account': register_payment_Account,
-        }
-        return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
-
-    def post(self,request):
-        register_payment_Account=RegisterPaymentAccountForm(request.POST)
-        
-        context = {
-            'Register_Payment_Account': register_payment_Account,
-        }
-
-        if not register_payment_Account.is_valid():
-            return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
-        
-        # form hợp lệ thì lấy dữ liệu từ form
-        accountHolder = register_payment_Account.cleaned_data['accountHolder']
-        accountNumber = register_payment_Account.cleaned_data['accountNumber']
-        paymentMethod = register_payment_Account.cleaned_data['paymentMethod']
-
-        payment_account = PaymentAccount.objects.create(
-            accountHolder=accountHolder,
-            accountNumber=accountNumber,
-            paymentMethod=paymentMethod
-        )
-        messages.success(request, "Đăng ký tài khoản thanh toán thành công!")
-
-        return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
 
 
 
@@ -656,9 +609,6 @@ def Update_account(request, user_id):
 
 # từ khúc này là con Lan làm có gì thì né né ra nha.
 
-def footer(request):
-    Badminton_Halls = BadmintonHall.objects.all()
-    return render(request, 'app1/Footer.html', {"Badminton_Halls": Badminton_Halls})
 
 
 # thêm thời gian(khung giờ) và giá,... của từng loại hình đặt lịch
@@ -749,6 +699,11 @@ def them_san_moi(request):
     court_managers = CourtManager.objects.filter(badminton_hall__isnull=True)
     
     return render(request, 'app1/them_san_moi.html', {'court_managers': court_managers})
+
+
+def footer(request):
+    Badminton_Halls = BadmintonHall.objects.all()
+    return render(request, 'app1/Footer.html', {"Badminton_Halls": Badminton_Halls})
 
 
 def them_san(request):
@@ -931,8 +886,6 @@ def booking_view(request, court_id=None):
         
     else:
         court = None
-    print(f"Debug - Court ID từ URL: {court_id}")
-    print(f"Debug - Court object: {court}")
     if request.method == 'POST':
         try:
             logger.info("Xác nhận phương thức POST")
@@ -952,10 +905,6 @@ def booking_view(request, court_id=None):
             booking_date = datetime.strptime(date_str, "%Y-%m-%d").date()
             start_time = datetime.strptime(start_time_str, "%H:%M").time()
             end_time = datetime.strptime(end_time_str, "%H:%M").time()
-            print(f"Debug Data - Court: {court}, Booking Type: {booking_type}, Date: {date_str}, Start Time: {start_time_str}, End Time: {end_time_str}")
-            print(f"Raw request.POST: {request.POST}")
-            print(f"Ngày đặt: {booking_date}, Giờ bắt đầu: {start_time}, Giờ kết thúc: {end_time}")
-
             # Tìm time slot template
             day_of_week = booking_date.strftime("%A")
             templates = TimeSlotTemplate.objects.filter(day_of_week=day_of_week, status='available')
@@ -963,6 +912,7 @@ def booking_view(request, court_id=None):
             logger.info(f"Tìm template cho {day_of_week}, tổng {len(templates)} kết quả")
 
             template = None
+
             for temp in templates:
                 try:
                     parts = temp.time_frame.replace("h", "").strip().split("-")
@@ -970,7 +920,8 @@ def booking_view(request, court_id=None):
                     template_end = datetime.strptime(parts[1].strip().zfill(2) + ":00", "%H:%M").time()
 
                     logger.info(f"Template {temp.template_id}: {template_start} - {template_end}")
-
+                    with open("debug.log", "a") as f:  
+                        f.write(f"Template {temp.template_id}: {template_start} - {template_end}\n")
                     if start_time >= template_start and end_time <= template_end:
                         template = temp
                         logger.info(f"Chọn template: {template.template_id}")
@@ -1001,7 +952,7 @@ def booking_view(request, court_id=None):
             print(f"Debug - Giá tiền đã làm tròn: {price}")
             # Lưu booking
             booking = Booking.objects.create(
-                customer_id=request.user.customer.customer_id,
+                customer=request.user,
                 court=court,
                 booking_type=booking_type,
                 date=booking_date,
@@ -1071,8 +1022,8 @@ def checkin(request):
             # Kiểm tra mã đặt lịch trong bảng Payment
             payment = Payment.objects.get(payment_id=booking_id)
             booking = Booking.objects.get(booking_id=payment.booking_id)
-            customer = Customer.objects.get(customer_id=booking.customer_id)
-            user = User.objects.get(id=customer.user_id)
+            user = request.user 
+            customer = Customer.objects.get(user=user)
 
             context["customer_name"] = user.first_name
             context["court"] = booking.court.name
@@ -1093,9 +1044,11 @@ def History(request):
     except Customer.DoesNotExist:
         customer = None
 
+    with open("debug.log", "a") as f:  
+        f.write(f"User: {customer.customer_id}\n")
     # Nếu customer tồn tại, lấy danh sách booking đã thanh toán
     if customer:
-        bookings = Booking.objects.filter(customer_id=customer.customer_id, payment__isnull=False)
+        bookings = Booking.objects.filter(customer_id=user, payment__isnull=False)
     else:
         bookings = []
 
@@ -1104,7 +1057,7 @@ def History(request):
     if request.method == "POST":
         booking_id = request.POST.get("booking_id")
         try:
-            booking = Booking.objects.get(booking_id=booking_id, customer_id=customer.customer_id)
+            booking = Booking.objects.get(booking_id=booking_id, customer_id=user)
             booking.delete()
             messages.success(request, "Đã hủy đặt sân thành công!")
         except Booking.DoesNotExist:

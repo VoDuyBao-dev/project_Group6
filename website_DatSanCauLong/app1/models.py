@@ -76,7 +76,7 @@ class BadmintonHall(models.Model):
     name = models.CharField(max_length=255)
     address = models.TextField()
     court_manager = models.OneToOneField(
-        'CourtManager', 
+        CourtManager, 
         on_delete=models.CASCADE, 
         null=True, blank=True, 
         related_name='badminton_hall'

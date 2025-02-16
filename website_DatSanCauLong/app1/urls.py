@@ -26,7 +26,7 @@ urlpatterns = [
     path('DangKyTaiKhoanThanhToan/', DangKyTaiKhoanThanhToan.as_view(), name='DangKyTaiKhoanThanhToan'),
     path('History/', views.History, name= 'History'),
     path('price_list/', views.price_list, name='price_list'),
-   
+    path('footer/', views.footer, name='footer'),
    
     path('San/', views.San, name='San'),
     path('them_san_moi/', views.them_san_moi, name='them_san_moi'),
