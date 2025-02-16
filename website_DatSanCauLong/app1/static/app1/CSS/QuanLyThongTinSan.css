@@ -218,25 +218,14 @@ label {
     font-weight: bold;
     text-align: left;
 }
-.message {
-    font-size: 18px;
-    font-weight: bold;
-    margin-top: 20px;
-    padding: 15px;
-    border-radius: 8px;
-    display: none;
-    }
-    
-    .message.success {
-    background-color: rgba(50, 227, 11, 0.2);
-    color: rgb(50, 227, 11);
-    }
-    
-    .message.error {
-    background-color: rgba(255, 1, 1, 0.2);
-    color: rgb(255, 1, 1);
-    }
-    
-    .message.show {
-    display: block;
-    }
+#message-box {
+    position: fixed;       
+    top: 0;                
+    left: 0;               
+    width: 100%;           
+    background-color: #4CAF50;  
+    color: rgb(0, 0, 0);        
+    padding: 15px;         
+    z-index: 9999;       
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
+}
