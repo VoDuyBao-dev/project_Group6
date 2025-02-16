@@ -23,7 +23,7 @@
             <p>Địa chỉ: {{ court.badminton_hall.address }}</p>
             <p>Giờ hoạt động: 8:00 - 22:00</p>
             <p>Ngày: Thứ 2 - Chủ Nhật</p>
-            <button class="book-btn"><a href="#">Đặt sân</a></button>
+            <button class="book-btn"><a href="{% url 'booking' court_id=court.court_id %}">Đặt sân</a></button>
           </div>
         {% endfor %}
       {% else %}

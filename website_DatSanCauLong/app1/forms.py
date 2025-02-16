@@ -7,8 +7,7 @@ from .models import TimeSlotTemplate
 from .models import Court
 import re
 from app1.models import BadmintonHall, CourtManager, PaymentAccount
-
-
+from datetime import date
 
 # from .models import TimeSlotTemplate
 

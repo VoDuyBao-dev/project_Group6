@@ -535,7 +535,7 @@ def AddAccount_Manage(request):
                 elif role == "staff":
                     CourtStaff.objects.create(user=user)
 
-                elif role == "user":
+                elif role == "customer":
                     Customer.objects.create(user=user)
 
                 # Nếu vai trò là người dùng, không cần tạo thêm Customer (xử lý tự động qua signal)
@@ -604,13 +604,6 @@ def Update_account(request, user_id):
 
 
 
-
-
-
-# từ khúc này là con Lan làm có gì thì né né ra nha.
-
-
-
 # thêm thời gian(khung giờ) và giá,... của từng loại hình đặt lịch
 def manage_time_slots(request):
     if request.method == "POST":
@@ -676,12 +669,10 @@ def them_san_moi(request):
             elif BadmintonHall.objects.filter(address=address).exists():
                 messages.error(request, "Địa điểm này đã có chi nhánh. Vui lòng chọn địa điểm khác.")
             else:
-                badminton_hall = BadmintonHall(name=name, address=address)
-
+                badminton_hall = BadmintonHall.objects.create(name=name, address=address)
+                court_manager = CourtManager.objects.get(courtManager_id=court_manager_id)
                 if court_manager_id:
                     try:
-                        court_manager = CourtManager.objects.get(courtManager_id=court_manager_id)
-
                         # Kiểm tra nếu CourtManager đã có BadmintonHall
                         if hasattr(court_manager, 'badminton_hall'):
                             messages.error(request, "Quản lý này đã được gán cho một chi nhánh khác.")
@@ -731,8 +722,10 @@ def them_san(request):
             image=image,
         )
         messages.success(request, "Thêm sân mới thành công!")
+        return redirect("them_san")
 
-        return redirect('them_san')
+    badminton_halls = BadmintonHall.objects.all()
+    return render(request, 'app1/them_san.html', {"badminton_halls": badminton_halls})
 
 
 # quản lý thông tin sân cầu lông
@@ -886,6 +879,8 @@ def booking_view(request, court_id=None):
         
     else:
         court = None
+    print(f"Debug - Court ID từ URL: {court_id}")
+    print(f"Debug - Court object: {court}")
     if request.method == 'POST':
         try:
             logger.info("Xác nhận phương thức POST")
@@ -905,6 +900,10 @@ def booking_view(request, court_id=None):
             booking_date = datetime.strptime(date_str, "%Y-%m-%d").date()
             start_time = datetime.strptime(start_time_str, "%H:%M").time()
             end_time = datetime.strptime(end_time_str, "%H:%M").time()
+            print(f"Debug Data - Court: {court}, Booking Type: {booking_type}, Date: {date_str}, Start Time: {start_time_str}, End Time: {end_time_str}")
+            print(f"Raw request.POST: {request.POST}")
+            print(f"Ngày đặt: {booking_date}, Giờ bắt đầu: {start_time}, Giờ kết thúc: {end_time}")
+
             # Tìm time slot template
             day_of_week = booking_date.strftime("%A")
             templates = TimeSlotTemplate.objects.filter(day_of_week=day_of_week, status='available')
@@ -912,7 +911,6 @@ def booking_view(request, court_id=None):
             logger.info(f"Tìm template cho {day_of_week}, tổng {len(templates)} kết quả")
 
             template = None
-
             for temp in templates:
                 try:
                     parts = temp.time_frame.replace("h", "").strip().split("-")
@@ -920,8 +918,7 @@ def booking_view(request, court_id=None):
                     template_end = datetime.strptime(parts[1].strip().zfill(2) + ":00", "%H:%M").time()
 
                     logger.info(f"Template {temp.template_id}: {template_start} - {template_end}")
-                    with open("debug.log", "a") as f:  
-                        f.write(f"Template {temp.template_id}: {template_start} - {template_end}\n")
+
                     if start_time >= template_start and end_time <= template_end:
                         template = temp
                         logger.info(f"Chọn template: {template.template_id}")
@@ -952,7 +949,7 @@ def booking_view(request, court_id=None):
             print(f"Debug - Giá tiền đã làm tròn: {price}")
             # Lưu booking
             booking = Booking.objects.create(
-                customer=request.user,
+                customer_id=request.user.customer.customer_id,
                 court=court,
                 booking_type=booking_type,
                 date=booking_date,
@@ -1004,7 +1001,8 @@ def payment(request, booking_id, court_id):
         booking.save()
 
         messages.success(request, "Thanh toán thành công!")
-        return redirect('payment', booking_id=booking.booking_id, court_id=booking.court_id)  # Điều hướng đến trang chi tiết booking
+        # return redirect('payment', booking_id=booking.booking_id, court_id=booking.court_id)  # Điều hướng đến trang chi tiết booking
+        return redirect('History')  # Điều hướng đến trang chi tiết booking
 
     return render(request, 'app1/payment.html', {
         'booking': booking, 
@@ -1012,6 +1010,7 @@ def payment(request, booking_id, court_id):
         'payment_accounts': payment_accounts
     })
 
+@login_required
 def checkin(request):
     context = {}
 
@@ -1019,15 +1018,22 @@ def checkin(request):
         booking_id = request.POST.get("booking_id")
 
         try:
-            # Kiểm tra mã đặt lịch trong bảng Payment
-            payment = Payment.objects.get(payment_id=booking_id)
-            booking = Booking.objects.get(booking_id=payment.booking_id)
-            user = request.user 
-            customer = Customer.objects.get(user=user)
+            # Kiểm tra xem có payment không & đã thanh toán chưa
+            payment = Payment.objects.get(booking__booking_id=booking_id, status=True)
 
-            context["customer_name"] = user.first_name
-            context["court"] = booking.court.name
-        except (Payment.DoesNotExist, Booking.DoesNotExist, Customer.DoesNotExist, User.DoesNotExist):
+            # Nếu có payment hợp lệ, lấy thông tin booking
+            booking = payment.booking
+            customer = Customer.objects.get(customer_id=booking.customer_id)
+            user = User.objects.get(id=customer.user_id)
+
+            # Lưu thông tin vào context để truyền sang template
+            context["customer_name"] = user.first_name  # Lấy tên khách hàng
+            context["court"] = booking.court.name  # Lấy tên sân
+
+            messages.success(request, "Check-in thành công!")  # Thông báo check-in thành công
+
+        except Payment.DoesNotExist:
+            # Nếu không tìm thấy payment hợp lệ, báo lỗi
             context["error"] = "Mã đặt lịch không hợp lệ!"
 
     return render(request, "app1/Check-in.html", context)
@@ -1044,20 +1050,19 @@ def History(request):
     except Customer.DoesNotExist:
         customer = None
 
-    with open("debug.log", "a") as f:  
-        f.write(f"User: {customer.customer_id}\n")
-    # Nếu customer tồn tại, lấy danh sách booking đã thanh toán
+    # Nếu customer tồn tại, lấy danh sách booking đã thanh toán (có payment)
     if customer:
-        bookings = Booking.objects.filter(customer_id=user, payment__isnull=False)
+        bookings = Booking.objects.filter(
+            customer_id=customer.customer_id, 
+            payment__isnull=False
+        ).select_related('payment')
     else:
         bookings = []
-
-    print("Danh sách booking của user:", bookings)
 
     if request.method == "POST":
         booking_id = request.POST.get("booking_id")
         try:
-            booking = Booking.objects.get(booking_id=booking_id, customer_id=user)
+            booking = Booking.objects.get(booking_id=booking_id, customer_id=customer.customer_id)
             booking.delete()
             messages.success(request, "Đã hủy đặt sân thành công!")
         except Booking.DoesNotExist:
@@ -1066,7 +1071,5 @@ def History(request):
         return redirect("History")  
 
     return render(request, "app1/LichSuDatSan.html", {"bookings": bookings})
-
-
 
     

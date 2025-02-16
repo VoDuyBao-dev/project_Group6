@@ -40,7 +40,7 @@
         <select id="court_manager" name="court_manager">
           <option value="">-- Chọn Quản Lý --</option>
           {% for manager in court_managers %}
-            <option value="{{ manager.court_manager }}">{{ manager.user.username }}</option>
+            <option value="{{ manager.courtManager_id }}">{{ manager.user.username }}</option>
           {% endfor %}
         </select>
         <button type="submit">Xác Nhận</button>
