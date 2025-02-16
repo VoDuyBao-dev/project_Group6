@@ -12,7 +12,41 @@ body {
   padding: 0;
   margin: 0;
 }
+.notification {
+  position: fixed;
+  top: 20px; /* Cách phía trên 20px */
+  left: 50%; /* Giữa màn hình theo chiều ngang */
+  transform: translateX(-50%); /* Căn giữa */
+  background-color:#0b87ec; 
+  color: white; /* Màu chữ */
+  padding: 15px 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  font-size: 16px;
+  font-weight: bold;
+  z-index: 9999; /* Luôn ở trên cùng */
+  animation: fade-in-out 5s ease-in-out; /* Hiệu ứng */
+}
 
+/* Hiệu ứng fade-in và fade-out */
+@keyframes fade-in-out {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+}
 h2 {
   background-color: #f0f0f0 !important;
   font-size: 2rem;
@@ -106,7 +140,8 @@ p {
 .ticket .date,
 .ticket .address,
 .ticket .hours,
-.ticket .price {
+.ticket .price,
+.ticket .bookingcode {
   font-size: 1rem;
   color: #555 !important;
   /* Đảm bảo màu chữ luôn là #555 */

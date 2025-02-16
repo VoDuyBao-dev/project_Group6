@@ -16,9 +16,11 @@
 
     <!-- Hiển thị thông báo -->
     {% if messages %}
+    <div class="notification">
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }}">{{ message }}</div>
         {% endfor %}
+    </div>
     {% endif %}
 
     <div class="container">
@@ -30,7 +32,7 @@
         <p class="hours">Giờ: {{ booking.start_time }} - {{ booking.end_time }}</p>
         <p class="price">Giá Thuê: {{ booking.amount }} VND</p>
         {% if booking.payment %}
-            <p class="booking-code">Mã Đặt Lịch: {{ booking.payment.booking_id }}</p>
+            <p class="bookingcode">Mã Đặt Lịch: <strong> {{ booking.payment.booking_id }}</strong></p>
         {% endif %}
         <div class="ticket-footer">
             <form method="post">

@@ -1,15 +1,49 @@
 body {
     font-family: Arial, sans-serif;
-    height: 100vh;
     background-color: #f3f4f6;
 }
-
+.notification {
+    position: fixed;
+    top: 20px; /* Cách phía trên 20px */
+    left: 50%; /* Giữa màn hình theo chiều ngang */
+    transform: translateX(-50%); /* Căn giữa */
+    background-color:#0b87ec; 
+    color: white; /* Màu chữ */
+    padding: 15px 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 9999; /* Luôn ở trên cùng */
+    animation: fade-in-out 5s ease-in-out; /* Hiệu ứng */
+  }
+  
+  /* Hiệu ứng fade-in và fade-out */
+  @keyframes fade-in-out {
+    0% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-10px);
+    }
+    10% {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    90% {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-10px);
+    }
+  }
 .invoice {
     background: white;
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     width: 350px;
+    height: auto;
     text-align: space-between;
     margin: 20px auto;
 
@@ -38,42 +72,56 @@ body {
     margin-top: 20px;
 }
 
+/* Định dạng chung */
 .bank-details {
     margin-top: 10px;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    background: #ff5f8a;
-}
-
-.btn {
-    width: 48%;
-    padding: 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin: 10px 1%;
-}
-
-.btn-confirm {
-    background: #2630a3;
     color: white;
 }
 
-.btn-confirm:hover {
-    background: #3491e7;
+/* Màu xanh cho ngân hàng */
+.bank {
+    background-color: #149e5b; /* Màu xanh */
+}
+
+/* Màu hồng cho Momo */
+.momo {
+    background-color: #f472b6; /* Màu hồng */
+}
+
+.button-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px; /* Khoảng cách giữa nút */
+}
+
+.btn {
+    flex: 1; /* Để nút có cùng kích thước */
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .btn-cancel {
-    background: #dc3545;
+    background: #dc3545; /* Đỏ */
     color: white;
 }
 
 .btn-cancel:hover {
-    background: #a71d2a;
+    background: #a71d2a; /* Đỏ đậm khi hover */
 }
 
-.button-container {
-    display: flex;
-    justify-content: space-between;
+.btn-confirm {
+    background: #1bab46; /* Xanh */
+    color: white;
+}
+
+.btn-confirm:hover {
+    background: #149e5b; /* Xanh đậm khi hover */
 }

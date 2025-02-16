@@ -21,22 +21,24 @@
             
             <!-- Hiển thị thông báo -->
             {% if messages %}
+            <div class="error">
                 <ul class="messages">
                     {% for message in messages %}
                         <li class="{{ message.tags }}">{{ message }}</li>
                     {% endfor %}
                 </ul>
+            </div>
             {% endif %}
 
             <!-- Form nhập thông tin chi nhánh -->
-            <label for="name">Tên Chi Nhánh</label>
+            <label for="name"><strong>Tên Chi Nhánh</strong></label>
             <input type="text" id="name" name="name" required placeholder="Nhập tên chi nhánh">
             
-            <label for="address">Địa điểm</label>
+            <label for="address"><strong>Địa điểm</strong></label>
             <input type="text" id="address" name="address" required placeholder="Nhập địa điểm">
 
             <!-- Chọn Court Manager -->
-<label for="court_manager">Chọn Quản Lý Chi Nhánh</label>
+<label for="court_manager"><strong>Chọn Quản Lý Chi Nhánh</strong></label>
 {% if court_managers %}
     <select id="court_manager" name="court_manager">
         <option value="">-- Chọn Quản Lý --</option>
@@ -44,8 +46,6 @@
             <option value="{{ manager.courtManager_id }}">{{ manager.user.username }}</option>
         {% endfor %}
     </select>
-{% else %}
-    <p class="warning-message">Không còn Quản lý nào để bạn chọn cả. Vui lòng nhờ admin tạo Quản lý trước.</p>
 {% endif %}
 
             <button type="submit">Xác Nhận</button>

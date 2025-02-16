@@ -10,6 +10,49 @@ body {
   margin: 0;
   padding: 0;
 }
+.notification {
+  position: fixed;
+  top: 20px; /* Cách phía trên 20px */
+  left: 50%; /* Giữa màn hình theo chiều ngang */
+  transform: translateX(-50%); /* Căn giữa */
+  background-color:#0b87ec; 
+  color: white; /* Màu chữ */
+  padding: 15px 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  font-size: 12px;
+  font-weight: bold;
+  z-index: 9999; /* Luôn ở trên cùng */
+  animation: fade-in-out 5s ease-in-out; /* Hiệu ứng */
+}
+
+/* Hiệu ứng fade-in và fade-out */
+@keyframes fade-in-out {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+}
+.error-list {
+  color: #ff4d4f; /* Màu đỏ cho thông báo lỗi */
+  font-size: 14px;
+  margin-bottom: 12px;
+  text-align: left;
+  list-style-type: none;
+  padding-left: 15px; /* Căn lề trái để thẳng với input */
+}
 
 .main-content {
   flex-grow: 1;

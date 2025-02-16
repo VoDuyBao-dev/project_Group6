@@ -525,40 +525,35 @@ def payment(request, booking_id, court_id):
     booking = get_object_or_404(Booking, booking_id=booking_id, court_id=court_id)
     amount = Decimal(booking.amount).quantize(Decimal("0.001"))
 
-    # Kiểm tra xem sân có thuộc một BadmintonHall hay không
     badminton_hall = getattr(booking.court, 'badminton_hall', None)
-
-    # Lấy CourtManager của sân đó (nếu có)
     court_manager = getattr(badminton_hall, 'court_manager', None)
-
-    # Lấy danh sách tài khoản thanh toán của CourtManager (nếu có)
     payment_accounts = court_manager.payment_accounts.all() if court_manager else []
 
     if request.method == "POST":
-        # Kiểm tra nếu đã có payment cho booking này thì không tạo mới
         if hasattr(booking, 'payment'):
             messages.warning(request, "Booking này đã được thanh toán.")
-            return redirect('payment', booking_id=booking.booking_id, court_id=court_id)
+        else:
+            Payment.objects.create(
+                booking=booking,
+                payment_account=payment_accounts.first() if payment_accounts else None,
+                status=True  
+            )
+            booking.status = True
+            booking.save()
+            messages.success(request, "Thanh toán thành công!")
 
-        # Lưu vào database
-        payment = Payment.objects.create(
-            booking=booking,
-            payment_account=payment_accounts.first() if payment_accounts else None,  # Chọn tài khoản đầu tiên
-            status=True  # Đánh dấu đã thanh toán
-        )
-
-        # Cập nhật trạng thái của booking
-        booking.status = True
-        booking.save()
-
-        messages.success(request, "Thanh toán thành công!")
-        return redirect('payment', booking_id=booking.booking_id, court_id=booking.court_id)  # Điều hướng đến trang chi tiết booking
+        return render(request, 'app1/payment.html', {
+            'booking': booking,
+            'amount': amount,
+            'payment_accounts': payment_accounts
+        })
 
     return render(request, 'app1/payment.html', {
-        'booking': booking, 
+        'booking': booking,
         'amount': amount,
         'payment_accounts': payment_accounts
     })
+
 
 
 from django.shortcuts import render, get_object_or_404, redirect
@@ -657,94 +652,96 @@ from django.contrib import messages
 from app1.models import Booking, Court, Customer
 from datetime import datetime, timedelta
 
+from datetime import datetime, date
+from decimal import Decimal, ROUND_HALF_UP
+from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from datetime import datetime
-from .models import Court, Booking, TimeSlotTemplate
-from decimal import Decimal
-import logging
-from decimal import Decimal, ROUND_HALF_UP
-logger = logging.getLogger(__name__)
+from app1.models import Court, Booking, TimeSlotTemplate
+
 @login_required
 def booking_view(request, court_id=None):
-    logger.info("Bắt đầu xử lý booking")  # Ghi log
-    print("DEBUG: Hàm booking_view đã được gọi")  # Kiểm tra
-
     if court_id:
         court = get_object_or_404(Court, court_id=court_id)
-        
     else:
         court = None
-    print(f"Debug - Court ID từ URL: {court_id}")
-    print(f"Debug - Court object: {court}")
+
     if request.method == 'POST':
         try:
-            logger.info("Xác nhận phương thức POST")
-
-            # Kiểm tra dữ liệu nhập vào
+            # Lấy dữ liệu từ form
             booking_type = request.POST.get('booking_type')
             date_str = request.POST.get('date')
             start_time_str = request.POST.get('start_time')
             end_time_str = request.POST.get('end_time')
 
             if not (court and booking_type and date_str and start_time_str and end_time_str):
-                logger.warning("Thiếu dữ liệu đặt sân!")
                 messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
                 return redirect('booking', court_id=court.court_id)
-            
-            # Chuyển đổi start_time và end_time
+
+            # Chuyển đổi kiểu dữ liệu
             booking_date = datetime.strptime(date_str, "%Y-%m-%d").date()
             start_time = datetime.strptime(start_time_str, "%H:%M").time()
             end_time = datetime.strptime(end_time_str, "%H:%M").time()
-            print(f"Debug Data - Court: {court}, Booking Type: {booking_type}, Date: {date_str}, Start Time: {start_time_str}, End Time: {end_time_str}")
-            print(f"Raw request.POST: {request.POST}")
-            print(f"Ngày đặt: {booking_date}, Giờ bắt đầu: {start_time}, Giờ kết thúc: {end_time}")
 
-            # Tìm time slot template
-            day_of_week = booking_date.strftime("%A")
-            templates = TimeSlotTemplate.objects.filter(day_of_week=day_of_week, status='available')
-            
-            logger.info(f"Tìm template cho {day_of_week}, tổng {len(templates)} kết quả")
-
-            template = None
-            for temp in templates:
-                try:
-                    parts = temp.time_frame.replace("h", "").strip().split("-")
-                    template_start = datetime.strptime(parts[0].strip().zfill(2) + ":00", "%H:%M").time()
-                    template_end = datetime.strptime(parts[1].strip().zfill(2) + ":00", "%H:%M").time()
-
-                    logger.info(f"Template {temp.template_id}: {template_start} - {template_end}")
-
-                    if start_time >= template_start and end_time <= template_end:
-                        template = temp
-                        logger.info(f"Chọn template: {template.template_id}")
-                        break
-                except Exception as e:
-                    logger.error(f"Lỗi xử lý time_frame {temp.time_frame}: {e}")
-
-            if not template:
-                logger.warning("Không tìm thấy template phù hợp!")
-                messages.error(request, "Không tìm thấy giá cho khung giờ này!")
+            # Điều kiện 1: Ngày đặt không được ở trong quá khứ
+            today = date.today()
+            if booking_date < today:
+                messages.error(request, "Không thể đặt sân vào ngày trong quá khứ!")
                 return redirect('booking', court_id=court.court_id)
 
-            # Tính giá tiền
-            duration_hours = Decimal((datetime.combine(booking_date, end_time) - datetime.combine(booking_date, start_time)).total_seconds() / 3600.0)
+            # Điều kiện 2: Giờ bắt đầu phải nhỏ hơn giờ kết thúc
+            if start_time >= end_time:
+                messages.error(request, "Giờ bắt đầu phải nhỏ hơn giờ kết thúc!")
+                return redirect('booking', court_id=court.court_id)
 
-            if booking_type == "fixed":
-                price = template.fixed_price * duration_hours
-            elif booking_type == "daily":
-                price = template.daily_price * duration_hours
-            elif booking_type == "flexible":
-                price = template.flexible_price * duration_hours
-            else:
-                price = Decimal('0.00')
+            # Điều kiện 3: Kiểm tra trùng lịch với các booking đã thanh toán
+            conflicting_booking = Booking.objects.filter(
+                court=court, date=booking_date, status=True
+            ).filter(
+                start_time__lt=end_time, end_time__gt=start_time
+            ).exists()
+            
+            if conflicting_booking:
+                messages.error(request, "Khung giờ này đã được đặt và thanh toán, vui lòng chọn khung giờ khác!")
+                return redirect('booking', court_id=court.court_id)
 
-                # Làm tròn đến 3 chữ số thập phân
-            price = price.quantize(Decimal('0.001'), rounding=ROUND_HALF_UP)
-            logger.info(f"Tổng tiền: {price}")
-            print(f"Debug - Giá tiền đã làm tròn: {price}")
-            # Lưu booking
+            # Tìm các time slot templates phù hợp
+            day_of_week = booking_date.strftime("%A")
+            templates = TimeSlotTemplate.objects.filter(day_of_week=day_of_week, status='available').order_by('time_frame')
+            
+            total_price = Decimal('0.00')
+            current_time = start_time
+            
+            while current_time < end_time:
+                for temp in templates:
+                    try:
+                        parts = temp.time_frame.replace("h", "").strip().split("-")
+                        template_start = datetime.strptime(parts[0].strip().zfill(2) + ":00", "%H:%M").time()
+                        template_end = datetime.strptime(parts[1].strip().zfill(2) + ":00", "%H:%M").time()
+                        
+                        if current_time >= template_start and current_time < template_end:
+                            next_time = min(end_time, template_end)
+                            duration_hours = Decimal((datetime.combine(booking_date, next_time) - datetime.combine(booking_date, current_time)).total_seconds() / 3600.0)
+                            
+                            if booking_type == "fixed":
+                                total_price += temp.fixed_price * duration_hours
+                            elif booking_type == "daily":
+                                total_price += temp.daily_price * duration_hours
+                            elif booking_type == "flexible":
+                                total_price += temp.flexible_price * duration_hours
+                            
+                            current_time = next_time
+                            break
+                    except Exception:
+                        continue  # Bỏ qua template bị lỗi
+                else:
+                    messages.error(request, "Không tìm thấy giá cho khung giờ này!")
+                    return redirect('booking', court_id=court.court_id)
+            
+            # Làm tròn đến 3 chữ số thập phân
+            total_price = total_price.quantize(Decimal('0.001'), rounding=ROUND_HALF_UP)
+            
+            # Lưu booking vào database
             booking = Booking.objects.create(
                 customer_id=request.user.customer.customer_id,
                 court=court,
@@ -753,17 +750,17 @@ def booking_view(request, court_id=None):
                 start_time=start_time,
                 end_time=end_time,
                 status=False,
-                amount=price,
+                amount=total_price,
             )
 
-            messages.success(request, f"Vui lòng thanh toán {price} để hoàn tất đặt sân.")
+            # messages.success(request, f"Bạn đã thanh toán hoá đơn {total_price} thành công.")
             return redirect('payment', booking_id=booking.booking_id, court_id=court.court_id)
 
         except Exception as e:
-            logger.error(f"Lỗi đặt sân: {e}")
             messages.error(request, f"Có lỗi xảy ra: {str(e)}")
 
     return render(request, 'app1/Book.html', {"court": court})
+
 
 
 
