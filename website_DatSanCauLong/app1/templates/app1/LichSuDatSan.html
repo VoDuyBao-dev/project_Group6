@@ -25,18 +25,22 @@
       {% for booking in bookings %}
       <div class="ticket">
         <h3>{{ booking.court_name }}</h3>
-        <p class="date">Ngày Đặt: {{ booking.date |date:"d/m/Y"}}</p>
-        <p class="address">Địa Chỉ: {{ booking.court }} - {{booking.court.badminton_hall.address }}</p>
+        <p class="date">Ngày Đặt: {{ booking.date | date:"d/m/Y" }}</p>
+        <p class="address">Địa Chỉ: {{ booking.court }} - {{ booking.court.badminton_hall.address }}</p>
         <p class="hours">Giờ: {{ booking.start_time }} - {{ booking.end_time }}</p>
         <p class="price">Giá Thuê: {{ booking.amount }} VND</p>
+        {% if booking.payment %}
+            <p class="booking-code">Mã Đặt Lịch: {{ booking.payment.booking_id }}</p>
+        {% endif %}
         <div class="ticket-footer">
-          <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="booking_id" value="{{ booking.booking_id }}">
-            <button type="submit" class="cancel-btn">Hủy</button>
-          </form>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="booking_id" value="{{ booking.booking_id }}">
+                <button type="submit" class="cancel-btn">Hủy</button>
+            </form>
         </div>
       </div>
+    
       {% empty %}
       <p>Không có lịch sử đặt sân nào.</p>
       {% endfor %}

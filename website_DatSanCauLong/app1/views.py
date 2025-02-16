@@ -514,8 +514,6 @@ def lichThiDau(request):
 def themSan(request):
     return render(request, 'app1/ThemSanMoi.html')
 
-def booking(request):
-    return render(request, 'app1/Book.html')
 
 from django.shortcuts import render, get_object_or_404
 from app1.models import Booking
@@ -570,6 +568,7 @@ from django.shortcuts import render
 from app1.models import Payment, Customer, Booking
 from django.contrib.auth.models import User
 
+@login_required
 def checkin(request):
     context = {}
 
@@ -577,20 +576,25 @@ def checkin(request):
         booking_id = request.POST.get("booking_id")
 
         try:
-            # Kiểm tra mã đặt lịch trong bảng Payment
-            payment = Payment.objects.get(payment_id=booking_id)
-            booking = Booking.objects.get(booking_id=payment.booking_id)
+            # Kiểm tra xem có payment không & đã thanh toán chưa
+            payment = Payment.objects.get(booking__booking_id=booking_id, status=True)
+
+            # Nếu có payment hợp lệ, lấy thông tin booking
+            booking = payment.booking
             customer = Customer.objects.get(customer_id=booking.customer_id)
             user = User.objects.get(id=customer.user_id)
 
-            context["customer_name"] = user.first_name
-            context["court"] = booking.court.name
-        except (Payment.DoesNotExist, Booking.DoesNotExist, Customer.DoesNotExist, User.DoesNotExist):
+            # Lưu thông tin vào context để truyền sang template
+            context["customer_name"] = user.first_name  # Lấy tên khách hàng
+            context["court"] = booking.court.name  # Lấy tên sân
+
+            messages.success(request, "Check-in thành công!")  # Thông báo check-in thành công
+
+        except Payment.DoesNotExist:
+            # Nếu không tìm thấy payment hợp lệ, báo lỗi
             context["error"] = "Mã đặt lịch không hợp lệ!"
 
     return render(request, "app1/Check-in.html", context)
-
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -606,13 +610,14 @@ def History(request):
     except Customer.DoesNotExist:
         customer = None
 
-    # Nếu customer tồn tại, lấy danh sách booking đã thanh toán
+    # Nếu customer tồn tại, lấy danh sách booking đã thanh toán (có payment)
     if customer:
-        bookings = Booking.objects.filter(customer_id=customer.customer_id, payment__isnull=False)
+        bookings = Booking.objects.filter(
+            customer_id=customer.customer_id, 
+            payment__isnull=False
+        ).select_related('payment')
     else:
         bookings = []
-
-    print("Danh sách booking của user:", bookings)
 
     if request.method == "POST":
         booking_id = request.POST.get("booking_id")

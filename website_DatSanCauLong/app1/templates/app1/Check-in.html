@@ -35,15 +35,15 @@
         </form>
 
         {% if customer_name and court %}
-            <div class="message success">
-                <p>Check-in thành công nhó ^^</p>
-                <p><strong>Khách hàng:</strong> {{ customer_name }}</p>
-                <p><strong>Sân đã đặt:</strong> {{ court }}</p>
-            </div>
-        {% elif error %}
-            <div class="message error">
-                <p>{{ error }}</p>
-            </div>
+    <div class="message success">
+        <p> Check-in thành công!</p>
+        <p><strong>Khách hàng:</strong> {{ customer_name }}</p>
+        <p><strong>Sân đã đặt:</strong> {{ court }}</p>
+    </div>
+{% elif error %}
+    <div class="message error">
+        <p> {{ error }}</p>
+    </div>
         {% endif %}
     </div>
     {% endblock %}
