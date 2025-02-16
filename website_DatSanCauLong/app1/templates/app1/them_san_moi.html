@@ -36,13 +36,18 @@
             <input type="text" id="address" name="address" required placeholder="Nhập địa điểm">
 
             <!-- Chọn Court Manager -->
-            <label for="court_manager">Chọn Quản Lý Chi Nhánh</label>
-            <select id="court_manager" name="court_manager">
-                <option value="">-- Chọn Quản Lý --</option>
-                {% for manager in court_managers %}
-                    <option value="{{ manager.courtManager_id }}">{{ manager.user.username }}</option>
-                {% endfor %}
-            </select>
+<label for="court_manager">Chọn Quản Lý Chi Nhánh</label>
+{% if court_managers %}
+    <select id="court_manager" name="court_manager">
+        <option value="">-- Chọn Quản Lý --</option>
+        {% for manager in court_managers %}
+            <option value="{{ manager.courtManager_id }}">{{ manager.user.username }}</option>
+        {% endfor %}
+    </select>
+{% else %}
+    <p class="warning-message">Không còn Quản lý nào để bạn chọn cả. Vui lòng nhờ admin tạo Quản lý trước.</p>
+{% endif %}
+
             <button type="submit">Xác Nhận</button>
         </form>
     </div>

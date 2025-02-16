@@ -841,22 +841,19 @@ def them_san_moi(request):
             elif BadmintonHall.objects.filter(address=address).exists():
                 messages.error(request, "Địa điểm này đã có chi nhánh. Vui lòng chọn địa điểm khác.")
             else:
-                badminton_hall = BadmintonHall(name=name, address=address)
+                # Lấy danh sách CourtManager chưa có BadmintonHall
+                court_managers = CourtManager.objects.filter(badminton_hall__isnull=True)
 
-                if court_manager_id:
-                    try:
-                        court_manager = CourtManager.objects.get(courtManager_id=court_manager_id)
-
-                        # Kiểm tra nếu CourtManager đã có BadmintonHall
-                        if hasattr(court_manager, 'badminton_hall'):
-                            messages.error(request, "Quản lý này đã được gán cho một chi nhánh khác.")
-                        else:
-                            badminton_hall.court_manager = court_manager
-                            badminton_hall.save()
-                            messages.success(request, "Thêm chi nhánh thành công!")
-                    except CourtManager.DoesNotExist:
-                        messages.error(request, "Quản lý không tồn tại.")
+                if not court_managers.exists():
+                    messages.error(request, "Không còn Quản lý nào để bạn chọn cả. Vui lòng nhờ admin tạo Quản lý trước.")
+                elif not court_manager_id:
+                    messages.error(request, "Vui lòng chọn Quản lý.")
                 else:
+                    # Lấy CourtManager từ danh sách đã lọc
+                    court_manager = court_managers.get(courtManager_id=court_manager_id)
+
+                    # Tạo chi nhánh và gán Quản lý
+                    badminton_hall = BadmintonHall(name=name, address=address, court_manager=court_manager)
                     badminton_hall.save()
                     messages.success(request, "Thêm chi nhánh thành công!")
 
@@ -864,6 +861,7 @@ def them_san_moi(request):
     court_managers = CourtManager.objects.filter(badminton_hall__isnull=True)
     
     return render(request, 'app1/them_san_moi.html', {'court_managers': court_managers})
+
 
 
 def them_san(request):
