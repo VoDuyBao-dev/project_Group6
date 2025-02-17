@@ -5,14 +5,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Thêm Sân</title>
-    {% comment %} <link rel="stylesheet" href="{% static 'app1/CSS/ThemSanMoi.css' %}" /> {% endcomment %}
-    <link rel="stylesheet" type="text/css" href="{% static 'app1/css/style_time_slots.css' %}" />
-    {% comment %} <script src="{% static 'app1/js/layout-customer.js' %}"></script> {% endcomment %}
+    <link rel="stylesheet" href="{% static 'app1/CSS/ThemSanMoi.css' %}" />
+    {% comment %} <link rel="stylesheet" type="text/css" href="{% static 'app1/css/style_time_slots.css' %}" /> {% endcomment %}
+    <script src="{% static 'app1/js/layout-customer.js' %}"></script>
   </head>
 
   <body>
-    {% comment %} {% include 'app1/Header-user.html' %} {% endcomment %}
+    {% include 'app1/Header-user.html' %}
     {% include 'app1/Menu-manager.html' %}
+
     {% block content %}
       <div class="form-container">
         <h1>Thêm Sân</h1>
@@ -20,7 +21,7 @@
           {% csrf_token %}
           <label for="address">Địa điểm</label>
           <select id="address" name="address">
-            <option value selected></option>
+            <option></option>
             {% for hall in badminton_halls %}
               <option value="{{ hall.badminton_hall_id }}">{{ hall.address }}</option>
             {% endfor %}
@@ -31,14 +32,6 @@
 
           <label for="image" alt="court">Thêm ảnh</label>
           <input type="file" id="image" name="image" placeholder="Chọn ảnh" />
-
-          {% comment %} <label for="status">Trạng thái</label>
-          <select id="status" name="status">
-            <option value selected></option>
-            <option value="under_maintenance">Under Maintenance</option>
-            <option value="empty">Empty</option>
-            <option value="booked">Booked</option>
-          </select> {% endcomment %}
           <button type="submit">Thêm sân</button>
         </form>
         <br />

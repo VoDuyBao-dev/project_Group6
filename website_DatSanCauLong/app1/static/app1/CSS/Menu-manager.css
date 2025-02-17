@@ -29,8 +29,8 @@ body {
 .side-bar {
   position: fixed;
   top: 100px;
-  left: -220px;
-  width: 200px;
+  left: -280px;
+  width: 250px;
   height: 100%;
   background: linear-gradient(45deg, #dedada, hsl(94, 11%, 88%));
   transition: all 0.5s ease;

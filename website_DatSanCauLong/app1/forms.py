@@ -336,6 +336,107 @@ class RegisterPaymentAccountForm(forms.Form):
         return cleaned_data
 
 
+class FormChinhSuaThongTinCaNhan(forms.Form):
+    full_name = forms.CharField(
+        max_length=255,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Họ và tên',
+            'id': 'full_name_UpdateForm'
+        })
+    )
+    date_of_birth = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'placeholder': 'Ngày sinh',
+            'id': 'dob_UpdateForm'
+        })
+    )
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)  # Lấy user từ kwargs
+        super().__init__(*args, **kwargs)
+
+        if user:
+            self.fields['full_name'].initial = user.first_name  # Gán tên mặc định từ User
+    
+        
+
+
+    def clean(self):
+        cleaned_data = super().clean()
+        full_name = cleaned_data.get("full_name")
+        date_of_birth = cleaned_data.get("date_of_birth")
+        
+        errors = {}
+
+        if not re.match(r'^[A-Za-zÀ-ỹ\s]+$', full_name):
+            errors['full_name'] = "Họ và tên chỉ được chứa chữ cái in hoa, in thường, dấu và khoảng trắng."
+
+        if date_of_birth and date_of_birth > date.today():
+            errors['date_of_birth'] = "Ngày sinh không được lớn hơn ngày hiện tại."
+            
+        for field, error in errors.items():
+            self.add_error(field, error)
+
+        return cleaned_data  # Trả về dữ liệu đã làm sạch
+
+# form thêm tài khoản của manage _ Quan lý tài khoản
+class AddAccountForm(forms.Form):
+    username = forms.CharField(
+        max_length=150,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Email',
+            'id': 'username_add_account'
+        })
+    )
+    
+    password = forms.CharField(
+        max_length=128,
+        required=True,
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Mật khẩu',
+            'id': 'password_add_account'
+        })
+    )
+
+    role = forms.ChoiceField(
+        choices=[
+            ('', 'Chọn vai trò'),
+            ('manage', 'Quản trị viên'),
+            ('staff', 'staff'),
+            ('customer', 'Người dùng')
+        ],
+        required=True,
+        widget=forms.Select(attrs={
+            'id': 'role'
+        })
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get("username")
+        
+
+        #  Biến để lưu lỗi
+        errors = {}
+
+        if not is_valid_email(username):
+            errors['username'] = "Email không hợp lệ."
+        
+        # Kiểm tra tên người dùng
+        if  User.objects.filter(username=username).exists():
+            errors['username'] = "Người dùng đã tồn tại."
+            
+        # Nếu có lỗi, thêm vào biểu mẫu
+        for field, error in errors.items():
+            self.add_error(field, error)
+
+        return cleaned_data  # Trả về dữ liệu đã làm sạch
+
+
 
 class BadmintonHallForm(forms.ModelForm):
     manager_username = forms.CharField(max_length=150, required=True, label="Tên đăng nhập Quản lý")

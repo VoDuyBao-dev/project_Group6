@@ -16,7 +16,7 @@ from .models import *
 from django.contrib.auth.decorators import login_required
 import json
 from .forms import TimeSlotTemplateForm  # Sẽ tạo file form ở bước tiếp theo
-import nanoid
+
 from .models import TimeSlotTemplate, Court, Booking, Payment, PaymentAccount, CourtManager, Customer
 from django.shortcuts import get_object_or_404
 from .models import BadmintonHall
@@ -172,10 +172,6 @@ def resend_otp(request):
     return JsonResponse({'success': False, 'message': 'Yêu cầu không hợp lệ.'})
 
 
-def redirect_user(user):
-    # with open("debug.log", "a") as f:  
-    #     f.write(f"User: {user.username}, Nhóm: {[group.name for group in user.groups.all()]}\n")
-    return redirect('TrangChu')
 
 class Sign_In(View):
     def get(self, request):
@@ -192,7 +188,7 @@ class Sign_In(View):
     def post(self, request):
         # Nếu user đã đăng nhập, không cần đăng nhập lại
         if request.user.is_authenticated:
-            return redirect_user(request.user)
+            return redirect('TrangChu')
 
         # Khởi tạo form với dữ liệu từ request.POST
         sign_in_form = SignInForm(request.POST)
@@ -233,8 +229,7 @@ class Sign_In(View):
             request.session['user_role'] = user_role
 
             # Chuyển hướng về trang chủ sau khi đăng nhập thành công
-            # response = redirect('TrangChu')
-            response = redirect_user(user)
+            response = redirect('TrangChu')
 
             # Lưu email vào cookie nếu chọn "Nhớ tài khoản"
             if remember_me:
@@ -392,40 +387,6 @@ class SearchCourt(View):
         }
         return render(request, 'app1/kqTimKiem.html', context)
 
-# Đăng ký tài khoản thanh toán của manager
-class DangKyTaiKhoanThanhToan(LoginRequiredMixin,View):
-    login_url = 'Sign_in'
-    def get(self,request):
-        register_payment_Account=RegisterPaymentAccountForm()
-
-        context = {
-            'Register_Payment_Account': register_payment_Account,
-        }
-        return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
-
-    def post(self,request):
-        register_payment_Account=RegisterPaymentAccountForm(request.POST)
-        
-        context = {
-            'Register_Payment_Account': register_payment_Account,
-        }
-
-        if not register_payment_Account.is_valid():
-            return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
-        
-        # form hợp lệ thì lấy dữ liệu từ form
-        accountHolder = register_payment_Account.cleaned_data['accountHolder']
-        accountNumber = register_payment_Account.cleaned_data['accountNumber']
-        paymentMethod = register_payment_Account.cleaned_data['paymentMethod']
-
-        payment_account = PaymentAccount.objects.create(
-            accountHolder=accountHolder,
-            accountNumber=accountNumber,
-            paymentMethod=paymentMethod
-        )
-        messages.success(request, "Đăng ký tài khoản thanh toán thành công!")
-
-        return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
 
 
 
@@ -653,6 +614,7 @@ def AddAccount_Manage(request):
                     # Nếu vai trò là quản lý thì tạo CourtManager
                 elif role == "staff":
                     CourtStaff.objects.create(user=user)
+
                 elif role == "customer":
                     Customer.objects.create(user=user)
                 
@@ -721,16 +683,6 @@ def Update_account(request, user_id):
 
 
 
-
-
-
-# từ khúc này là con Lan làm có gì thì né né ra nha.
-
-def footer(request):
-    Badminton_Halls = BadmintonHall.objects.all()
-    return render(request, 'app1/Footer.html', {"Badminton_Halls": Badminton_Halls})
-
-
 # thêm thời gian(khung giờ) và giá,... của từng loại hình đặt lịch
 def manage_time_slots(request):
     if request.method == "POST":
@@ -796,12 +748,10 @@ def them_san_moi(request):
             elif BadmintonHall.objects.filter(address=address).exists():
                 messages.error(request, "Địa điểm này đã có chi nhánh. Vui lòng chọn địa điểm khác.")
             else:
-                badminton_hall = BadmintonHall(name=name, address=address)
-
+                badminton_hall = BadmintonHall.objects.create(name=name, address=address)
+                court_manager = CourtManager.objects.get(courtManager_id=court_manager_id)
                 if court_manager_id:
                     try:
-                        court_manager = CourtManager.objects.get(courtManager_id=court_manager_id)
-
                         # Kiểm tra nếu CourtManager đã có BadmintonHall
                         if hasattr(court_manager, 'badminton_hall'):
                             messages.error(request, "Quản lý này đã được gán cho một chi nhánh khác.")
@@ -819,6 +769,11 @@ def them_san_moi(request):
     court_managers = CourtManager.objects.filter(badminton_hall__isnull=True)
     
     return render(request, 'app1/them_san_moi.html', {'court_managers': court_managers})
+
+
+def footer(request):
+    Badminton_Halls = BadmintonHall.objects.all()
+    return render(request, 'app1/Footer.html', {"Badminton_Halls": Badminton_Halls})
 
 
 def them_san(request):
@@ -846,8 +801,10 @@ def them_san(request):
             image=image,
         )
         messages.success(request, "Thêm sân mới thành công!")
+        return redirect("them_san")
 
-        return redirect('them_san')
+    badminton_halls = BadmintonHall.objects.all()
+    return render(request, 'app1/them_san.html', {"badminton_halls": badminton_halls})
 
 
 # quản lý thông tin sân cầu lông
@@ -993,99 +950,117 @@ class BookingViewSet(viewsets.ModelViewSet):
 logger = logging.getLogger(__name__)
 @login_required
 def booking_view(request, court_id=None):
-    logger.info("Bắt đầu xử lý booking")  # Ghi log
-    print("DEBUG: Hàm booking_view đã được gọi")  # Kiểm tra
-
     if court_id:
         court = get_object_or_404(Court, court_id=court_id)
-        
     else:
         court = None
-    print(f"Debug - Court ID từ URL: {court_id}")
-    print(f"Debug - Court object: {court}")
+
     if request.method == 'POST':
         try:
-            logger.info("Xác nhận phương thức POST")
-
-            # Kiểm tra dữ liệu nhập vào
+            # Lấy dữ liệu từ form
             booking_type = request.POST.get('booking_type')
             date_str = request.POST.get('date')
             start_time_str = request.POST.get('start_time')
             end_time_str = request.POST.get('end_time')
 
             if not (court and booking_type and date_str and start_time_str and end_time_str):
-                logger.warning("Thiếu dữ liệu đặt sân!")
                 messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
                 return redirect('booking', court_id=court.court_id)
-            
-            # Chuyển đổi start_time và end_time
+
+            # Chuyển đổi kiểu dữ liệu
             booking_date = datetime.strptime(date_str, "%Y-%m-%d").date()
             start_time = datetime.strptime(start_time_str, "%H:%M").time()
             end_time = datetime.strptime(end_time_str, "%H:%M").time()
-            print(f"Debug Data - Court: {court}, Booking Type: {booking_type}, Date: {date_str}, Start Time: {start_time_str}, End Time: {end_time_str}")
-            print(f"Raw request.POST: {request.POST}")
-            print(f"Ngày đặt: {booking_date}, Giờ bắt đầu: {start_time}, Giờ kết thúc: {end_time}")
 
-            # Tìm time slot template
-            day_of_week = booking_date.strftime("%A")
-            templates = TimeSlotTemplate.objects.filter(day_of_week=day_of_week, status='available')
-            
-            logger.info(f"Tìm template cho {day_of_week}, tổng {len(templates)} kết quả")
-
-            template = None
-            for temp in templates:
-                try:
-                    parts = temp.time_frame.replace("h", "").strip().split("-")
-                    template_start = datetime.strptime(parts[0].strip().zfill(2) + ":00", "%H:%M").time()
-                    template_end = datetime.strptime(parts[1].strip().zfill(2) + ":00", "%H:%M").time()
-
-                    logger.info(f"Template {temp.template_id}: {template_start} - {template_end}")
-
-                    if start_time >= template_start and end_time <= template_end:
-                        template = temp
-                        logger.info(f"Chọn template: {template.template_id}")
-                        break
-                except Exception as e:
-                    logger.error(f"Lỗi xử lý time_frame {temp.time_frame}: {e}")
-
-            if not template:
-                logger.warning("Không tìm thấy template phù hợp!")
-                messages.error(request, "Không tìm thấy giá cho khung giờ này!")
+            # Điều kiện 1: Ngày đặt không được ở trong quá khứ
+            today = date.today()
+            if booking_date < today:
+                messages.error(request, "Không thể đặt sân vào ngày trong quá khứ!")
                 return redirect('booking', court_id=court.court_id)
 
-            # Tính giá tiền
-            duration_hours = Decimal((datetime.combine(booking_date, end_time) - datetime.combine(booking_date, start_time)).total_seconds() / 3600.0)
+            # Điều kiện 2: Giờ bắt đầu phải nhỏ hơn giờ kết thúc
+            if start_time >= end_time:
+                messages.error(request, "Giờ bắt đầu phải nhỏ hơn giờ kết thúc!")
+                return redirect('booking', court_id=court.court_id)
 
-            if booking_type == "fixed":
-                price = template.fixed_price * duration_hours
-            elif booking_type == "daily":
-                price = template.daily_price * duration_hours
-            elif booking_type == "flexible":
-                price = template.flexible_price * duration_hours
+            # Điều kiện 3: Kiểm tra trùng lịch với các booking đã thanh toán
+            conflicting_booking = Booking.objects.filter(
+                court=court, date=booking_date, status=True
+            ).filter(
+                start_time__lt=end_time, end_time__gt=start_time
+            ).exists()
+            
+            if conflicting_booking:
+                messages.error(request, "Khung giờ này đã được đặt và thanh toán, vui lòng chọn khung giờ khác!")
+                return redirect('booking', court_id=court.court_id)
+
+            # Tìm các time slot templates phù hợp
+            day_of_week = booking_date.strftime("%A")
+            templates = TimeSlotTemplate.objects.filter(day_of_week=day_of_week, status='available').order_by('time_frame')
+            
+            total_price = Decimal('0.00')
+            current_time = start_time
+            
+            while current_time < end_time:
+                for temp in templates:
+                    try:
+                        parts = temp.time_frame.replace("h", "").strip().split("-")
+                        template_start = datetime.strptime(parts[0].strip().zfill(2) + ":00", "%H:%M").time()
+                        template_end = datetime.strptime(parts[1].strip().zfill(2) + ":00", "%H:%M").time()
+                        
+                        if current_time >= template_start and current_time < template_end:
+                            next_time = min(end_time, template_end)
+                            duration_hours = Decimal((datetime.combine(booking_date, next_time) - datetime.combine(booking_date, current_time)).total_seconds() / 3600.0)
+                            
+                            if booking_type == "fixed":
+                                total_price += temp.fixed_price * duration_hours
+                            elif booking_type == "daily":
+                                total_price += temp.daily_price * duration_hours
+                            elif booking_type == "flexible":
+                                total_price += temp.flexible_price * duration_hours
+                            
+                            current_time = next_time
+                            break
+                    except Exception:
+                        continue  # Bỏ qua template bị lỗi
+                else:
+                    messages.error(request, "Không tìm thấy giá cho khung giờ này!")
+                    return redirect('booking', court_id=court.court_id)
+            
+            # Làm tròn đến 3 chữ số thập phân
+            total_price = total_price.quantize(Decimal('0.001'), rounding=ROUND_HALF_UP)
+            
+            # Lưu booking vào database
+            if hasattr(request.user, 'customer'):
+                booking = Booking.objects.create(
+                    customer_id=request.user.customer.customer_id,  # Gán đối tượng Customer cho trường customer
+                    court=court,
+                    booking_type=booking_type,
+                    date=booking_date,
+                    start_time=start_time,
+                    end_time=end_time,
+                    status=False,
+                    amount=total_price,
+                )
+            elif hasattr(request.user, 'court_manager'):
+                booking = Booking.objects.create(
+                    customer_id=request.user.court_manager.courtManager_id,  # Gán đối tượng CourtManager cho trường court_manager
+                    court=court,
+                    booking_type=booking_type,
+                    date=booking_date,
+                    start_time=start_time,
+                    end_time=end_time,
+                    status=False,
+                    amount=total_price,
+                )
             else:
-                price = Decimal('0.00')
+                messages.error(request, "Bạn không có quyền đặt sân.")
+                return redirect('booking', court_id=court.court_id)
 
-                # Làm tròn đến 3 chữ số thập phân
-            price = price.quantize(Decimal('0.001'), rounding=ROUND_HALF_UP)
-            logger.info(f"Tổng tiền: {price}")
-            print(f"Debug - Giá tiền đã làm tròn: {price}")
-            # Lưu booking
-            booking = Booking.objects.create(
-                customer_id=request.user.customer.customer_id,
-                court=court,
-                booking_type=booking_type,
-                date=booking_date,
-                start_time=start_time,
-                end_time=end_time,
-                status=False,
-                amount=price,
-            )
-
-            messages.success(request, f"Vui lòng thanh toán {price} để hoàn tất đặt sân.")
+            # messages.success(request, f"Bạn đã thanh toán hoá đơn {total_price} thành công.")
             return redirect('payment', booking_id=booking.booking_id, court_id=court.court_id)
 
         except Exception as e:
-            logger.error(f"Lỗi đặt sân: {e}")
             messages.error(request, f"Có lỗi xảy ra: {str(e)}")
 
     return render(request, 'app1/Book.html', {"court": court})
@@ -1123,7 +1098,8 @@ def payment(request, booking_id, court_id):
         booking.save()
 
         messages.success(request, "Thanh toán thành công!")
-        return redirect('payment', booking_id=booking.booking_id, court_id=booking.court_id)  # Điều hướng đến trang chi tiết booking
+        # return redirect('payment', booking_id=booking.booking_id, court_id=booking.court_id)  # Điều hướng đến trang chi tiết booking
+        return redirect('History')  # Điều hướng đến trang chi tiết booking
 
     return render(request, 'app1/payment.html', {
         'booking': booking, 
@@ -1131,6 +1107,7 @@ def payment(request, booking_id, court_id):
         'payment_accounts': payment_accounts
     })
 
+@login_required
 def checkin(request):
     context = {}
 
@@ -1138,15 +1115,22 @@ def checkin(request):
         booking_id = request.POST.get("booking_id")
 
         try:
-            # Kiểm tra mã đặt lịch trong bảng Payment
-            payment = Payment.objects.get(payment_id=booking_id)
-            booking = Booking.objects.get(booking_id=payment.booking_id)
+            # Kiểm tra xem có payment không & đã thanh toán chưa
+            payment = Payment.objects.get(booking__booking_id=booking_id, status=True)
+
+            # Nếu có payment hợp lệ, lấy thông tin booking
+            booking = payment.booking
             customer = Customer.objects.get(customer_id=booking.customer_id)
             user = User.objects.get(id=customer.user_id)
 
-            context["customer_name"] = user.first_name
-            context["court"] = booking.court.name
-        except (Payment.DoesNotExist, Booking.DoesNotExist, Customer.DoesNotExist, User.DoesNotExist):
+            # Lưu thông tin vào context để truyền sang template
+            context["customer_name"] = user.first_name  # Lấy tên khách hàng
+            context["court"] = booking.court.name  # Lấy tên sân
+
+            messages.success(request, "Check-in thành công!")  # Thông báo check-in thành công
+
+        except Payment.DoesNotExist:
+            # Nếu không tìm thấy payment hợp lệ, báo lỗi
             context["error"] = "Mã đặt lịch không hợp lệ!"
 
     return render(request, "app1/Check-in.html", context)
@@ -1156,20 +1140,28 @@ def checkin(request):
 @login_required
 def History(request):
     user = request.user  
-
+    user_role = get_user_role(request)
+    menu = get_menu_by_role(user_role)
     # Lấy Customer từ User
     try:
         customer = Customer.objects.get(user=user)
     except Customer.DoesNotExist:
         customer = None
-
-    # Nếu customer tồn tại, lấy danh sách booking đã thanh toán
+    if customer is None:
+        manager = CourtManager.objects.get(user=user)
+    # Nếu customer tồn tại, lấy danh sách booking đã thanh toán (có payment)
     if customer:
-        bookings = Booking.objects.filter(customer_id=customer.customer_id, payment__isnull=False)
+        bookings = Booking.objects.filter(
+            customer_id=customer.customer_id, 
+            payment__isnull=False
+        ).select_related('payment')
+    elif manager:
+        bookings = Booking.objects.filter(
+            customer_id=manager.courtManager_id, 
+            payment__isnull=False
+        ).select_related('payment')
     else:
         bookings = []
-
-    print("Danh sách booking của user:", bookings)
 
     if request.method == "POST":
         booking_id = request.POST.get("booking_id")
@@ -1182,7 +1174,11 @@ def History(request):
 
         return redirect("History")  
 
-    return render(request, "app1/LichSuDatSan.html", {"bookings": bookings})
+    context = {
+        'menu': menu,
+        "bookings": bookings
+    }
+    return render(request, "app1/LichSuDatSan.html", context)
 
 
 

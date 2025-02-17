@@ -19,36 +19,65 @@
             ><i class="fa-solid fa-house"></i> Trang Chủ</a
           >
         </li>
+        {% if user_role != "admin"%}
         <li>
           <a href="#"><i class="fa-solid fa-list"></i> Sân Cầu Lông</a>
           <div class="sub-menu">
             <a href="{% url 'San'%}">Thông tin các sân</a>
-            {% if user_role == "admin" or user_role == "manage" %}
-            <a href="#">Lịch sử đặt sân</a>
+            {% if user_role == "customer" or user_role == "manage" %}
+            <a href="{% url 'History' %}">Lịch sử đặt sân</a>
             {% endif%}
           </div>
         </li>
+        {% endif%}
+        
+        {% if user_role == "customer"%}
         <li>
-          <a href="{% url 'price_list'%}"><i class="fa-solid fa-money-check-dollar"></i>Giá vé</a>
+          <a href="{% url 'checkin' %}"><i class="fa-solid fa-check-to-slot"></i>Check-in</a>
         </li>
-        <li>
-          <a href="#"><i class="fa-solid fa-check-to-slot"></i>Check-in</a>
-        </li>
-        {% if user_role == "admin" or user_role == "manage" %}
+        {% endif%}
+        
+        {%  if user_role == "manage" %}
         <li>
           <a href="#"><i class="fa-solid fa-list-check"></i>Quản lý sân</a>
           <div class="sub-menu">
-            <a href="{% url 'DangKyTaiKhoanThanhToan' %}">Thêm tài khoản thanh toán</a>
-            <a href="#">Quản lý thông tin sân</a>
-            <a href="#">Thêm sân mới</a>
+            
+            <a href="{% url 'manager_san' %}">Quản lý thông tin sân</a>
+            <a href="{% url 'them_san' %}">Thêm sân mới</a>
           </div>
         </li>
-    
+        
+        <li>
+          
+          <a href="{% url 'DangKyTaiKhoanThanhToan' %}"><i class="fa-regular fa-address-book"></i>Thêm tài khoản thanh toán</a>
+          
+        </li>
+        {% if user_role != "admin"%}
+        <li>
+          <a href="{% url 'price_list'%}"><i class="fa-solid fa-money-check-dollar"></i>Giá vé</a>
+        </li>
+        
+        {% endif%}
+
+        <li>
+          <a href="{% url 'manage_time_slots' %}"><i class="fa-solid fa-money-check-dollar"></i>Quản lí giá vé</a>
+        </li>
+        {% endif%}
+        
+         {%  if user_role == "admin" %}
         <li>
           <a href="{% url 'AddAccount_Manage'%}"><i class="fa-solid fa-user"></i>Quản lý tài khoản</a>
         </li>
         <li>
-          <a href="#"><i class="fa-solid fa-clipboard"></i>Báo cáo doanh thu</a>
+          <a href="{% url 'them_san_moi' %}"><i class="fa-solid fa-user"></i>Thêm chi nhánh</a>
+        </li>
+        <li>
+          <a href="{% url 'bao_cao' %}"><i class="fa-solid fa-clipboard"></i>Báo cáo doanh thu</a>
+        </li>
+        
+        {%  elif user_role == "manage" %}
+        <li>
+          <a href="{% url 'bao_cao' %}"><i class="fa-solid fa-clipboard"></i>Báo cáo doanh thu</a>
         </li>
         {% endif%}
       </ul>
