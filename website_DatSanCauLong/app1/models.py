@@ -155,11 +155,7 @@ class CourtStaff(models.Model):
     court_staff_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='court_staff')
 
-    # def get_court_status(self):
-    #     return {c.name: c.slots.all() for c in self.courts.all()}
 
-    # def __str__(self):
-    #     return f"{self.user.username} - {self.badminton_hall.name}"
 
     
 class Payment(models.Model):
@@ -175,13 +171,6 @@ class Payment(models.Model):
     payment_date = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField(default=False) # đã thanh toán hay chưa
 
-
-# class CheckIn(models.Model):
-#     checkin_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)
-#     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='check_ins')
-#     court = models.ForeignKey(Court, on_delete=models.CASCADE, related_name='check_ins')
-#     court_staff = models.ForeignKey(CourtStaff, on_delete=models.SET_NULL, null=True, related_name='check_ins')
-#     check_in_time = models.DateTimeField(auto_now_add=True)
 
 class RevenueReport(models.Model):
     revenueReport_id = models.CharField(primary_key=True, max_length=5, default=generate_short_id, editable=False)

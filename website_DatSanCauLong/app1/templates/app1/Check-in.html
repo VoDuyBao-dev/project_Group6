@@ -10,7 +10,11 @@
 </head>
 
 <body>
-    <div id="message" class="message">
+    {% include 'app1/Header-user.html' %}
+    {% include 'app1/Menu-manager.html' %}
+
+    {% block content %}
+    <div id="message" class="notification">
         {% if messages %}
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }}">
@@ -20,10 +24,6 @@
         {% endif %}
     </div>
 
-    {% include 'app1/Header-user.html' %}
-    {% include 'app1/Menu-manager.html' %}
-
-    {% block content %}
     <div id="menu2-container"></div>
     <div class="checkin-container">
         <h2>Check-in</h2>
@@ -35,15 +35,15 @@
         </form>
 
         {% if customer_name and court %}
-            <div class="message success">
-                <p>Check-in thành công nhó ^^</p>
-                <p><strong>Khách hàng:</strong> {{ customer_name }}</p>
-                <p><strong>Sân đã đặt:</strong> {{ court }}</p>
-            </div>
-        {% elif error %}
-            <div class="message error">
-                <p>{{ error }}</p>
-            </div>
+    <div class="message success">
+        <p> Check-in thành công!</p>
+        <p><strong>Khách hàng:</strong> {{ customer_name }}</p>
+        <p><strong>Sân đã đặt:</strong> {{ court }}</p>
+    </div>
+{% elif error %}
+    <div class="message error">
+        <p> {{ error }}</p>
+    </div>
         {% endif %}
     </div>
     {% endblock %}

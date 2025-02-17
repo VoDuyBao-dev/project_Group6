@@ -52,5 +52,7 @@ admin.site.register(TimeSlotTemplate)
 admin.site.register(Booking)
 admin.site.register(Payment)
 admin.site.register(RevenueReport)
+admin.site.register(PaymentAccount)
+
 
 

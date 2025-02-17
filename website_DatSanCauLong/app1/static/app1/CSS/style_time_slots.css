@@ -2,8 +2,8 @@
 
 /* Reset CSS để giúp giao diện nhất quán */
 * {
-    margin: 0;
-    padding: 0;
+    /* margin: 0;
+    padding: 0; */
     box-sizing: border-box;
     font-family: Arial, sans-serif;
 }
@@ -11,9 +11,42 @@
 /* Căn giữa nội dung và tạo khoảng trống */
 body {
     background-color: #f4f4f4;
-    padding: 20px;
 }
-
+.notification {
+    position: fixed;
+    top: 20px; /* Cách phía trên 20px */
+    left: 50%; /* Giữa màn hình theo chiều ngang */
+    transform: translateX(-50%); /* Căn giữa */
+    background-color:#0b87ec; 
+    color: white; /* Màu chữ */
+    padding: 15px 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    font-size: 16px;
+    font-weight: bold;
+    z-index: 9999; /* Luôn ở trên cùng */
+    animation: fade-in-out 5s ease-in-out; /* Hiệu ứng */
+  }
+  
+  /* Hiệu ứng fade-in và fade-out */
+  @keyframes fade-in-out {
+    0% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-10px);
+    }
+    10% {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    90% {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-10px);
+    }
+  }
 .container {
     background-color: white;
     padding: 20px;
@@ -29,13 +62,14 @@ h2 {
 form {
     display: flex;
     flex-direction: column;
+    color: #333;
 }
 
 label {
     margin-top: 10px;
     font-weight: bold;
+    color: #050505;
 }
-
 /* 
 input, select {
     padding: 8px;
@@ -75,7 +109,7 @@ form select {
 button {
     width: 100%;
     padding: 10px;
-    background: #5757f4;
+    background: #28a745;
     color: white;
     border: none;
     border-radius: 5px;

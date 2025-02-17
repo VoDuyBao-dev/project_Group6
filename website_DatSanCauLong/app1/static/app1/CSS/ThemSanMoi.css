@@ -3,7 +3,6 @@ body {
     font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-
 }
 
 /* Chứa form */
@@ -28,7 +27,7 @@ h1 {
     margin-bottom: 20px;
     text-align: center;
 }
-
+ 
 /* Label cho các trường nhập liệu */
 label {
     font-size: 16px;
@@ -39,7 +38,7 @@ label {
 }
 
 /* Các trường nhập liệu */
-input {
+input{
     width: 100%;
     padding: 12px;
     margin-bottom: 15px;
@@ -47,7 +46,20 @@ input {
     border: 1px solid #ccc;
     font-size: 16px;
 }
+select {
+    width: 50%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    text-align: center;
+}
+.error{
+    color: black;
+    margin: 8px;
 
+}
 /* Nút xác nhận */
 button {
     width: 100%;
@@ -72,6 +84,7 @@ button:hover {
 .message {
     margin-top: 15px;
     font-size: 14px;
+    color: black;
 }
 
 /* Thông báo thành công */
@@ -83,7 +96,6 @@ button:hover {
 .message.error {
     color: red;
 }
-
 /* Footer */
 footer {
     background-color: #333;

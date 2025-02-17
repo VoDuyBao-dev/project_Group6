@@ -5,13 +5,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Thêm Sân</title>
-    <link rel="stylesheet" href="{% static 'app1/CSS/ThemSanMoi.css' %}" />
-    {% comment %} <link rel="stylesheet" type="text/css" href="{% static 'app1/css/style_time_slots.css' %}" /> {% endcomment %}
+    {% comment %} <link rel="stylesheet" href="{% static 'app1/CSS/ThemSanMoi.css' %}" /> {% endcomment %}
+    <link rel="stylesheet" type="text/css" href="{% static 'app1/css/style_time_slots.css' %}" />
     <script src="{% static 'app1/js/layout-customer.js' %}"></script>
   </head>
 
   <body>
     {% include 'app1/Header-user.html' %}
+
     {% include 'app1/Menu-manager.html' %}
 
     {% block content %}
@@ -21,7 +22,7 @@
           {% csrf_token %}
           <label for="address">Địa điểm</label>
           <select id="address" name="address">
-            <option></option>
+            <option value selected></option>
             {% for hall in badminton_halls %}
               <option value="{{ hall.badminton_hall_id }}">{{ hall.address }}</option>
             {% endfor %}
@@ -32,15 +33,25 @@
 
           <label for="image" alt="court">Thêm ảnh</label>
           <input type="file" id="image" name="image" placeholder="Chọn ảnh" />
+
+          {% comment %} <label for="status">Trạng thái</label>
+          <select id="status" name="status">
+            <option value selected></option>
+            <option value="under_maintenance">Under Maintenance</option>
+            <option value="empty">Empty</option>
+            <option value="booked">Booked</option>
+          </select> {% endcomment %}
           <button type="submit">Thêm sân</button>
         </form>
         <br />
         {% if messages %}
-          <ul class="messages" style="color:black">
+        <div class="notification">
+          <ul class="messages">
             {% for message in messages %}
               <li style="text-align:center">{{ message }}</li>
             {% endfor %}
           </ul>
+        </div>
         {% endif %}
         <br />
       </div>

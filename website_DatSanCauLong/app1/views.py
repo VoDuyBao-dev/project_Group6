@@ -356,9 +356,6 @@ def San(request):
     return render(request, 'app1/San.html', context)
 
 
-def checkin(request):
-    return render(request, 'app1/Chek-in.html')
-
 # Tìm kiếm sân
 class SearchCourt(View):
     def get(self, request):
@@ -860,7 +857,7 @@ def delete_court(request, court_id):
 
 
 
-@login_required
+@decorators.login_required(login_url='Sign_in')
 def select_court(request):
     if request.method == "POST":
         court_id = request.POST.get("court_id")
@@ -931,12 +928,11 @@ class DangKyTaiKhoanThanhToan(View):
             accountNumber=accountNumber if paymentMethod == "bank" else None,
             phoneNumber=phoneNumber if paymentMethod == "momo" else None,
             bankName=bankName if paymentMethod == "bank" else None,
-            paymentMethod=paymentMethod
+            paymentMethod=paymentMethod,
+            court_manager = court_manager
         )
 
-        # Gán tài khoản thanh toán cho Court Manager
-        court_manager.payment_account = payment_account
-        court_manager.save()
+        
 
         messages.success(request, "Đăng ký tài khoản thanh toán thành công!")
         return redirect('DangKyTaiKhoanThanhToan')
@@ -946,7 +942,7 @@ class BookingViewSet(viewsets.ModelViewSet):
     serializer_class = BookingSerializer
 
 logger = logging.getLogger(__name__)
-@login_required
+@decorators.login_required(login_url='Sign_in')
 def booking_view(request, court_id=None):
     if court_id:
         court = get_object_or_404(Court, court_id=court_id)
@@ -1064,8 +1060,10 @@ def booking_view(request, court_id=None):
     return render(request, 'app1/Book.html', {"court": court})
 
 
-@login_required
+@decorators.login_required(login_url='Sign_in')
 def payment(request, booking_id, court_id):
+    user_role = get_user_role(request)
+    menu = get_menu_by_role(user_role)
     booking = get_object_or_404(Booking, booking_id=booking_id, court_id=court_id)
     amount = Decimal(booking.amount).quantize(Decimal("0.001"))
 
@@ -1079,6 +1077,7 @@ def payment(request, booking_id, court_id):
     payment_accounts = court_manager.payment_accounts.all() if court_manager else []
 
     if request.method == "POST":
+        
         # Kiểm tra nếu đã có payment cho booking này thì không tạo mới
         if hasattr(booking, 'payment'):
             messages.warning(request, "Booking này đã được thanh toán.")
@@ -1098,12 +1097,14 @@ def payment(request, booking_id, court_id):
         messages.success(request, "Thanh toán thành công!")
         # return redirect('payment', booking_id=booking.booking_id, court_id=booking.court_id)  # Điều hướng đến trang chi tiết booking
         return redirect('History')  # Điều hướng đến trang chi tiết booking
-
-    return render(request, 'app1/payment.html', {
+         
+    context = {
+        'menu': menu,
         'booking': booking, 
         'amount': amount,
         'payment_accounts': payment_accounts
-    })
+    }
+    return render(request, 'app1/payment.html',context)
 
 @login_required
 def checkin(request):
@@ -1134,8 +1135,7 @@ def checkin(request):
     return render(request, "app1/Check-in.html", context)
 
 
-
-@login_required
+@decorators.login_required(login_url='Sign_in')
 def History(request):
     user = request.user  
     user_role = get_user_role(request)
@@ -1172,11 +1172,7 @@ def History(request):
 
         return redirect("History")  
 
-    context = {
-        'menu': menu,
-        "bookings": bookings
-    }
-    return render(request, "app1/LichSuDatSan.html", context)
+    return render(request, "app1/LichSuDatSan.html", {"bookings": bookings, 'menu': menu})
 
 
 def bao_cao(request):

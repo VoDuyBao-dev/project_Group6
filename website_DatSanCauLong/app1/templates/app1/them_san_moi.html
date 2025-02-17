@@ -1,52 +1,57 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thêm Chi Nhánh Mới</title>
-    <link rel="stylesheet" href="{% static 'app1/CSS/ThemSanMoi.css' %}" />
+    <link rel="stylesheet" href="{% static 'app1/CSS/ThemSanMoi.css' %}">
     <script src="{% static 'app1/js/layout-customer.js' %}"></script>
-  </head>
+</head>
 
-  <body>
+<body>
     {% include 'app1/Header-user.html' %}
     {% include 'app1/Menu-manager.html' %}
-
+    
     <div class="form-container">
-      <h1>Thêm Chi Nhánh Mới</h1>
+        <h1>Thêm Chi Nhánh Mới</h1>
+        
+        <form id="addFieldForm" action="{% url 'them_san_moi' %}" method="POST">
+            {% csrf_token %}
+            
+            <!-- Hiển thị thông báo -->
+            {% if messages %}
+            <div class="error">
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="{{ message.tags }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
 
-      <form id="addFieldForm" action="{% url 'them_san_moi' %}" method="POST">
-        {% csrf_token %}
+            <!-- Form nhập thông tin chi nhánh -->
+            <label for="name"><strong>Tên Chi Nhánh</strong></label>
+            <input type="text" id="name" name="name" required placeholder="Nhập tên chi nhánh">
+            
+            <label for="address"><strong>Địa điểm</strong></label>
+            <input type="text" id="address" name="address" required placeholder="Nhập địa điểm">
 
-        <!-- Hiển thị thông báo -->
-        {% if messages %}
-          <ul class="messages">
-            {% for message in messages %}
-              <li class="{{ message.tags }}">{{ message }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-
-        <!-- Form nhập thông tin chi nhánh -->
-        <label for="name">Tên Chi Nhánh</label>
-        <input type="text" id="name" name="name" required placeholder="Nhập tên chi nhánh" />
-
-        <label for="address">Địa điểm</label>
-        <input type="text" id="address" name="address" required placeholder="Nhập địa điểm" />
-
-        <!-- Chọn Court Manager -->
-        <label for="court_manager">Chọn Quản Lý Chi Nhánh</label>
-        <select id="court_manager" name="court_manager">
-          <option value="">-- Chọn Quản Lý --</option>
-          {% for manager in court_managers %}
+            <!-- Chọn Court Manager -->
+<label for="court_manager"><strong>Chọn Quản Lý Chi Nhánh</strong></label>
+{% if court_managers %}
+    <select id="court_manager" name="court_manager">
+        <option value="">-- Chọn Quản Lý --</option>
+        {% for manager in court_managers %}
             <option value="{{ manager.courtManager_id }}">{{ manager.user.username }}</option>
-          {% endfor %}
-        </select>
-        <button type="submit">Xác Nhận</button>
-      </form>
+        {% endfor %}
+    </select>
+{% endif %}
+
+            <button type="submit">Xác Nhận</button>
+        </form>
     </div>
 
     {% include 'app1/Footer.html' %}
-  </body>
+</body>
 </html>

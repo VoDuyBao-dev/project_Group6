@@ -4,7 +4,41 @@ body {
     margin: 0;
     padding: 0;
 }
-
+.notification {
+    position: fixed;
+    top: 20px; /* Cách phía trên 20px */
+    left: 50%; /* Giữa màn hình theo chiều ngang */
+    transform: translateX(-50%); /* Căn giữa */
+    background-color:#0b87ec; 
+    color: white; /* Màu chữ */
+    padding: 15px 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    font-size: 16px;
+    font-weight: bold;
+    z-index: 9999; /* Luôn ở trên cùng */
+    animation: fade-in-out 5s ease-in-out; /* Hiệu ứng */
+  }
+  
+  /* Hiệu ứng fade-in và fade-out */
+  @keyframes fade-in-out {
+    0% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-10px);
+    }
+    10% {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    90% {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-10px);
+    }
+  }
 /* Container chính của form */
 .checkin-container {
     background-color: #fff;
@@ -42,7 +76,7 @@ body {
 
 /* Định dạng input fields */
 .checkin-container input {
-    width: 100%;
+    width: 95%;
     padding: 16px;
     /* Tăng padding cho các trường input */
     margin-bottom: 25px;
@@ -86,14 +120,26 @@ body {
     text-align: center;
     font-size: 18px;
     /* Tăng kích thước font cho thông báo */
-    margin-top: 30px;
+    margin: auto;
+    padding: 10px;
     /* Tăng khoảng cách giữa thông báo và form */
     color: #333;
+    
+
 }
 
 /* Thông báo thành công */
 .message.success {
-    color: rgb(50, 227, 11);
+    color: rgb(33, 184, 20);
+    margin: 8px 80px;
+    background-color: #3be8d4;
+    border-radius: 8px;
+    border: #555;
+    width: 70%;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+
 }
 
 /* Thông báo lỗi */
