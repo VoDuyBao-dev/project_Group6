@@ -17,14 +17,12 @@
       <h1>Quản lý tài khoản</h1>
        <!-- Hiển thị thông báo -->
       {% if messages %}
-  <div class="messages">
-    {% for message in messages %}
-    <div class="message {{ message.tags }} show">
-        {{ message }}
-      </div>
-    {% endfor %}
-  </div>
-{% endif %}
+        <div class="messages">
+          {% for message in messages %}
+            <div class="message {{ message.tags }} show"> {{ message }} </div>
+          {% endfor %}
+        </div>
+      {% endif %}
       <div class="container">
         <!-- Form Thêm tài khoản -->
         <div class="form-container">
@@ -33,12 +31,12 @@
             {% csrf_token %}
             {{Add_Account_Form.username}}
             {% if Add_Account_Form.username.errors %}
-        <ul class="error-list">
-          {% for error in Add_Account_Form.username.errors %}
-          <li>{{ error }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
+              <ul class="error-list">
+                {% for error in Add_Account_Form.username.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
             {{Add_Account_Form.password}}
             {{Add_Account_Form.role}}
             <button type="submit" class="btn"><i class="fas fa-plus"></i> Thêm tài khoản</button>
@@ -97,17 +95,7 @@
 
         
       </div>
-      <!-- Modal xác nhận xóa -->
-<div id="deleteConfirmModal" class="modal hidden">
-  <div class="modal-content">
-    <h3>Bạn có chắc chắn muốn xóa tài khoản này không?</h3>
-    <p>Tài khoản sẽ bị xóa vĩnh viễn và không thể khôi phục.</p>
-    <div class="modal-actions">
-      <button class="btn confirm-delete" onclick="confirmDelete()">Xác nhận</button>
-      <button class="btn cancel-delete" onclick="closeDeleteModal()">Hủy</button>
     </div>
-  </div>
-</div>
     {% endblock %}
     {% include 'app1/Footer.html' %}
     <script src="{% static 'app1/js/QuanLyTaiKhoan.js' %}"></script>

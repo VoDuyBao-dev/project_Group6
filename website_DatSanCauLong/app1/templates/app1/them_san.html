@@ -11,8 +11,8 @@
   </head>
 
   <body>
-    {% comment %} {% include 'app1/Header-customer.html' %}
-    {% include 'app1/Menu-manager.html' %} {% endcomment %}
+    {% comment %} {% include 'app1/Header-user.html' %} {% endcomment %}
+    {% include 'app1/Menu-manager.html' %}
     {% block content %}
       <div class="form-container">
         <h1>Thêm Sân</h1>
@@ -32,24 +32,27 @@
           <label for="image" alt="court">Thêm ảnh</label>
           <input type="file" id="image" name="image" placeholder="Chọn ảnh" />
 
-          <label for="status">Trạng thái</label>
+          {% comment %} <label for="status">Trạng thái</label>
           <select id="status" name="status">
             <option value selected></option>
             <option value="under_maintenance">Under Maintenance</option>
             <option value="empty">Empty</option>
             <option value="booked">Booked</option>
-          </select>
+          </select> {% endcomment %}
           <button type="submit">Thêm sân</button>
         </form>
+        <br />
         {% if messages %}
-          <ul class="messages">
+          <ul class="messages" style="color:black">
             {% for message in messages %}
-              <li>{{ message }}</li>
+              <li style="text-align:center">{{ message }}</li>
             {% endfor %}
           </ul>
         {% endif %}
+        <br />
       </div>
+      <br />
     {% endblock %}
-    {% comment %} {% include 'app1/Footer.html' %} {% endcomment %}
+    {% include 'app1/Footer.html' %}
   </body>
 </html>

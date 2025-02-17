@@ -11,7 +11,9 @@
 
   <body>
     {% include 'app1/Header-user.html' %}
+
     {% include menu %}
+
     {% block content %}
       <div class="container">
         <h1 class="title">BẢNG GIÁ THUÊ SÂN</h1>
@@ -28,33 +30,35 @@
           <tbody>
             {% for price in time_slots %}
               {% if forloop.counter0 == 0 %}
-                <th rowspan="4">Monday-Friday</th>
+                <th rowspan="4">Thứ 2 - thứ 6</th>
               {% endif %}
-              {% if forloop.counter0 == 15 or forloop.counter0 == 18 %}
-                <th rowspan="4">{{ price.day_of_week }}</th>
+              {% if forloop.counter0 == 15 %}
+                <th rowspan="4">Thứ 7</th>
+              {% elif forloop.counter0 == 18 %}
+                <th rowspan="4">Chủ nhật</th>
               {% endif %}
               {% if forloop.counter0 < 18 and forloop.counter0 > 14 %}
                 <tr class="row-highlight">
                   <td>{{ price.time_frame }}</td>
-                  <td>{{ price.fixed_price|floatformat:0 }}.000 VND</td>
-                  <td>{{ price.daily_price|floatformat:0 }}.000 VND</td>
-                  <td>{{ price.flexible_price|floatformat:0 }}.000 VND</td>
+                  <td>{{ price.fixed_price|floatformat:3 }} VND</td>
+                  <td>{{ price.daily_price|floatformat:3 }} VND</td>
+                  <td>{{ price.flexible_price|floatformat:3 }} VND</td>
                 </tr>
               {% endif %}
               {% if forloop.counter0 < 3 %}
                 <tr>
                   <td>{{ price.time_frame }}</td>
-                  <td>{{ price.fixed_price|floatformat:0 }}.000 VND</td>
-                  <td>{{ price.daily_price|floatformat:0 }}.000 VND</td>
-                  <td>{{ price.flexible_price|floatformat:0 }}.000 VND</td>
+                  <td>{{ price.fixed_price|floatformat:3 }}VND</td>
+                  <td>{{ price.daily_price|floatformat:3 }}VND</td>
+                  <td>{{ price.flexible_price|floatformat:3 }}VND</td>
                 </tr>
               {% endif %}
               {% if forloop.counter0 > 17 %}
                 <tr>
                   <td>{{ price.time_frame }}</td>
-                  <td>{{ price.fixed_price|floatformat:0 }}.000 VND</td>
-                  <td>{{ price.daily_price|floatformat:0 }}.000 VND</td>
-                  <td>{{ price.flexible_price|floatformat:0 }}.000 VND</td>
+                  <td>{{ price.fixed_price|floatformat:3 }}VND</td>
+                  <td>{{ price.daily_price|floatformat:3 }}VND</td>
+                  <td>{{ price.flexible_price|floatformat:3 }}VND</td>
                 </tr>
               {% endif %}
             {% endfor %}

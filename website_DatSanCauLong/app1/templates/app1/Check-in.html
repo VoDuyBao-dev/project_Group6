@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Check-in</title>
+    <link rel="stylesheet" href="{% static 'app1/CSS/Check-in.css' %}" />
+    <script src="{% static 'app1/js/layout-customer.js' %}"></script>
+</head>
+
+<body>
+    <div id="message" class="message">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    {% include 'app1/Header-user.html' %}
+    {% include 'app1/Menu-manager.html' %}
+
+    {% block content %}
+    <div id="menu2-container"></div>
+    <div class="checkin-container">
+        <h2>Check-in</h2>
+        <form id="checkinForm" method="post" action="{% url 'checkin' %}">
+            {% csrf_token %}
+            <label for="bookingCode">Mã đặt lịch</label>
+            <input type="text" id="bookingCode" name="booking_id" placeholder="Nhập mã đặt lịch" required />
+            <button type="submit">Check-in</button>
+        </form>
+
+        {% if customer_name and court %}
+            <div class="message success">
+                <p>Check-in thành công nhó ^^</p>
+                <p><strong>Khách hàng:</strong> {{ customer_name }}</p>
+                <p><strong>Sân đã đặt:</strong> {{ court }}</p>
+            </div>
+        {% elif error %}
+            <div class="message error">
+                <p>{{ error }}</p>
+            </div>
+        {% endif %}
+    </div>
+    {% endblock %}
+
+    {% include 'app1/Footer.html' %}
+</body>
+</html>

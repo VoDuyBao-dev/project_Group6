@@ -11,20 +11,29 @@ from .forms import *
 from django.db.models import Q
 from .utils import send_otp_email, generate_otp
 from django.utils import timezone
-from datetime import timedelta
 from django.http import JsonResponse
 from .models import *
+from django.contrib.auth.decorators import login_required
 import json
-
-from .models import TimeSlotTemplate
 from .forms import TimeSlotTemplateForm  # Sẽ tạo file form ở bước tiếp theo
+import nanoid
+from .models import TimeSlotTemplate, Court, Booking, Payment, PaymentAccount, CourtManager, Customer
 from django.shortcuts import get_object_or_404
 from .models import BadmintonHall
+from django.contrib.auth.decorators import login_required
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.db import transaction
 from .context_processors import get_user_role
+from app1.forms import RegisterPaymentAccountForm, SearchForm
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from .serializers import BookingSerializer
+from datetime import datetime, timedelta
+import logging
+from decimal import Decimal, ROUND_HALF_UP
 
-
-# Create your views here.   
 
 # HÀM KIỂM TRA MÃ OTP ĐỂ TÁI SỬ DỤNG:
 # GỬI OTP KHI NGƯỜI DÙNG YÊU CẦU
@@ -37,9 +46,6 @@ def handle_send_otp(request, form_input):
         request.session['otp_created_at'] = timezone.now().isoformat()  # Lưu thời gian tạo OTP
         send_otp_email(username, otp)
         
-def header_user(request):
-
-    return render(request, 'app1/Header-user.html')
 
 class Sign_Up(View):
     def get(self, request):
@@ -124,9 +130,12 @@ def validate_otp_and_register(request):
                 # Gọi hàm tạo người dùng
                 user = create_user_account(username, full_name, password)
 
+
+
                 if user:
                     # Tạo đối tượng Customer liên quan
                     Customer.objects.get_or_create(user=user)
+
                     # Xóa thông tin OTP khỏi session
                     request.session.pop("otp", None)
                     request.session.pop("otp_created_at", None)
@@ -163,6 +172,11 @@ def resend_otp(request):
     return JsonResponse({'success': False, 'message': 'Yêu cầu không hợp lệ.'})
 
 
+def redirect_user(user):
+    # with open("debug.log", "a") as f:  
+    #     f.write(f"User: {user.username}, Nhóm: {[group.name for group in user.groups.all()]}\n")
+    return redirect('TrangChu')
+
 class Sign_In(View):
     def get(self, request):
         # Lấy email từ cookie nếu có
@@ -178,7 +192,7 @@ class Sign_In(View):
     def post(self, request):
         # Nếu user đã đăng nhập, không cần đăng nhập lại
         if request.user.is_authenticated:
-            return redirect('TrangChu')
+            return redirect_user(request.user)
 
         # Khởi tạo form với dữ liệu từ request.POST
         sign_in_form = SignInForm(request.POST)
@@ -219,7 +233,8 @@ class Sign_In(View):
             request.session['user_role'] = user_role
 
             # Chuyển hướng về trang chủ sau khi đăng nhập thành công
-            response = redirect('TrangChu')
+            # response = redirect('TrangChu')
+            response = redirect_user(user)
 
             # Lưu email vào cookie nếu chọn "Nhớ tài khoản"
             if remember_me:
@@ -356,7 +371,10 @@ class SearchCourt(View):
     def get(self, request):
         search_court = SearchForm(request.GET)  # Lấy giá trị GET từ người dùng
         results = []
-
+       
+        user_role = get_user_role(request)
+        menu = get_menu_by_role(user_role)
+     
         if search_court.is_valid():
             query = search_court.cleaned_data.get('query', '').strip()
             
@@ -369,7 +387,8 @@ class SearchCourt(View):
                 results = Court.objects.filter(filters).order_by('name')  # Thực hiện tìm kiếm với bộ lọc
                 
         context = {
-            'courts': results  # Trả về kết quả tìm kiếm
+            'courts': results,  # Trả về kết quả tìm kiếm
+            'menu': menu
         }
         return render(request, 'app1/kqTimKiem.html', context)
 
@@ -407,6 +426,8 @@ class DangKyTaiKhoanThanhToan(LoginRequiredMixin,View):
         messages.success(request, "Đăng ký tài khoản thanh toán thành công!")
 
         return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+
+
 
 # Thôg tin cá nhân
 def ThongTinCaNhan(request):
@@ -635,7 +656,6 @@ def AddAccount_Manage(request):
                 elif role == "customer":
                     Customer.objects.create(user=user)
                 
-                
                 messages.success(request, "Thêm tài khoản mới thành công!")
 
         except Exception as e:
@@ -701,15 +721,469 @@ def Update_account(request, user_id):
 
 
 
-def themSan(request):
-    return render(request, 'app1/ThemSanMoi.html')
 
 
-def payment(request):
-    return render(request, 'app1/payment.html')
+
+# từ khúc này là con Lan làm có gì thì né né ra nha.
+
+def footer(request):
+    Badminton_Halls = BadmintonHall.objects.all()
+    return render(request, 'app1/Footer.html', {"Badminton_Halls": Badminton_Halls})
 
 
+# thêm thời gian(khung giờ) và giá,... của từng loại hình đặt lịch
+def manage_time_slots(request):
+    if request.method == "POST":
+        day_of_week = request.POST.get('day_of_week')
+        time_frame = request.POST.get('time_frame')
+        fixed_price = request.POST.get('fixed_price')
+        daily_price = request.POST.get('daily_price')
+        flexible_price = request.POST.get('flexible_price')
+        status = request.POST.get('status')
+
+        # Kiểm tra xem có điền đầy đủ thông tin hay không
+        if not day_of_week or not time_frame or not fixed_price or not daily_price or not flexible_price or not status:
+            messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
+            return redirect('manage_time_slots')
+        # Kiểm tra xem có trung ngày và giờ không.
+        if TimeSlotTemplate.objects.filter(day_of_week=day_of_week).exists() and TimeSlotTemplate.objects.filter(time_frame=time_frame).exists():
+            messages.error(request, "Trùng ngày và khung giờ")
+            return redirect("manage_time_slots")
+
+        # Lưu dữ liệu nếu hợp lệ
+        TimeSlotTemplate.objects.create(day_of_week=day_of_week, time_frame=time_frame, fixed_price=fixed_price, daily_price=daily_price, flexible_price=flexible_price, status=status,)
+        messages.success(request, "Thêm lịch và giá thành công.")
+        return redirect('manage_time_slots')
+
+    time_slots = TimeSlotTemplate.objects.all()
+    return render(request, "app1/manage_time_slots.html", {"time_slots": time_slots})
+        
+
+# xóa lịch nếu thấy bất ổn nào đó.
+def delete_time_slot(request, slot_id):
+    slot = get_object_or_404(TimeSlotTemplate, template_id=slot_id)
+    slot.delete()
+    return redirect("manage_time_slots")
+
+# lấy thông tin từ cơ sở dữ liệu của lịch sau đó hiển thị ra giao diện.
+
+def price_list(request):
+    time_slots = TimeSlotTemplate.objects.all()
+    user_role = get_user_role(request)
+    menu = get_menu_by_role(user_role)
+    
+    context = {
+        'menu': menu,
+        "time_slots": time_slots
+    }  
+    
+    return render(request, "app1/price_list.html", context)
+
+
+# thêm dữ liệu của một sân cầu lông mới(thêm một chi nhánh)
+def them_san_moi(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        address = request.POST.get('address')
+        court_manager_id = request.POST.get('court_manager')  # Lấy ID của CourtManager
+
+        if not name or not address:
+            messages.error(request, "Vui lòng nhập đầy đủ thông tin.")
+        else:
+            # Kiểm tra xem chi nhánh hoặc địa điểm đã tồn tại chưa
+            if BadmintonHall.objects.filter(name=name).exists():
+                messages.error(request, "Tên chi nhánh đã tồn tại. Vui lòng chọn tên khác.")
+            elif BadmintonHall.objects.filter(address=address).exists():
+                messages.error(request, "Địa điểm này đã có chi nhánh. Vui lòng chọn địa điểm khác.")
+            else:
+                badminton_hall = BadmintonHall(name=name, address=address)
+
+                if court_manager_id:
+                    try:
+                        court_manager = CourtManager.objects.get(courtManager_id=court_manager_id)
+
+                        # Kiểm tra nếu CourtManager đã có BadmintonHall
+                        if hasattr(court_manager, 'badminton_hall'):
+                            messages.error(request, "Quản lý này đã được gán cho một chi nhánh khác.")
+                        else:
+                            badminton_hall.court_manager = court_manager
+                            badminton_hall.save()
+                            messages.success(request, "Thêm chi nhánh thành công!")
+                    except CourtManager.DoesNotExist:
+                        messages.error(request, "Quản lý không tồn tại.")
+                else:
+                    badminton_hall.save()
+                    messages.success(request, "Thêm chi nhánh thành công!")
+
+    # Cập nhật danh sách CourtManager chưa có BadmintonHall
+    court_managers = CourtManager.objects.filter(badminton_hall__isnull=True)
+    
+    return render(request, 'app1/them_san_moi.html', {'court_managers': court_managers})
+
+
+def them_san(request):
+    if request.method == "POST":
+        badminton_hall_id = request.POST.get('address') 
+        name = request.POST.get('name')
+        image = request.FILES.get('image') 
+
+        # Kiểm tra nếu có trường bị bỏ trống
+        if not name or not badminton_hall_id:
+            messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
+            return redirect('them_san')
+
+        if Court.objects.filter(name=name).exists():
+            messages.error(request, "Sân này đã tồn tại!")
+            return redirect("them_san")
+
+        # Lấy thông tin nhà thi đấu
+        badminton_hall = get_object_or_404(BadmintonHall, badminton_hall_id=badminton_hall_id)
+
+        # Tạo sân mới (ID sẽ tự động được tạo bởi `default=generate_short_id`)
+        court = Court.objects.create(
+            badminton_hall=badminton_hall,
+            name=name,
+            image=image,
+        )
+        messages.success(request, "Thêm sân mới thành công!")
+
+        return redirect('them_san')
+
+
+# quản lý thông tin sân cầu lông
 def manager_san(request):
-    return render(request, 'app1/QuanLyThongTinSan.html')
+    courts = Court.objects.all()
+    return render(request, 'app1/QuanLyThongTinSan.html', {'courts': courts})
+
+def edit_court(request, court_id):
+    court = get_object_or_404(Court, court_id=court_id)
+    if request.method == "POST":
+        new_name = request.POST.get("name")
+        new_status = request.POST.get("status")
+        new_branch_name = request.POST.get("badminton_hall")
+        delete_image_flag = request.POST.get("delete_image")  # "yes" nếu người dùng muốn xóa ảnh hiện tại
+
+        if new_name:
+            court.name = new_name
+
+        if new_status:
+            court.status = new_status
+
+        # Cập nhật tên chi nhánh (BadmintonHall)
+        if new_branch_name:
+            badminton_hall = court.badminton_hall
+            badminton_hall.name = new_branch_name
+            badminton_hall.save()
+
+        # Xử lý ảnh:
+        # Nếu có yêu cầu xóa ảnh, xóa file ảnh (nếu tồn tại) và gán None
+        if delete_image_flag == "yes":
+            if court.image:
+                court.image.delete(save=False)
+            court.image = None
+        else:
+            # Nếu người dùng upload ảnh mới, thay thế ảnh cũ (nếu có)
+            if "image" in request.FILES:
+                if court.image:
+                    court.image.delete(save=False)
+                court.image = request.FILES["image"]
+
+        court.save()
+        messages.success(request, "Thông tin sân đã được cập nhật thành công!")
+        return redirect("manager_san")
+
+    return redirect("manager_san")
+
+def delete_court(request, court_id):
+    court = get_object_or_404(Court, court_id=court_id)
+    if request.method == "POST":
+        court.delete()
+        messages.success(request, "Sân đã được xóa thành công!")
+        return redirect("manager_san")
+    return redirect("manager_san")
 
 
+
+
+@login_required
+def select_court(request):
+    if request.method == "POST":
+        court_id = request.POST.get("court_id")
+        print("DEBUG: Nhận yêu cầu chọn sân, court_id =", court_id)  # Kiểm tra dữ liệu nhận được
+
+        if court_id:
+            request.session["selected_court_id"] = court_id
+            print("DEBUG: Đã lưu selected_court_id vào session:", request.session["selected_court_id"])  # Kiểm tra lưu session
+            return redirect("booking")  # Chuyển đến trang đặt sân
+        else:
+            messages.error(request, "Không tìm thấy sân! Vui lòng chọn lại.")
+            print("DEBUG: Không tìm thấy court_id, quay lại trang San")  # Debug lỗi
+            return redirect("San")
+
+    return redirect("San")
+
+
+class DangKyTaiKhoanThanhToan(View):
+    def get(self, request):
+        register_payment_Account = RegisterPaymentAccountForm()
+        search_court = SearchForm()
+        court_managers = CourtManager.objects.all()
+
+        context = {
+            'Register_Payment_Account': register_payment_Account,
+            'searchCourt': search_court,
+            'court_managers': court_managers
+        }
+        return render(request, 'app1/DangKiTaiKhoanThanhToan.html', context)
+
+    def post(self, request):
+        register_payment_Account = RegisterPaymentAccountForm(request.POST)
+        search_court = SearchForm()
+        court_managers = CourtManager.objects.all()
+
+        if not register_payment_Account.is_valid():
+            messages.error(request, "Thông tin nhập không hợp lệ!")
+            return render(request, 'app1/DangKiTaiKhoanThanhToan.html', {
+                'Register_Payment_Account': register_payment_Account,
+                'searchCourt': search_court,
+                'court_managers': court_managers
+            })
+
+        # Lấy dữ liệu đã được kiểm tra từ form
+        cleaned_data = register_payment_Account.cleaned_data
+        accountHolder = cleaned_data['accountHolder']
+        paymentMethod = cleaned_data['paymentMethod']
+        accountNumber = cleaned_data.get('accountNumber', None)
+        phoneNumber = cleaned_data.get('phoneNumber', None)
+        bankName = cleaned_data.get('bankName', None)
+        court_manager_id = request.POST.get('court_manager')
+
+        # Kiểm tra nếu chưa chọn Court Manager
+        if not court_manager_id:
+            messages.error(request, "Vui lòng chọn Court Manager hợp lệ!")
+            return self.render_form_with_errors(request, register_payment_Account, search_court)
+
+        # Lấy Court Manager hoặc trả lỗi 404 nếu không tồn tại
+        court_manager = get_object_or_404(CourtManager, courtManager_id=court_manager_id)
+        # Kiểm tra Court Manager đã có tài khoản thanh toán chưa
+        if PaymentAccount.objects.filter(accountHolder=court_manager.user.username).exists():
+            messages.error(request, "Court Manager này đã có tài khoản thanh toán!")
+            return self.render_form_with_errors(request, register_payment_Account, search_court)
+
+        # Tạo tài khoản thanh toán
+        payment_account = PaymentAccount.objects.create(
+            accountHolder=accountHolder,
+            accountNumber=accountNumber if paymentMethod == "bank" else None,
+            phoneNumber=phoneNumber if paymentMethod == "momo" else None,
+            bankName=bankName if paymentMethod == "bank" else None,
+            paymentMethod=paymentMethod
+        )
+
+        # Gán tài khoản thanh toán cho Court Manager
+        court_manager.payment_account = payment_account
+        court_manager.save()
+
+        messages.success(request, "Đăng ký tài khoản thanh toán thành công!")
+        return redirect('DangKyTaiKhoanThanhToan')
+
+class BookingViewSet(viewsets.ModelViewSet):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+
+logger = logging.getLogger(__name__)
+@login_required
+def booking_view(request, court_id=None):
+    logger.info("Bắt đầu xử lý booking")  # Ghi log
+    print("DEBUG: Hàm booking_view đã được gọi")  # Kiểm tra
+
+    if court_id:
+        court = get_object_or_404(Court, court_id=court_id)
+        
+    else:
+        court = None
+    print(f"Debug - Court ID từ URL: {court_id}")
+    print(f"Debug - Court object: {court}")
+    if request.method == 'POST':
+        try:
+            logger.info("Xác nhận phương thức POST")
+
+            # Kiểm tra dữ liệu nhập vào
+            booking_type = request.POST.get('booking_type')
+            date_str = request.POST.get('date')
+            start_time_str = request.POST.get('start_time')
+            end_time_str = request.POST.get('end_time')
+
+            if not (court and booking_type and date_str and start_time_str and end_time_str):
+                logger.warning("Thiếu dữ liệu đặt sân!")
+                messages.error(request, "Vui lòng nhập đầy đủ thông tin!")
+                return redirect('booking', court_id=court.court_id)
+            
+            # Chuyển đổi start_time và end_time
+            booking_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+            start_time = datetime.strptime(start_time_str, "%H:%M").time()
+            end_time = datetime.strptime(end_time_str, "%H:%M").time()
+            print(f"Debug Data - Court: {court}, Booking Type: {booking_type}, Date: {date_str}, Start Time: {start_time_str}, End Time: {end_time_str}")
+            print(f"Raw request.POST: {request.POST}")
+            print(f"Ngày đặt: {booking_date}, Giờ bắt đầu: {start_time}, Giờ kết thúc: {end_time}")
+
+            # Tìm time slot template
+            day_of_week = booking_date.strftime("%A")
+            templates = TimeSlotTemplate.objects.filter(day_of_week=day_of_week, status='available')
+            
+            logger.info(f"Tìm template cho {day_of_week}, tổng {len(templates)} kết quả")
+
+            template = None
+            for temp in templates:
+                try:
+                    parts = temp.time_frame.replace("h", "").strip().split("-")
+                    template_start = datetime.strptime(parts[0].strip().zfill(2) + ":00", "%H:%M").time()
+                    template_end = datetime.strptime(parts[1].strip().zfill(2) + ":00", "%H:%M").time()
+
+                    logger.info(f"Template {temp.template_id}: {template_start} - {template_end}")
+
+                    if start_time >= template_start and end_time <= template_end:
+                        template = temp
+                        logger.info(f"Chọn template: {template.template_id}")
+                        break
+                except Exception as e:
+                    logger.error(f"Lỗi xử lý time_frame {temp.time_frame}: {e}")
+
+            if not template:
+                logger.warning("Không tìm thấy template phù hợp!")
+                messages.error(request, "Không tìm thấy giá cho khung giờ này!")
+                return redirect('booking', court_id=court.court_id)
+
+            # Tính giá tiền
+            duration_hours = Decimal((datetime.combine(booking_date, end_time) - datetime.combine(booking_date, start_time)).total_seconds() / 3600.0)
+
+            if booking_type == "fixed":
+                price = template.fixed_price * duration_hours
+            elif booking_type == "daily":
+                price = template.daily_price * duration_hours
+            elif booking_type == "flexible":
+                price = template.flexible_price * duration_hours
+            else:
+                price = Decimal('0.00')
+
+                # Làm tròn đến 3 chữ số thập phân
+            price = price.quantize(Decimal('0.001'), rounding=ROUND_HALF_UP)
+            logger.info(f"Tổng tiền: {price}")
+            print(f"Debug - Giá tiền đã làm tròn: {price}")
+            # Lưu booking
+            booking = Booking.objects.create(
+                customer_id=request.user.customer.customer_id,
+                court=court,
+                booking_type=booking_type,
+                date=booking_date,
+                start_time=start_time,
+                end_time=end_time,
+                status=False,
+                amount=price,
+            )
+
+            messages.success(request, f"Vui lòng thanh toán {price} để hoàn tất đặt sân.")
+            return redirect('payment', booking_id=booking.booking_id, court_id=court.court_id)
+
+        except Exception as e:
+            logger.error(f"Lỗi đặt sân: {e}")
+            messages.error(request, f"Có lỗi xảy ra: {str(e)}")
+
+    return render(request, 'app1/Book.html', {"court": court})
+
+
+@login_required
+def payment(request, booking_id, court_id):
+    booking = get_object_or_404(Booking, booking_id=booking_id, court_id=court_id)
+    amount = Decimal(booking.amount).quantize(Decimal("0.001"))
+
+    # Kiểm tra xem sân có thuộc một BadmintonHall hay không
+    badminton_hall = getattr(booking.court, 'badminton_hall', None)
+
+    # Lấy CourtManager của sân đó (nếu có)
+    court_manager = getattr(badminton_hall, 'court_manager', None)
+
+    # Lấy danh sách tài khoản thanh toán của CourtManager (nếu có)
+    payment_accounts = court_manager.payment_accounts.all() if court_manager else []
+
+    if request.method == "POST":
+        # Kiểm tra nếu đã có payment cho booking này thì không tạo mới
+        if hasattr(booking, 'payment'):
+            messages.warning(request, "Booking này đã được thanh toán.")
+            return redirect('payment', booking_id=booking.booking_id, court_id=court_id)
+
+        # Lưu vào database
+        payment = Payment.objects.create(
+            booking=booking,
+            payment_account=payment_accounts.first() if payment_accounts else None,  # Chọn tài khoản đầu tiên
+            status=True  # Đánh dấu đã thanh toán
+        )
+
+        # Cập nhật trạng thái của booking
+        booking.status = True
+        booking.save()
+
+        messages.success(request, "Thanh toán thành công!")
+        return redirect('payment', booking_id=booking.booking_id, court_id=booking.court_id)  # Điều hướng đến trang chi tiết booking
+
+    return render(request, 'app1/payment.html', {
+        'booking': booking, 
+        'amount': amount,
+        'payment_accounts': payment_accounts
+    })
+
+def checkin(request):
+    context = {}
+
+    if request.method == "POST":
+        booking_id = request.POST.get("booking_id")
+
+        try:
+            # Kiểm tra mã đặt lịch trong bảng Payment
+            payment = Payment.objects.get(payment_id=booking_id)
+            booking = Booking.objects.get(booking_id=payment.booking_id)
+            customer = Customer.objects.get(customer_id=booking.customer_id)
+            user = User.objects.get(id=customer.user_id)
+
+            context["customer_name"] = user.first_name
+            context["court"] = booking.court.name
+        except (Payment.DoesNotExist, Booking.DoesNotExist, Customer.DoesNotExist, User.DoesNotExist):
+            context["error"] = "Mã đặt lịch không hợp lệ!"
+
+    return render(request, "app1/Check-in.html", context)
+
+
+
+@login_required
+def History(request):
+    user = request.user  
+
+    # Lấy Customer từ User
+    try:
+        customer = Customer.objects.get(user=user)
+    except Customer.DoesNotExist:
+        customer = None
+
+    # Nếu customer tồn tại, lấy danh sách booking đã thanh toán
+    if customer:
+        bookings = Booking.objects.filter(customer_id=customer.customer_id, payment__isnull=False)
+    else:
+        bookings = []
+
+    print("Danh sách booking của user:", bookings)
+
+    if request.method == "POST":
+        booking_id = request.POST.get("booking_id")
+        try:
+            booking = Booking.objects.get(booking_id=booking_id, customer_id=customer.customer_id)
+            booking.delete()
+            messages.success(request, "Đã hủy đặt sân thành công!")
+        except Booking.DoesNotExist:
+            messages.error(request, "Không tìm thấy đặt sân này!")
+
+        return redirect("History")  
+
+    return render(request, "app1/LichSuDatSan.html", {"bookings": bookings})
+
+
+
+    

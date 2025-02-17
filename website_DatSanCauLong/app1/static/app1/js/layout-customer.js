@@ -21,6 +21,6 @@ const loadHTML = (url, containerId, cssUrl) => {
 };
 
 // Gọi hàm loadHTML với file CSS tương ứng
-loadHTML("/header-customer/", "header-container", "/static/app1/css/Header-customer.css");
-loadHTML("/menu-customer/", "menu-container", "/static/app1/css/menu.css");
-loadHTML("/footer-customer/", "footer-container", "/static/app1/css/footer.css");
+loadHTML("/header-user/", "header-container", "/static/app1/css/Header-customer.css");
+loadHTML("/menu/", "menu-container", "/static/app1/css/menu.css");
+loadHTML("/footer/", "footer-container", "/static/app1/css/footer.css");

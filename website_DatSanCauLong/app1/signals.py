@@ -38,5 +38,3 @@ def handle_court_customer_creation(sender, instance, created, **kwargs):
     if created:
         customer_group, _ = Group.objects.get_or_create(name='Customer')
         instance.user.groups.add(customer_group)
-
-# Tesst user khi tạo có thêm đungs bảng vs group không
