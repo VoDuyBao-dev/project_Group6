@@ -39,7 +39,13 @@
         </div>
       </section>
     </main>
-
+    {% if messages %}
+      <div id="message-box" class="message success show">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
     <!-- Modal Chỉnh sửa -->
     <div id="editModal" class="modal">
       <div class="modal-content">

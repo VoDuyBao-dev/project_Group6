@@ -31,7 +31,7 @@
         </li>
         {% endif%}
         
-        {% if user_role == "customer"%}
+        {% if user_role == "staff" %}
         <li>
           <a href="{% url 'checkin' %}"><i class="fa-solid fa-check-to-slot"></i>Check-in</a>
         </li>

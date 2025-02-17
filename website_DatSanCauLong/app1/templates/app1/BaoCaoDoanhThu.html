@@ -1,4 +1,4 @@
-{% load static %}
+ {% load static %}
 <!DOCTYPE html>
 <html lang="vi">
   <head>
@@ -17,20 +17,13 @@
       <div class="container">
         <h1>Báo Cáo Doanh Thu</h1>
 
-        <!-- Chọn loại báo cáo -->
-        <div class="select-container">
-          <label for="report-type">Chọn loại báo cáo:</label>
-          <select id="report-type" onchange="generateReport()">
-            <option value="month">Theo Tháng</option>
-            <option value="quarter">Theo Quý</option>
-            <option value="year">Theo Năm</option>
-          </select>
-        </div>
 
-        <!-- Biểu đồ doanh thu -->
-        <canvas id="revenueChart" width="400" height="200"></canvas>
+        <div class="select-container">
+          <iframe title="Baocaodoanhthu" width="1000" height="500" src="https://app.powerbi.com/reportEmbed?reportId=36eac767-0cfe-4512-8d79-91bed1834995&autoAuth=true&embeddedDemo=true" frameborder="0" allowFullScreen="true"></iframe>
+        </div>  
+        
       </div>
     {% endblock %}
     {% include 'app1/Footer.html' %}
   </body>
-</html>
+</html> 

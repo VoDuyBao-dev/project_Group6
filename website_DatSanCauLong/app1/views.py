@@ -355,8 +355,6 @@ def San(request):
     }
     return render(request, 'app1/San.html', context)
 
-def bao_cao(request):
-    return render(request, 'app1/BaoCaoDoanhThu.html')
 
 def checkin(request):
     return render(request, 'app1/Chek-in.html')
@@ -1181,5 +1179,5 @@ def History(request):
     return render(request, "app1/LichSuDatSan.html", context)
 
 
-
-    
+def bao_cao(request):
+    return render(request, 'app1/BaoCaoDoanhThu.html')
