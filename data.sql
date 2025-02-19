@@ -8,8 +8,6 @@ INSERT INTO auth_group value
 (3, "Manager"),
 (2, "Court_staff");
 
-
-
 users_data = [
     {'username': 'customer1', 'password': 'p1', 'email': 'customer1@example.com', 'first_name': 'c1', 'last_name': 'One', 'is_staff': False, 'is_superuser': False},
     {'username': 'customer2', 'password': 'p2', 'email': 'customer2@example.com', 'first_name': 'c2', 'last_name': 'Two', 'is_staff': False, 'is_superuser': False},
