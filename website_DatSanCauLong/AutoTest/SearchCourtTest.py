@@ -64,20 +64,20 @@ class TestUserSearchCourt(unittest.TestCase):
         # Tìm nút nhập tìm kiếm sân
         search_court = driver.find_element(By.ID, "search_query")  
         # Nhập nội dung tìm kiếm: Đường
-        search_court.send_keys("đường A")
+        search_court.send_keys("Hanoi")
         time.sleep(1)
         search_court.send_keys(Keys.RETURN)
         time.sleep(3)
-        print("test tìm sân ở Đường A hoàn tất")
+        print("test tìm sân ở Hanoi hoàn tất")
 
         # Nhập nội dung tìm kiếm: Quận
         search_court = driver.find_element(By.ID, "search_query") 
         search_court.clear()
-        search_court.send_keys("quận J")
+        search_court.send_keys("Nguyen Trai")
         time.sleep(1)
         search_court.send_keys(Keys.RETURN)
         time.sleep(3)
-        print("test tìm sân ở quận hoàn tất")
+        print("test tìm sân ở Nguyen Trai hoàn tất")
 
         # Nhập nội dung tìm kiếm: Tìm 1 đường hoặc quận không có trong danh sách
         search_court = driver.find_element(By.ID, "search_query") 

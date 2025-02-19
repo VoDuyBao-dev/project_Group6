@@ -278,6 +278,7 @@ h6:hover {
 #about-us .about-image {
   flex: 1;
   max-width: 500px;
+  height: 300px;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
   border-radius: 15px;
   overflow: hidden;
@@ -286,6 +287,7 @@ h6:hover {
 #about-us .about-image img {
   width: 100%;
   object-fit: cover;
+  height: 70%;
   transition: transform 0.3s ease;
 }
 
